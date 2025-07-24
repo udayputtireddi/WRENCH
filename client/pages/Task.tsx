@@ -86,10 +86,10 @@ export default function Task() {
       {/* Header */}
       <header className="bg-slate-900 text-white shadow-lg">
         <div className="container mx-auto px-4 py-4 flex items-center">
-          <Link to={`/machine/${machineId}`} className="mr-4">
+          <Link to={backPath} className="mr-4">
             <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Machine
+              {backLabel}
             </Button>
           </Link>
           <div className="flex-1">
