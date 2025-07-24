@@ -236,7 +236,7 @@ export default function Tasks() {
                             <span className="capitalize">{task.frequency}</span>
                           </div>
                         </div>
-                        <Link to={`/machine/${task.machineId}/task/${task.id}`}>
+                        <Link to={`/machine/${task.machineId}/task/${task.id}?from=tasks`}>
                           <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
                             Start Task
                           </Button>
