@@ -10,6 +10,10 @@ import Home from "./pages/Home";
 import Scanner from "./pages/Scanner";
 import Machine from "./pages/Machine";
 import Task from "./pages/Task";
+import Tasks from "./pages/Tasks";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +29,10 @@ const App = () => (
           <Route path="/scan" element={<Scanner />} />
           <Route path="/machine/:machineId" element={<Machine />} />
           <Route path="/machine/:machineId/task/:taskId" element={<Task />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
