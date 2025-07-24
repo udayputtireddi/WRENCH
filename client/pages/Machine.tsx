@@ -43,8 +43,8 @@ export default function Machine() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/">
-              <Button className="w-full">Return Home</Button>
+            <Link to={backPath}>
+              <Button className="w-full">{backLabel}</Button>
             </Link>
           </CardContent>
         </Card>
