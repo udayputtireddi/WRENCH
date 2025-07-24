@@ -193,7 +193,7 @@ export default function Tasks() {
                             </p>
                           </div>
                         </div>
-                        <Link to={`/machine/${task.machineId}/task/${task.id}`}>
+                        <Link to={`/machine/${task.machineId}/task/${task.id}?from=tasks`}>
                           <Button className="bg-blue-600 hover:bg-blue-700">
                             Continue
                           </Button>
