@@ -249,7 +249,7 @@ export default function Machine() {
                   </div>
 
                   <div className="ml-6">
-                    <Link to={`/machine/${machine.id}/task/${task.id}`}>
+                    <Link to={`/machine/${machine.id}/task/${task.id}${searchParams.get('from') ? `?from=${searchParams.get('from')}` : ''}`}>
                       <Button
                         className={`${
                           task.status === "overdue"
