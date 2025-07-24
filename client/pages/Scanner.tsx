@@ -166,19 +166,19 @@ export default function Scanner() {
             <CardContent>
               <form onSubmit={handleManualSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="machineId">Machine ID</Label>
+                  <Label htmlFor="machineId" className="text-slate-300">Machine ID</Label>
                   <Input
                     id="machineId"
                     type="text"
                     placeholder="e.g., CAR-001, PUMP-05, etc."
                     value={manualId}
                     onChange={(e) => setManualId(e.target.value)}
-                    className="mt-1"
+                    className="mt-1 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={!manualId.trim()}
                 >
                   Access Machine
@@ -186,8 +186,8 @@ export default function Scanner() {
               </form>
 
               {/* Demo Machine IDs */}
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-semibold text-blue-800 mb-2">
+              <div className="mt-6 p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg">
+                <h4 className="font-semibold text-white mb-2">
                   Demo Machine IDs:
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export default function Scanner() {
                       variant="outline"
                       size="sm"
                       onClick={() => setManualId(id)}
-                      className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                      className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
                     >
                       {id}
                     </Button>
