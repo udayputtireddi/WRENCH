@@ -231,7 +231,7 @@ export default function Task() {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => navigate(`/machine/${machineId}`)}
+                onClick={() => navigate(backPath)}
               >
                 <Save className="h-4 w-4 mr-2" />
                 Save Progress
