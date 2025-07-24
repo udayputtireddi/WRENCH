@@ -46,10 +46,17 @@ export default function Task() {
   );
 
   // Determine the back path based on referrer
-  const backPath =
-    searchParams.get("from") === "tasks" ? "/tasks" : `/machine/${machineId}`;
-  const backLabel =
-    searchParams.get("from") === "tasks" ? "Back to Tasks" : "Back to Machine";
+  const fromParam = searchParams.get("from");
+  let backPath = `/machine/${machineId}`;
+  let backLabel = "Back to Machine";
+
+  if (fromParam === "tasks") {
+    backPath = "/tasks";
+    backLabel = "Back to Tasks";
+  } else if (fromParam === "scan") {
+    backPath = `/machine/${machineId}?from=scan`;
+    backLabel = "Back to Machine";
+  }
 
   if (!task || !machineId || !taskId) {
     return (
