@@ -74,9 +74,9 @@ export default function Task() {
         duration: 3000,
       });
       
-      // Navigate back to machine after a short delay
+      // Navigate back to previous page after a short delay
       setTimeout(() => {
-        navigate(`/machine/${machineId}`);
+        navigate(backPath);
       }, 2000);
     }
   };
