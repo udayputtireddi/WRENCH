@@ -1,27 +1,55 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Clock, Calendar, CheckCircle2, AlertCircle, Camera, Save } from "lucide-react";
-import { getTask, updateChecklistItem, getTaskStatusColor } from "@/lib/mockData";
+import {
+  ArrowLeft,
+  Clock,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  Camera,
+  Save,
+} from "lucide-react";
+import {
+  getTask,
+  updateChecklistItem,
+  getTaskStatusColor,
+} from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Task() {
-  const { machineId, taskId } = useParams<{ machineId: string; taskId: string }>();
+  const { machineId, taskId } = useParams<{
+    machineId: string;
+    taskId: string;
+  }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [task, setTask] = useState(() =>
-    machineId && taskId ? getTask(machineId, taskId) : undefined
+    machineId && taskId ? getTask(machineId, taskId) : undefined,
   );
 
   // Determine the back path based on referrer
-  const backPath = searchParams.get('from') === 'tasks' ? '/tasks' : `/machine/${machineId}`;
-  const backLabel = searchParams.get('from') === 'tasks' ? 'Back to Tasks' : 'Back to Machine';
+  const backPath =
+    searchParams.get("from") === "tasks" ? "/tasks" : `/machine/${machineId}`;
+  const backLabel =
+    searchParams.get("from") === "tasks" ? "Back to Tasks" : "Back to Machine";
 
   if (!task || !machineId || !taskId) {
     return (
@@ -43,24 +71,27 @@ export default function Task() {
     );
   }
 
-  const completedItems = task.checklist.filter(item => item.completed).length;
+  const completedItems = task.checklist.filter((item) => item.completed).length;
   const totalItems = task.checklist.length;
-  const requiredItems = task.checklist.filter(item => item.required);
-  const completedRequired = requiredItems.filter(item => item.completed).length;
-  const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+  const requiredItems = task.checklist.filter((item) => item.required);
+  const completedRequired = requiredItems.filter(
+    (item) => item.completed,
+  ).length;
+  const progressPercentage =
+    totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
   const canCompleteTask = completedRequired === requiredItems.length;
 
   const handleChecklistChange = (itemId: string, checked: boolean) => {
     updateChecklistItem(machineId, taskId, itemId, checked);
-    
+
     // Update local state to trigger re-render
     const updatedTask = getTask(machineId, taskId);
     if (updatedTask) {
       setTask({ ...updatedTask });
-      
+
       toast({
         title: checked ? "Item completed" : "Item unchecked",
-        description: `Checklist item ${checked ? 'marked as complete' : 'unmarked'}`,
+        description: `Checklist item ${checked ? "marked as complete" : "unmarked"}`,
         duration: 2000,
       });
     }
@@ -73,7 +104,7 @@ export default function Task() {
         description: `${task.name} has been successfully completed.`,
         duration: 3000,
       });
-      
+
       // Navigate back to previous page after a short delay
       setTimeout(() => {
         navigate(backPath);
@@ -87,7 +118,11 @@ export default function Task() {
       <header className="bg-slate-900 text-white shadow-lg">
         <div className="container mx-auto px-4 py-4 flex items-center">
           <Link to={backPath} className="mr-4">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-slate-700"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {backLabel}
             </Button>
@@ -97,7 +132,7 @@ export default function Task() {
             <p className="text-slate-300">Machine: {machineId}</p>
           </div>
           <Badge className={`${getTaskStatusColor(task.status)} capitalize`}>
-            {task.status.replace('-', ' ')}
+            {task.status.replace("-", " ")}
           </Badge>
         </div>
       </header>
@@ -108,7 +143,9 @@ export default function Task() {
           <CardHeader>
             <CardTitle>Task Overview</CardTitle>
             {task.description && (
-              <CardDescription className="text-base">{task.description}</CardDescription>
+              <CardDescription className="text-base">
+                {task.description}
+              </CardDescription>
             )}
           </CardHeader>
           <CardContent>
@@ -117,18 +154,22 @@ export default function Task() {
                 <Clock className="h-5 w-5 text-slate-500" />
                 <div>
                   <p className="font-semibold text-slate-800">Estimated Time</p>
-                  <p className="text-slate-600">~{task.estimatedTime} minutes</p>
+                  <p className="text-slate-600">
+                    ~{task.estimatedTime} minutes
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <Calendar className="h-5 w-5 text-slate-500" />
                 <div>
                   <p className="font-semibold text-slate-800">Due Date</p>
-                  <p className="text-slate-600">{task.nextDue.toLocaleDateString()}</p>
+                  <p className="text-slate-600">
+                    {task.nextDue.toLocaleDateString()}
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-slate-500" />
                 <div>
@@ -149,10 +190,15 @@ export default function Task() {
                 </span>
               </div>
               <Progress value={progressPercentage} className="h-3" />
-              
+
               <div className="flex justify-between text-xs text-slate-500">
-                <span>Required items: {completedRequired}/{requiredItems.length}</span>
-                <span>Optional items: {completedItems - completedRequired}/{totalItems - requiredItems.length}</span>
+                <span>
+                  Required items: {completedRequired}/{requiredItems.length}
+                </span>
+                <span>
+                  Optional items: {completedItems - completedRequired}/
+                  {totalItems - requiredItems.length}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -166,7 +212,8 @@ export default function Task() {
               Task Checklist
             </CardTitle>
             <CardDescription>
-              Complete all required items to finish this task. Optional items help ensure thorough maintenance.
+              Complete all required items to finish this task. Optional items
+              help ensure thorough maintenance.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -177,19 +224,19 @@ export default function Task() {
                     <Checkbox
                       id={item.id}
                       checked={item.completed}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleChecklistChange(item.id, checked as boolean)
                       }
                       className="mt-1"
                     />
-                    
+
                     <div className="flex-1">
-                      <label 
+                      <label
                         htmlFor={item.id}
                         className={`cursor-pointer block ${
-                          item.completed 
-                            ? 'text-slate-500 line-through' 
-                            : 'text-slate-800'
+                          item.completed
+                            ? "text-slate-500 line-through"
+                            : "text-slate-800"
                         }`}
                       >
                         <span className="font-medium">
@@ -207,7 +254,7 @@ export default function Task() {
                         )}
                       </label>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
@@ -218,7 +265,7 @@ export default function Task() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {index < task.checklist.length - 1 && (
                     <Separator className="my-2" />
                   )}
@@ -236,21 +283,23 @@ export default function Task() {
                 <Save className="h-4 w-4 mr-2" />
                 Save Progress
               </Button>
-              
+
               <Button
                 className={`flex-1 ${
-                  canCompleteTask 
-                    ? 'bg-green-600 hover:bg-green-700' 
-                    : 'bg-slate-400 cursor-not-allowed'
+                  canCompleteTask
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-slate-400 cursor-not-allowed"
                 }`}
                 disabled={!canCompleteTask}
                 onClick={handleCompleteTask}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                {canCompleteTask ? 'Complete Task' : `Complete ${requiredItems.length - completedRequired} more required items`}
+                {canCompleteTask
+                  ? "Complete Task"
+                  : `Complete ${requiredItems.length - completedRequired} more required items`}
               </Button>
             </div>
-            
+
             {!canCompleteTask && (
               <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-center gap-2 text-amber-800">
@@ -260,7 +309,8 @@ export default function Task() {
                   </span>
                 </div>
                 <p className="text-amber-700 text-sm mt-1">
-                  {requiredItems.length - completedRequired} required item(s) remaining
+                  {requiredItems.length - completedRequired} required item(s)
+                  remaining
                 </p>
               </div>
             )}

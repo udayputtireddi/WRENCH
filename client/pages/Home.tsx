@@ -1,7 +1,22 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Settings, BarChart3, CheckSquare, Shield, Zap, Clock, Activity } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  QrCode,
+  Settings,
+  BarChart3,
+  CheckSquare,
+  Shield,
+  Zap,
+  Clock,
+  Activity,
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -28,7 +43,10 @@ export default function Home() {
             </div>
             <div className="flex-1 flex justify-end">
               <Link to="/admin" className="animate-fadeInRight">
-                <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Button
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
                   <Shield className="h-4 w-4 mr-2" />
                   Admin
                 </Button>
@@ -49,14 +67,17 @@ export default function Home() {
             </h2>
           </div>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Transform your workflow with intelligent task management, real-time tracking,
-            and seamless digital integration.
+            Transform your workflow with intelligent task management, real-time
+            tracking, and seamless digital integration.
           </p>
         </div>
 
         {/* Quick Action Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          <Card className="group bg-gradient-to-br from-blue-600 to-blue-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/25 animate-slideInUp" style={{animationDelay: "0.1s"}}>
+          <Card
+            className="group bg-gradient-to-br from-blue-600 to-blue-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/25 animate-slideInUp"
+            style={{ animationDelay: "0.1s" }}
+          >
             <CardHeader className="text-center">
               <div className="relative">
                 <QrCode className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
@@ -77,7 +98,10 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="group bg-gradient-to-br from-green-600 to-emerald-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/25 animate-slideInUp" style={{animationDelay: "0.2s"}}>
+          <Card
+            className="group bg-gradient-to-br from-green-600 to-emerald-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/25 animate-slideInUp"
+            style={{ animationDelay: "0.2s" }}
+          >
             <CardHeader className="text-center">
               <div className="relative">
                 <CheckSquare className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
@@ -98,7 +122,10 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="group bg-gradient-to-br from-orange-600 to-amber-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/25 animate-slideInUp" style={{animationDelay: "0.3s"}}>
+          <Card
+            className="group bg-gradient-to-br from-orange-600 to-amber-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/25 animate-slideInUp"
+            style={{ animationDelay: "0.3s" }}
+          >
             <CardHeader className="text-center">
               <div className="relative">
                 <BarChart3 className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
@@ -119,7 +146,10 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="group bg-gradient-to-br from-purple-600 to-violet-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 animate-slideInUp" style={{animationDelay: "0.4s"}}>
+          <Card
+            className="group bg-gradient-to-br from-purple-600 to-violet-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 animate-slideInUp"
+            style={{ animationDelay: "0.4s" }}
+          >
             <CardHeader className="text-center">
               <div className="relative">
                 <Settings className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
@@ -143,33 +173,51 @@ export default function Home() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp" style={{animationDelay: "0.5s"}}>
+          <div
+            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp"
+            style={{ animationDelay: "0.5s" }}
+          >
             <div className="text-3xl font-bold text-blue-400 mb-2">12</div>
             <div className="text-slate-300 text-sm">Active Machines</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp" style={{animationDelay: "0.6s"}}>
+          <div
+            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp"
+            style={{ animationDelay: "0.6s" }}
+          >
             <div className="text-3xl font-bold text-green-400 mb-2">8</div>
             <div className="text-slate-300 text-sm">Tasks Completed</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp" style={{animationDelay: "0.7s"}}>
+          <div
+            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp"
+            style={{ animationDelay: "0.7s" }}
+          >
             <div className="text-3xl font-bold text-orange-400 mb-2">3</div>
             <div className="text-slate-300 text-sm">Pending Tasks</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp" style={{animationDelay: "0.8s"}}>
+          <div
+            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-700/50 animate-fadeInUp"
+            style={{ animationDelay: "0.8s" }}
+          >
             <div className="text-3xl font-bold text-purple-400 mb-2">96%</div>
             <div className="text-slate-300 text-sm">Efficiency Rate</div>
           </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 animate-fadeInUp" style={{animationDelay: "0.9s"}}>
+        <div
+          className="grid md:grid-cols-3 gap-8 animate-fadeInUp"
+          style={{ animationDelay: "0.9s" }}
+        >
           <div className="group bg-slate-800/30 backdrop-blur-sm rounded-xl p-8 border border-slate-700/50 hover:border-blue-500/50 transition-all duration-300">
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
               <QrCode className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Smart Recognition</h3>
+            <h3 className="text-xl font-semibold text-white mb-3">
+              Smart Recognition
+            </h3>
             <p className="text-slate-400 leading-relaxed">
-              Advanced QR scanning with instant machine identification and context-aware task loading.
+              Advanced QR scanning with instant machine identification and
+              context-aware task loading.
             </p>
           </div>
 
@@ -177,9 +225,12 @@ export default function Home() {
             <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-3 w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
               <Clock className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Real-time Sync</h3>
+            <h3 className="text-xl font-semibold text-white mb-3">
+              Real-time Sync
+            </h3>
             <p className="text-slate-400 leading-relaxed">
-              Instant updates across all devices with seamless data synchronization and offline support.
+              Instant updates across all devices with seamless data
+              synchronization and offline support.
             </p>
           </div>
 
@@ -187,9 +238,12 @@ export default function Home() {
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-3 w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
               <Activity className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Advanced Analytics</h3>
+            <h3 className="text-xl font-semibold text-white mb-3">
+              Advanced Analytics
+            </h3>
             <p className="text-slate-400 leading-relaxed">
-              Comprehensive insights with predictive maintenance and performance optimization.
+              Comprehensive insights with predictive maintenance and performance
+              optimization.
             </p>
           </div>
         </div>

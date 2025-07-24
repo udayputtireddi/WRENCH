@@ -1,13 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Settings, Bell, Shield, Database, Smartphone, Save, User } from "lucide-react";
+import {
+  ArrowLeft,
+  Settings,
+  Bell,
+  Shield,
+  Database,
+  Smartphone,
+  Save,
+  User,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
@@ -21,19 +42,19 @@ export default function Settings() {
       completionNotifications: true,
     },
     appearance: {
-      theme: 'dark',
-      language: 'en',
+      theme: "dark",
+      language: "en",
     },
     system: {
       autoBackup: true,
-      dataRetention: '90',
-      defaultTaskDuration: '30',
+      dataRetention: "90",
+      defaultTaskDuration: "30",
     },
     profile: {
-      name: 'System Administrator',
-      email: 'admin@taskflow.com',
-      role: 'admin',
-    }
+      name: "System Administrator",
+      email: "admin@taskflow.com",
+      role: "admin",
+    },
   });
 
   const handleSave = () => {
@@ -45,12 +66,12 @@ export default function Settings() {
   };
 
   const updateSetting = (category: string, key: string, value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       [category]: {
         ...prev[category as keyof typeof prev],
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
   };
 
@@ -61,14 +82,20 @@ export default function Settings() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center">
             <Link to="/" className="mr-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-white">Settings</h1>
-              <p className="text-purple-100">System configuration and preferences</p>
+              <p className="text-purple-100">
+                System configuration and preferences
+              </p>
             </div>
           </div>
         </div>
@@ -90,28 +117,43 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name" className="text-slate-300">Full Name</Label>
+                  <Label htmlFor="name" className="text-slate-300">
+                    Full Name
+                  </Label>
                   <Input
                     id="name"
                     value={settings.profile.name}
-                    onChange={(e) => updateSetting('profile', 'name', e.target.value)}
+                    onChange={(e) =>
+                      updateSetting("profile", "name", e.target.value)
+                    }
                     className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-slate-300">Email Address</Label>
+                  <Label htmlFor="email" className="text-slate-300">
+                    Email Address
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={settings.profile.email}
-                    onChange={(e) => updateSetting('profile', 'email', e.target.value)}
+                    onChange={(e) =>
+                      updateSetting("profile", "email", e.target.value)
+                    }
                     className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="role" className="text-slate-300">Role</Label>
-                <Select value={settings.profile.role} onValueChange={(value) => updateSetting('profile', 'role', value)}>
+                <Label htmlFor="role" className="text-slate-300">
+                  Role
+                </Label>
+                <Select
+                  value={settings.profile.role}
+                  onValueChange={(value) =>
+                    updateSetting("profile", "role", value)
+                  }
+                >
                   <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
                     <SelectValue />
                   </SelectTrigger>
@@ -138,36 +180,54 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h4 className="text-white font-medium">Notification Channels</h4>
+                <h4 className="text-white font-medium">
+                  Notification Channels
+                </h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-slate-300">Email Notifications</Label>
-                      <p className="text-sm text-slate-400">Receive notifications via email</p>
+                      <Label className="text-slate-300">
+                        Email Notifications
+                      </Label>
+                      <p className="text-sm text-slate-400">
+                        Receive notifications via email
+                      </p>
                     </div>
                     <Switch
                       checked={settings.notifications.email}
-                      onCheckedChange={(checked) => updateSetting('notifications', 'email', checked)}
+                      onCheckedChange={(checked) =>
+                        updateSetting("notifications", "email", checked)
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-slate-300">Push Notifications</Label>
-                      <p className="text-sm text-slate-400">Browser push notifications</p>
+                      <Label className="text-slate-300">
+                        Push Notifications
+                      </Label>
+                      <p className="text-sm text-slate-400">
+                        Browser push notifications
+                      </p>
                     </div>
                     <Switch
                       checked={settings.notifications.push}
-                      onCheckedChange={(checked) => updateSetting('notifications', 'push', checked)}
+                      onCheckedChange={(checked) =>
+                        updateSetting("notifications", "push", checked)
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-slate-300">SMS Alerts</Label>
-                      <p className="text-sm text-slate-400">Critical alerts via SMS</p>
+                      <p className="text-sm text-slate-400">
+                        Critical alerts via SMS
+                      </p>
                     </div>
                     <Switch
                       checked={settings.notifications.sms}
-                      onCheckedChange={(checked) => updateSetting('notifications', 'sms', checked)}
+                      onCheckedChange={(checked) =>
+                        updateSetting("notifications", "sms", checked)
+                      }
                     />
                   </div>
                 </div>
@@ -180,22 +240,42 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-slate-300">Overdue Task Reminders</Label>
-                      <p className="text-sm text-slate-400">Alerts for overdue maintenance tasks</p>
+                      <Label className="text-slate-300">
+                        Overdue Task Reminders
+                      </Label>
+                      <p className="text-sm text-slate-400">
+                        Alerts for overdue maintenance tasks
+                      </p>
                     </div>
                     <Switch
                       checked={settings.notifications.overdueReminders}
-                      onCheckedChange={(checked) => updateSetting('notifications', 'overdueReminders', checked)}
+                      onCheckedChange={(checked) =>
+                        updateSetting(
+                          "notifications",
+                          "overdueReminders",
+                          checked,
+                        )
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-slate-300">Task Completion Notifications</Label>
-                      <p className="text-sm text-slate-400">Notifications when tasks are completed</p>
+                      <Label className="text-slate-300">
+                        Task Completion Notifications
+                      </Label>
+                      <p className="text-sm text-slate-400">
+                        Notifications when tasks are completed
+                      </p>
                     </div>
                     <Switch
                       checked={settings.notifications.completionNotifications}
-                      onCheckedChange={(checked) => updateSetting('notifications', 'completionNotifications', checked)}
+                      onCheckedChange={(checked) =>
+                        updateSetting(
+                          "notifications",
+                          "completionNotifications",
+                          checked,
+                        )
+                      }
                     />
                   </div>
                 </div>
@@ -217,8 +297,15 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="theme" className="text-slate-300">Theme</Label>
-                  <Select value={settings.appearance.theme} onValueChange={(value) => updateSetting('appearance', 'theme', value)}>
+                  <Label htmlFor="theme" className="text-slate-300">
+                    Theme
+                  </Label>
+                  <Select
+                    value={settings.appearance.theme}
+                    onValueChange={(value) =>
+                      updateSetting("appearance", "theme", value)
+                    }
+                  >
                     <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -230,8 +317,15 @@ export default function Settings() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="language" className="text-slate-300">Language</Label>
-                  <Select value={settings.appearance.language} onValueChange={(value) => updateSetting('appearance', 'language', value)}>
+                  <Label htmlFor="language" className="text-slate-300">
+                    Language
+                  </Label>
+                  <Select
+                    value={settings.appearance.language}
+                    onValueChange={(value) =>
+                      updateSetting("appearance", "language", value)
+                    }
+                  >
                     <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -262,32 +356,48 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-slate-300">Automatic Backup</Label>
-                  <p className="text-sm text-slate-400">Daily backup of all task data</p>
+                  <p className="text-sm text-slate-400">
+                    Daily backup of all task data
+                  </p>
                 </div>
                 <Switch
                   checked={settings.system.autoBackup}
-                  onCheckedChange={(checked) => updateSetting('system', 'autoBackup', checked)}
+                  onCheckedChange={(checked) =>
+                    updateSetting("system", "autoBackup", checked)
+                  }
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="retention" className="text-slate-300">Data Retention (days)</Label>
+                  <Label htmlFor="retention" className="text-slate-300">
+                    Data Retention (days)
+                  </Label>
                   <Input
                     id="retention"
                     type="number"
                     value={settings.system.dataRetention}
-                    onChange={(e) => updateSetting('system', 'dataRetention', e.target.value)}
+                    onChange={(e) =>
+                      updateSetting("system", "dataRetention", e.target.value)
+                    }
                     className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="duration" className="text-slate-300">Default Task Duration (minutes)</Label>
+                  <Label htmlFor="duration" className="text-slate-300">
+                    Default Task Duration (minutes)
+                  </Label>
                   <Input
                     id="duration"
                     type="number"
                     value={settings.system.defaultTaskDuration}
-                    onChange={(e) => updateSetting('system', 'defaultTaskDuration', e.target.value)}
+                    onChange={(e) =>
+                      updateSetting(
+                        "system",
+                        "defaultTaskDuration",
+                        e.target.value,
+                      )
+                    }
                     className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
@@ -307,13 +417,22 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+              <Button
+                variant="outline"
+                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+              >
                 Change Password
               </Button>
-              <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+              <Button
+                variant="outline"
+                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+              >
                 Enable Two-Factor Authentication
               </Button>
-              <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+              <Button
+                variant="outline"
+                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+              >
                 View Security Log
               </Button>
             </CardContent>
@@ -321,7 +440,10 @@ export default function Settings() {
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
+            <Button
+              onClick={handleSave}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
               <Save className="h-4 w-4 mr-2" />
               Save Settings
             </Button>
