@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Industrial theme colors
+        industrial: {
+          blue: "#2563eb",
+          steel: "#475569",
+          orange: "#ea580c",
+          green: "#16a34a",
+          red: "#dc2626",
+          yellow: "#ca8a04",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
