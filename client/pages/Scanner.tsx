@@ -89,13 +89,13 @@ export default function Scanner() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Scanner Section */}
-          <Card className="mb-8">
+          <Card className="mb-8 bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2">
+              <CardTitle className="text-white flex items-center justify-center gap-2">
                 <Camera className="h-6 w-6" />
                 QR Code Scanner
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-400">
                 Point your camera at the QR code attached to the machine
               </CardDescription>
             </CardHeader>
