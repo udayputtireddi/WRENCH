@@ -67,21 +67,22 @@ export default function Scanner() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="bg-slate-900 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <Link to="/" className="mr-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-slate-700"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold">Scan Machine</h1>
+      <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center">
+            <Link to="/" className="mr-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Scan Machine</h1>
+              <p className="text-blue-100">Identify machines via QR code scanning</p>
+            </div>
+          </div>
         </div>
       </header>
 
