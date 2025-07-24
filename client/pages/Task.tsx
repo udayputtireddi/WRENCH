@@ -34,8 +34,8 @@ export default function Task() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to={`/machine/${machineId}`}>
-              <Button className="w-full">Back to Machine</Button>
+            <Link to={backPath}>
+              <Button className="w-full">{backLabel}</Button>
             </Link>
           </CardContent>
         </Card>
