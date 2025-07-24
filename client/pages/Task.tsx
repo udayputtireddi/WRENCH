@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,11 +12,16 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Task() {
   const { machineId, taskId } = useParams<{ machineId: string; taskId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [task, setTask] = useState(() => 
+  const [task, setTask] = useState(() =>
     machineId && taskId ? getTask(machineId, taskId) : undefined
   );
+
+  // Determine the back path based on referrer
+  const backPath = searchParams.get('from') === 'tasks' ? '/tasks' : `/machine/${machineId}`;
+  const backLabel = searchParams.get('from') === 'tasks' ? 'Back to Tasks' : 'Back to Machine';
 
   if (!task || !machineId || !taskId) {
     return (
