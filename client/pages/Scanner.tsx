@@ -153,13 +153,13 @@ export default function Scanner() {
           </Card>
 
           {/* Manual Entry Section */}
-          <Card>
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2">
+              <CardTitle className="text-white flex items-center justify-center gap-2">
                 <Hash className="h-6 w-6" />
                 Manual Entry
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-400">
                 Enter machine ID manually if QR scanning is not available
               </CardDescription>
             </CardHeader>
