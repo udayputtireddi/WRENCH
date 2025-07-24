@@ -50,14 +50,14 @@ export default function Scanner() {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (manualId.trim()) {
-      navigate(`/machine/${manualId.trim()}`);
+      navigate(`/machine/${manualId.trim()}?from=scan`);
     }
   };
 
   // Simulate QR code detection (in real app, would use html5-qrcode library)
   const simulateQRScan = (machineId: string) => {
     stopScanner();
-    navigate(`/machine/${machineId}`);
+    navigate(`/machine/${machineId}?from=scan`);
   };
 
   useEffect(() => {
