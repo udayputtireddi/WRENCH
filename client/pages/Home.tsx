@@ -9,18 +9,31 @@ export default function Home() {
       {/* Header */}
       <header className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="container mx-auto px-4 py-8 relative">
+        <div className="container mx-auto px-4 py-12 relative">
           <div className="flex items-center justify-between">
-            <div className="animate-fadeInLeft">
-              <h1 className="text-4xl font-bold text-white mb-2">TaskFlow</h1>
-              <p className="text-blue-100">Smart Maintenance Management</p>
+            <div className="flex-1"></div>
+            <div className="text-center animate-fadeInUp">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10 blur-2xl rounded-full"></div>
+                <h1 className="relative text-6xl font-black text-white mb-3 tracking-wider">
+                  Check<span className="text-green-400">Mate</span>
+                </h1>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-300/20 to-green-300/20 blur-lg rounded-full"></div>
+                <p className="relative text-blue-100 text-lg font-medium tracking-wide uppercase">
+                  Smart Maintenance Management
+                </p>
+              </div>
             </div>
-            <Link to="/admin" className="animate-fadeInRight">
-              <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <Shield className="h-4 w-4 mr-2" />
-                Admin
-              </Button>
-            </Link>
+            <div className="flex-1 flex justify-end">
+              <Link to="/admin" className="animate-fadeInRight">
+                <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Admin
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
