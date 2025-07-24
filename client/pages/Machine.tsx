@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,7 +25,12 @@ import {
 
 export default function Machine() {
   const { machineId } = useParams<{ machineId: string }>();
+  const [searchParams] = useSearchParams();
   const machine = machineId ? getMachine(machineId) : undefined;
+
+  // Determine the back path based on referrer
+  const backPath = searchParams.get('from') === 'scan' ? '/scan' : '/';
+  const backLabel = searchParams.get('from') === 'scan' ? 'Back to Scanner' : 'Back to Home';
 
   if (!machine) {
     return (
