@@ -54,11 +54,7 @@ export default function Scanner() {
     }
   };
 
-  // Simulate QR code detection (in real app, would use html5-qrcode library)
-  const simulateQRScan = (machineId: string) => {
-    stopScanner();
-    navigate(`/machine/${machineId}?from=scan`);
-  };
+
 
   useEffect(() => {
     return () => {
