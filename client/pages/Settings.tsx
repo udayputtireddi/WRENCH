@@ -159,8 +159,7 @@ export default function Settings() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="admin">Administrator</SelectItem>
-                    <SelectItem value="supervisor">Supervisor</SelectItem>
-                    <SelectItem value="technician">Technician</SelectItem>
+                    <SelectItem value="user">Operator</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
