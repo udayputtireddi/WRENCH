@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Shield, Eye } from 'lucide-react';
+import { User, Shield } from 'lucide-react';
 import AuthService, { UserRole } from '@/lib/auth';
 import { downloadTrumpfExcelFile } from '@/lib/trumpfExcelData';
 
