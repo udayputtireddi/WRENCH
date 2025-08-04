@@ -19,11 +19,21 @@ export default function AdminDatabase() {
 
   // Load sample data for demonstration
   const loadSampleData = () => {
-    const sampleTasks = ExcelParser.parseExcelToTasks(sampleTrumpfTasks);
-    setTasks(sampleTasks);
+    const trumpfTasks = convertExcelToDatabase();
+    setTasks(trumpfTasks as any);
     toast({
-      title: "Sample Data Loaded",
-      description: `Loaded ${sampleTasks.length} tasks from Trumpf 5000 Punch maintenance sheet.`,
+      title: "Trumpf Data Loaded",
+      description: `Loaded ${trumpfTasks.length} tasks from Trumpf 5000 Punch maintenance sheet.`,
+      duration: 3000,
+    });
+  };
+
+  // Download the Excel template
+  const downloadExcelTemplate = () => {
+    downloadTrumpfExcelFile();
+    toast({
+      title: "Excel File Downloaded",
+      description: "Trumpf 5000 Punch maintenance tasks downloaded as CSV file.",
       duration: 3000,
     });
   };
