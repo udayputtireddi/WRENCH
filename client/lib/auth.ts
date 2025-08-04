@@ -32,9 +32,9 @@ export const systemUsers: User[] = [
 class AuthService {
   private static currentUser: User | null = null;
 
-  // Simulate login
+  // User login
   static login(email: string): User | null {
-    const user = mockUsers.find(u => u.email === email);
+    const user = systemUsers.find(u => u.email === email);
     if (user) {
       this.currentUser = user;
       localStorage.setItem('currentUser', JSON.stringify(user));
