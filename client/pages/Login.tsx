@@ -1,10 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Shield } from 'lucide-react';
-import AuthService, { UserRole } from '@/lib/auth';
-import { downloadTrumpfExcelFile } from '@/lib/trumpfExcelData';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { User, Shield } from "lucide-react";
+import AuthService, { UserRole } from "@/lib/auth";
+import { downloadTrumpfExcelFile } from "@/lib/trumpfExcelData";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,7 +18,7 @@ export default function Login() {
 
   const handleRoleLogin = (role: UserRole) => {
     AuthService.quickLogin(role);
-    navigate('/');
+    navigate("/");
   };
 
   const handleDownloadExcel = () => {
@@ -26,28 +32,34 @@ export default function Login() {
           <h1 className="text-6xl font-black text-white mb-4 tracking-wider">
             Check<span className="text-green-400">Mate</span>
           </h1>
-          <p className="text-slate-300 text-xl">Smart Maintenance Management System</p>
+          <p className="text-slate-300 text-xl">
+            Smart Maintenance Management System
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 max-w-3xl mx-auto mb-8">
           {/* Operator Login */}
           <Card
             className={`cursor-pointer transition-all duration-300 border-2 hover:scale-105 ${
-              selectedRole === 'user'
-                ? 'bg-gradient-to-br from-blue-600 to-blue-700 border-blue-400'
-                : 'bg-slate-800/50 border-slate-700/50 hover:border-blue-500/50'
+              selectedRole === "user"
+                ? "bg-gradient-to-br from-blue-600 to-blue-700 border-blue-400"
+                : "bg-slate-800/50 border-slate-700/50 hover:border-blue-500/50"
             }`}
-            onClick={() => setSelectedRole('user')}
+            onClick={() => setSelectedRole("user")}
           >
             <CardHeader className="text-center">
-              <User className={`h-16 w-16 mx-auto mb-6 ${selectedRole === 'user' ? 'text-white' : 'text-blue-400'}`} />
-              <CardTitle className={`text-2xl ${selectedRole === 'user' ? 'text-white' : 'text-white'}`}>
+              <User
+                className={`h-16 w-16 mx-auto mb-6 ${selectedRole === "user" ? "text-white" : "text-blue-400"}`}
+              />
+              <CardTitle
+                className={`text-2xl ${selectedRole === "user" ? "text-white" : "text-white"}`}
+              >
                 Operator
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <Button
-                onClick={() => handleRoleLogin('user')}
+                onClick={() => handleRoleLogin("user")}
                 className="w-full py-6 text-lg bg-white text-blue-700 hover:bg-blue-50"
               >
                 Login as Operator
@@ -58,21 +70,25 @@ export default function Login() {
           {/* Admin Login */}
           <Card
             className={`cursor-pointer transition-all duration-300 border-2 hover:scale-105 ${
-              selectedRole === 'admin'
-                ? 'bg-gradient-to-br from-purple-600 to-purple-700 border-purple-400'
-                : 'bg-slate-800/50 border-slate-700/50 hover:border-purple-500/50'
+              selectedRole === "admin"
+                ? "bg-gradient-to-br from-purple-600 to-purple-700 border-purple-400"
+                : "bg-slate-800/50 border-slate-700/50 hover:border-purple-500/50"
             }`}
-            onClick={() => setSelectedRole('admin')}
+            onClick={() => setSelectedRole("admin")}
           >
             <CardHeader className="text-center">
-              <Shield className={`h-16 w-16 mx-auto mb-6 ${selectedRole === 'admin' ? 'text-white' : 'text-purple-400'}`} />
-              <CardTitle className={`text-2xl ${selectedRole === 'admin' ? 'text-white' : 'text-white'}`}>
+              <Shield
+                className={`h-16 w-16 mx-auto mb-6 ${selectedRole === "admin" ? "text-white" : "text-purple-400"}`}
+              />
+              <CardTitle
+                className={`text-2xl ${selectedRole === "admin" ? "text-white" : "text-white"}`}
+              >
                 Administrator
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <Button
-                onClick={() => handleRoleLogin('admin')}
+                onClick={() => handleRoleLogin("admin")}
                 className="w-full py-6 text-lg bg-white text-purple-700 hover:bg-purple-50"
               >
                 Login as Admin

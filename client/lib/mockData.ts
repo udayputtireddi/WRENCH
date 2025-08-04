@@ -366,15 +366,15 @@ export const updateChecklistItem = (
         task.lastCompleted = new Date();
 
         // Calculate next due date based on frequency
-        if (task.frequency === 'daily') {
+        if (task.frequency === "daily") {
           const nextDue = new Date();
           nextDue.setDate(nextDue.getDate() + 1);
           task.nextDue = nextDue;
-        } else if (task.frequency === 'weekly') {
+        } else if (task.frequency === "weekly") {
           const nextDue = new Date();
           nextDue.setDate(nextDue.getDate() + 7);
           task.nextDue = nextDue;
-        } else if (task.frequency === 'monthly') {
+        } else if (task.frequency === "monthly") {
           const nextDue = new Date();
           nextDue.setMonth(nextDue.getMonth() + 1);
           task.nextDue = nextDue;
@@ -415,7 +415,12 @@ export const getMachineStatusColor = (status: Machine["status"]) => {
 };
 
 // Helper function to create completion record for database integration
-export const createTaskCompletion = (taskId: string, userId: string, userName: string, machineId: string): void => {
+export const createTaskCompletion = (
+  taskId: string,
+  userId: string,
+  userName: string,
+  machineId: string,
+): void => {
   const now = new Date();
   const completionRecord = {
     taskId,
@@ -423,7 +428,7 @@ export const createTaskCompletion = (taskId: string, userId: string, userName: s
     userId,
     userName,
     completedDate: now.toISOString(),
-    timestamp: now.getTime()
+    timestamp: now.getTime(),
   };
 
   // In a real system, this would:
@@ -433,10 +438,12 @@ export const createTaskCompletion = (taskId: string, userId: string, userName: s
   // 4. Send notifications to supervisors
   // 5. Update analytics dashboard
 
-  console.log('Task Completion Logged:', completionRecord);
+  console.log("Task Completion Logged:", completionRecord);
 
   // Store in localStorage for demo purposes
-  const completions = JSON.parse(localStorage.getItem('taskCompletions') || '[]');
+  const completions = JSON.parse(
+    localStorage.getItem("taskCompletions") || "[]",
+  );
   completions.push(completionRecord);
-  localStorage.setItem('taskCompletions', JSON.stringify(completions));
+  localStorage.setItem("taskCompletions", JSON.stringify(completions));
 };

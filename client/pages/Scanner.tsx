@@ -54,8 +54,6 @@ export default function Scanner() {
     }
   };
 
-
-
   useEffect(() => {
     return () => {
       stopScanner();
@@ -69,14 +67,20 @@ export default function Scanner() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center">
             <Link to="/" className="mr-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-white">Scan Machine</h1>
-              <p className="text-blue-100">Identify machines via QR code scanning</p>
+              <p className="text-blue-100">
+                Identify machines via QR code scanning
+              </p>
             </div>
           </div>
         </div>
@@ -128,7 +132,6 @@ export default function Scanner() {
                       >
                         Stop Scanner
                       </Button>
-
                     </div>
                   </div>
                 )}
@@ -156,7 +159,9 @@ export default function Scanner() {
             <CardContent>
               <form onSubmit={handleManualSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="machineId" className="text-slate-300">Machine ID</Label>
+                  <Label htmlFor="machineId" className="text-slate-300">
+                    Machine ID
+                  </Label>
                   <Input
                     id="machineId"
                     type="text"
@@ -174,8 +179,6 @@ export default function Scanner() {
                   Access Machine
                 </Button>
               </form>
-
-
             </CardContent>
           </Card>
         </div>

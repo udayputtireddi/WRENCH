@@ -32,7 +32,7 @@ const HomeRoute = () => {
   }
 
   // Users get simplified dashboard, admins get full dashboard
-  if (currentUser.role === 'user') {
+  if (currentUser.role === "user") {
     return <UserHome />;
   } else {
     return <Home />;
@@ -57,7 +57,10 @@ const App = () => (
           <Route
             path="/analytics"
             element={
-              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+              <RoleBasedRoute
+                allowedRoles={["admin"]}
+                fallback={<Navigate to="/" />}
+              >
                 <Analytics />
               </RoleBasedRoute>
             }
@@ -65,7 +68,10 @@ const App = () => (
           <Route
             path="/settings"
             element={
-              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+              <RoleBasedRoute
+                allowedRoles={["admin"]}
+                fallback={<Navigate to="/" />}
+              >
                 <Settings />
               </RoleBasedRoute>
             }
@@ -75,7 +81,10 @@ const App = () => (
           <Route
             path="/admin"
             element={
-              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+              <RoleBasedRoute
+                allowedRoles={["admin"]}
+                fallback={<Navigate to="/" />}
+              >
                 <Admin />
               </RoleBasedRoute>
             }
@@ -83,7 +92,10 @@ const App = () => (
           <Route
             path="/admin/database"
             element={
-              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+              <RoleBasedRoute
+                allowedRoles={["admin"]}
+                fallback={<Navigate to="/" />}
+              >
                 <AdminDatabase />
               </RoleBasedRoute>
             }
