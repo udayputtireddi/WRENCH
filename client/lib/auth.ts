@@ -76,9 +76,9 @@ class AuthService {
     localStorage.removeItem('currentUser');
   }
 
-  // Quick login for demo purposes
+  // Quick login
   static quickLogin(role: UserRole): User {
-    const user = mockUsers.find(u => u.role === role) || mockUsers[0];
+    const user = systemUsers.find(u => u.role === role) || systemUsers[0];
     this.login(user.email);
     return user;
   }
