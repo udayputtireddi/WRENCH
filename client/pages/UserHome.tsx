@@ -153,7 +153,7 @@ export default function UserHome() {
           <p className="text-slate-400 mb-6">Need help or have questions?</p>
           <div className="flex gap-4 justify-center">
             <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
-              Contact Supervisor
+              Contact Support
             </Button>
             <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
               Safety Guidelines
