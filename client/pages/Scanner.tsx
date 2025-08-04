@@ -132,13 +132,7 @@ export default function Scanner() {
                       >
                         Stop Scanner
                       </Button>
-                      {/* Demo QR codes for testing */}
-                      <Button
-                        onClick={() => simulateQRScan("CAR-001")}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        Demo: Car A
-                      </Button>
+
                     </div>
                   </div>
                 )}
