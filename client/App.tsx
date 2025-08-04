@@ -5,8 +5,10 @@ import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
+import UserHome from "./pages/UserHome";
+import Login from "./pages/Login";
 import Scanner from "./pages/Scanner";
 import Machine from "./pages/Machine";
 import Task from "./pages/Task";
@@ -16,6 +18,8 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import AdminDatabase from "./pages/AdminDatabase";
 import NotFound from "./pages/NotFound";
+import RoleBasedRoute from "./components/RoleBasedRoute";
+import AuthService from "./lib/auth";
 
 const queryClient = new QueryClient();
 
