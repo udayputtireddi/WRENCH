@@ -358,7 +358,7 @@ export default function Admin() {
                     {
                       name: "Sarah Johnson",
                       email: "sarah@company.com",
-                      role: "Supervisor",
+                      role: "Administrator",
                       status: "Active",
                     },
                     {
