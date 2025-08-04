@@ -16,257 +16,369 @@ import {
   CheckCircle,
   AlertTriangle,
   Settings,
+  AlertCircle,
+  Upload,
 } from "lucide-react";
 import {
-  getMachine,
   getTaskStatusColor,
   getMachineStatusColor,
 } from "@/lib/mockData";
+import Database from "@/lib/database";
 
 export default function Machine() {
   const { machineId } = useParams<{ machineId: string }>();
   const [searchParams] = useSearchParams();
-  const machine = machineId ? getMachine(machineId) : undefined;
+  
+  const machine = machineId ? Database.getMachineById(machineId) : undefined;
+  const allTasks = Database.getTasks();
+  const hasData = allTasks.length > 0;
 
-  // Determine the back path based on referrer
-  const backPath = searchParams.get('from') === 'scan' ? '/scan' : '/';
-  const backLabel = searchParams.get('from') === 'scan' ? 'Back to Scanner' : 'Back to Home';
-
-  if (!machine) {
+  // If no data in system, show empty state
+  if (!hasData) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Card className="max-w-md mx-auto">
-          <CardHeader className="text-center">
-            <CardTitle className="text-red-700">Machine Not Found</CardTitle>
-            <CardDescription>
-              The machine ID "{machineId}" was not found in the system.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to={backPath}>
-              <Button className="w-full">{backLabel}</Button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center">
+              <Link to="/" className="mr-4">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Machine Not Found</h1>
+                <p className="text-blue-100">No machine data available</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl rounded-full"></div>
+              <AlertCircle className="h-24 w-24 text-blue-400 mx-auto mb-6" />
+              <h2 className="relative text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+                No Machine Data Available
+              </h2>
+            </div>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
+              Machine information will be available once maintenance data is uploaded. Upload your equipment data to access machine details and tasks.
+            </p>
+            <Link to="/admin/database">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg">
+                <Upload className="h-5 w-5 mr-2" />
+                Upload Machine Data
+              </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </main>
       </div>
     );
   }
 
-  const overdueTasks = machine.tasks.filter(
-    (task) => task.status === "overdue",
-  ).length;
-  const inProgressTasks = machine.tasks.filter(
-    (task) => task.status === "in-progress",
-  ).length;
-  const completedTasks = machine.tasks.filter(
-    (task) => task.status === "completed",
-  ).length;
+  // If machine not found, show not found message
+  if (!machine) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center">
+              <Link to="/" className="mr-4">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Machine Not Found</h1>
+                <p className="text-blue-100">Machine ID: {machineId}</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-2xl mx-auto">
+            <CardHeader className="text-center">
+              <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
+              <CardTitle className="text-white text-2xl">Machine Not Found</CardTitle>
+              <CardDescription className="text-slate-400">
+                The machine with ID "{machineId}" was not found in the system.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-slate-300 mb-6">
+                This could mean the machine hasn't been registered yet or the QR code contains an incorrect ID.
+              </p>
+              <div className="flex justify-center gap-4">
+                <Link to="/scan">
+                  <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+                    Try Scanning Again
+                  </Button>
+                </Link>
+                <Link to="/tasks">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    View All Tasks
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // Convert database tasks to display format
+  const displayTasks = machine.tasks.map(task => ({
+    id: task.id,
+    name: task.taskName,
+    description: task.description,
+    priority: task.category === 'inspection' ? 'Medium' : 
+              task.category === 'cleaning' ? 'Low' : 'High',
+    status: task.nextDueDate < new Date() ? 'Overdue' :
+            task.lastCompletedDate && 
+            task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
+            'Pending',
+    nextDue: task.nextDueDate,
+    lastCompleted: task.lastCompletedDate || new Date(0),
+    estimatedTime: task.estimatedTimeMinutes,
+    category: task.category,
+    frequency: task.frequency
+  }));
+
+  const overdueTasks = displayTasks.filter((t) => t.status === "Overdue");
+  const pendingTasks = displayTasks.filter((t) => t.status === "Pending");
+  const completedTasks = displayTasks.filter((t) => t.status === "Completed");
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="bg-slate-900 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <Link to={backPath} className="mr-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-slate-700"
+      <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center">
+            <Link 
+              to={searchParams.get('from') === 'scan' ? '/scan' : '/'}
+              className="mr-4"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {backLabel}
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{machine.name}</h1>
-            <p className="text-slate-300">{machine.type}</p>
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white">{machine.name}</h1>
+              <p className="text-blue-100">
+                {machine.type} • {machine.location}
+              </p>
+            </div>
           </div>
-          <Badge
-            className={`${getMachineStatusColor(machine.status)} capitalize`}
-          >
-            {machine.status}
-          </Badge>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Machine Info Card */}
-        <Card className="mb-8">
+        {/* Machine Status Card */}
+        <Card className="mb-8 bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Machine Information
+            <CardTitle className="text-white flex items-center justify-between">
+              <span>Machine Status</span>
+              <Badge className={getMachineStatusColor(machine.status)}>
+                {machine.status}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-slate-500 mt-1" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center">
+                <MapPin className="h-5 w-5 text-blue-400 mr-3" />
                 <div>
-                  <p className="font-semibold text-slate-800">Location</p>
-                  <p className="text-slate-600">{machine.location}</p>
+                  <p className="text-slate-400 text-sm">Location</p>
+                  <p className="text-white font-medium">{machine.location}</p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-slate-500 mt-1" />
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-green-400 mr-3" />
                 <div>
-                  <p className="font-semibold text-slate-800">
-                    Last Maintenance
-                  </p>
-                  <p className="text-slate-600">
+                  <p className="text-slate-400 text-sm">Last Maintenance</p>
+                  <p className="text-white font-medium">
                     {machine.lastMaintenance
                       ? machine.lastMaintenance.toLocaleDateString()
                       : "No records"}
                   </p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-slate-500 mt-1" />
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-purple-400 mr-3" />
                 <div>
-                  <p className="font-semibold text-slate-800">Task Status</p>
-                  <p className="text-slate-600">
-                    {completedTasks} completed, {inProgressTasks} in progress
-                  </p>
+                  <p className="text-slate-400 text-sm">Active Tasks</p>
+                  <p className="text-white font-medium">{machine.tasks.length}</p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Task Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-700">
-                {machine.tasks.length}
+        {/* Task Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-gradient-to-br from-red-600/20 to-red-700/20 border-red-500/30">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">
+                Overdue
+              </CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-400">
+                {overdueTasks.length}
               </div>
-              <div className="text-sm text-blue-600">Total Tasks</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-orange-50 border-orange-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-700">
-                {inProgressTasks}
+          <Card className="bg-gradient-to-br from-yellow-600/20 to-yellow-700/20 border-yellow-500/30">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">
+                Pending
+              </CardTitle>
+              <Clock className="h-4 w-4 text-yellow-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-400">
+                {pendingTasks.length}
               </div>
-              <div className="text-sm text-orange-600">In Progress</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-red-50 border-red-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-700">
-                {overdueTasks}
+          <Card className="bg-gradient-to-br from-green-600/20 to-green-700/20 border-green-500/30">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">
+                Completed
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-400">
+                {completedTasks.length}
               </div>
-              <div className="text-sm text-red-600">Overdue</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-700">
-                {completedTasks}
-              </div>
-              <div className="text-sm text-green-600">Completed</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tasks List */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">
-            Maintenance Tasks
-          </h2>
-
-          {machine.tasks.map((task) => (
-            <Card key={task.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-slate-800">
-                        {task.name}
-                      </h3>
-                      <Badge
-                        className={`${getTaskStatusColor(task.status)} capitalize`}
-                      >
-                        {task.status.replace("-", " ")}
-                      </Badge>
-                      {task.status === "overdue" && (
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
-                      )}
-                    </div>
-
-                    {task.description && (
-                      <p className="text-slate-600 mb-3">{task.description}</p>
-                    )}
-
-                    <div className="flex items-center gap-6 text-sm text-slate-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>~{task.estimatedTime} min</span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>Due: {task.nextDue.toLocaleDateString()}</span>
-                      </div>
-
-                      <div className="capitalize">
-                        Frequency: {task.frequency}
-                      </div>
-
-                      {task.lastCompleted && (
-                        <div>
-                          Last: {task.lastCompleted.toLocaleDateString()}
+        <div className="space-y-6">
+          {/* Overdue Tasks */}
+          {overdueTasks.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-red-400 mb-4 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                Overdue Tasks
+              </h2>
+              <div className="grid gap-4">
+                {overdueTasks.map((task) => (
+                  <Card
+                    key={task.id}
+                    className="bg-slate-800/50 backdrop-blur-sm border-red-500/30 hover:border-red-400/50 transition-colors"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold text-white">{task.name}</h3>
+                            <Badge className={getTaskStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                          <p className="text-slate-400 mb-2">{task.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-slate-300">
+                            <span className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              <span className="text-red-400">Due: {task.nextDue.toLocaleDateString()}</span>
+                            </span>
+                            <span className="flex items-center">
+                              <Clock className="h-4 w-4 mr-1" />
+                              {task.estimatedTime} min
+                            </span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-
-                    <div className="mt-3">
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>
-                          {
-                            task.checklist.filter((item) => item.completed)
-                              .length
-                          }{" "}
-                          of {task.checklist.length} items completed
-                        </span>
+                        <Link to={`/machine/${machineId}/task/${task.id}`}>
+                          <Button className="bg-red-600 hover:bg-red-700 text-white">
+                            Start Now
+                          </Button>
+                        </Link>
                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
-                      <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{
-                            width: `${(task.checklist.filter((item) => item.completed).length / task.checklist.length) * 100}%`,
-                          }}
-                        ></div>
+          {/* Pending Tasks */}
+          {pendingTasks.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-yellow-400 mb-4 flex items-center">
+                <Clock className="h-5 w-5 mr-2" />
+                Scheduled Tasks
+              </h2>
+              <div className="grid gap-4">
+                {pendingTasks.map((task) => (
+                  <Card
+                    key={task.id}
+                    className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-colors"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold text-white">{task.name}</h3>
+                            <Badge className={getTaskStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                          <p className="text-slate-400 mb-2">{task.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-slate-300">
+                            <span className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              <span>Due: {task.nextDue.toLocaleDateString()}</span>
+                            </span>
+                            <span className="flex items-center">
+                              <Clock className="h-4 w-4 mr-1" />
+                              {task.estimatedTime} min
+                            </span>
+                            {task.lastCompleted > new Date(0) && (
+                              <span className="flex items-center">
+                                <CheckCircle className="h-4 w-4 mr-1 text-green-400" />
+                                <div>
+                                  Last: {task.lastCompleted.toLocaleDateString()}
+                                </div>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <Link to={`/machine/${machineId}/task/${task.id}`}>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            View Task
+                          </Button>
+                        </Link>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
-                  <div className="ml-6">
-                    <Link to={`/machine/${machine.id}/task/${task.id}${searchParams.get('from') ? `?from=${searchParams.get('from')}` : ''}`}>
-                      <Button
-                        className={`${
-                          task.status === "overdue"
-                            ? "bg-red-600 hover:bg-red-700"
-                            : task.status === "in-progress"
-                              ? "bg-blue-600 hover:bg-blue-700"
-                              : "bg-slate-600 hover:bg-slate-700"
-                        }`}
-                      >
-                        {task.status === "completed" ? "Review" : "Start Task"}
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
+          {/* Show empty state if no tasks */}
+          {displayTasks.length === 0 && (
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardContent className="text-center py-12">
+                <Settings className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No tasks assigned</h3>
+                <p className="text-slate-400">This machine has no maintenance tasks configured yet.</p>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </main>
     </div>
