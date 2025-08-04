@@ -61,7 +61,7 @@ class AuthService {
   // Check if user has admin access
   static isAdmin(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'admin' || user?.role === 'supervisor';
+    return user?.role === 'admin';
   }
 
   // Check if user is regular user
