@@ -413,3 +413,30 @@ export const getMachineStatusColor = (status: Machine["status"]) => {
       return "text-gray-700 bg-gray-100";
   }
 };
+
+// Helper function to create completion record for database integration
+export const createTaskCompletion = (taskId: string, userId: string, userName: string, machineId: string): void => {
+  const now = new Date();
+  const completionRecord = {
+    taskId,
+    machineId,
+    userId,
+    userName,
+    completedDate: now.toISOString(),
+    timestamp: now.getTime()
+  };
+
+  // In a real system, this would:
+  // 1. Log completion to database
+  // 2. Update task scheduling based on frequency
+  // 3. Export to Excel/CSV for record keeping
+  // 4. Send notifications to supervisors
+  // 5. Update analytics dashboard
+
+  console.log('Task Completion Logged:', completionRecord);
+
+  // Store in localStorage for demo purposes
+  const completions = JSON.parse(localStorage.getItem('taskCompletions') || '[]');
+  completions.push(completionRecord);
+  localStorage.setItem('taskCompletions', JSON.stringify(completions));
+};
