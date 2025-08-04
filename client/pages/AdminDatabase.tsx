@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Upload, Database, Download, FileSpreadsheet, Calendar, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DatabaseTask, ExcelTaskData, ExcelParser, TaskScheduler, sampleTrumpfTasks } from "@/lib/database";
+import { convertExcelToDatabase, downloadTrumpfExcelFile } from "@/lib/trumpfExcelData";
 
 export default function AdminDatabase() {
   const { toast } = useToast();
