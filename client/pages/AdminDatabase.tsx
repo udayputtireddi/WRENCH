@@ -247,12 +247,20 @@ export default function AdminDatabase() {
                     {importing ? "Importing..." : "Import Excel File"}
                   </Button>
                   
-                  <Button 
+                  <Button
                     onClick={loadSampleData}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
                   >
-                    Load Sample Data
+                    Load Trumpf Data
+                  </Button>
+
+                  <Button
+                    onClick={downloadExcelTemplate}
+                    variant="outline"
+                    className="bg-green-700/50 border-green-600 text-white hover:bg-green-600"
+                  >
+                    Download Excel Template
                   </Button>
                 </div>
 
