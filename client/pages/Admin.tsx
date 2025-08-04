@@ -438,17 +438,19 @@ export default function Admin() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export All Data
-                  </Button>
+                  <Link to="/admin/database">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Database className="h-4 w-4 mr-2" />
+                      Manage Database
+                    </Button>
+                  </Link>
                   <Button className="w-full bg-green-600 hover:bg-green-700">
                     <Upload className="h-4 w-4 mr-2" />
-                    Import Data
+                    Import Excel
                   </Button>
                   <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                    <Database className="h-4 w-4 mr-2" />
-                    Backup Database
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Data
                   </Button>
                 </CardContent>
               </Card>
