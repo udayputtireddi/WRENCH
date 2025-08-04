@@ -179,25 +179,7 @@ export default function Scanner() {
                 </Button>
               </form>
 
-              {/* Demo Machine IDs */}
-              <div className="mt-6 p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg">
-                <h4 className="font-semibold text-white mb-2">
-                  Demo Machine IDs:
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {["CAR-001", "PUMP-05", "DRILL-12"].map((id) => (
-                    <Button
-                      key={id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setManualId(id)}
-                      className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
-                    >
-                      {id}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+
             </CardContent>
           </Card>
         </div>
