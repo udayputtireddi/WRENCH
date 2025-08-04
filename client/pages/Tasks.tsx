@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,336 +11,366 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ArrowLeft,
   Search,
   Filter,
   Clock,
   AlertTriangle,
-  CheckCircle2,
-  Activity,
+  CheckCircle,
+  Calendar,
+  Wrench,
+  AlertCircle,
+  Upload,
 } from "lucide-react";
-import { mockMachines, getTaskStatusColor } from "@/lib/mockData";
+import Database from "@/lib/database";
 
 export default function Tasks() {
-  // Get all tasks from all machines
-  const allTasks = mockMachines.flatMap((machine) =>
-    machine.tasks.map((task) => ({
-      ...task,
-      machineId: machine.id,
-      machineName: machine.name,
-      machineLocation: machine.location,
-    })),
-  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPriority, setFilterPriority] = useState("all");
 
-  const pendingTasks = allTasks.filter((task) => task.status === "pending");
-  const inProgressTasks = allTasks.filter(
-    (task) => task.status === "in-progress",
-  );
-  const overdueTasks = allTasks.filter((task) => task.status === "overdue");
-  const completedTasks = allTasks.filter((task) => task.status === "completed");
+  const allTasks = Database.getTasks();
+  const hasData = allTasks.length > 0;
+
+  // Convert database tasks to display format
+  const displayTasks = allTasks.map(task => ({
+    id: task.id,
+    name: task.taskName,
+    description: task.description,
+    machine: task.machineName,
+    priority: task.category === 'inspection' ? 'Medium' : 
+              task.category === 'cleaning' ? 'Low' : 'High',
+    status: task.nextDueDate < new Date() ? 'Overdue' :
+            task.lastCompletedDate && 
+            task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
+            'Pending',
+    dueDate: task.nextDueDate,
+    nextDue: task.nextDueDate,
+    lastCompleted: task.lastCompletedDate || new Date(0),
+    estimatedTime: task.estimatedTimeMinutes,
+    assignedTo: "Current User",
+    category: task.category,
+    frequency: task.frequency
+  }));
+
+  // Filter tasks
+  const filteredTasks = displayTasks.filter((task) => {
+    const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         task.machine.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "all" || task.status.toLowerCase() === filterStatus;
+    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority;
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+
+  const getTaskStatusColor = (status: string) => {
+    switch (status) {
+      case "Completed":
+        return "text-green-600 bg-green-100";
+      case "In Progress":
+        return "text-blue-600 bg-blue-100";
+      case "Overdue":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-yellow-600 bg-yellow-100";
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "Critical":
+        return "text-red-600 bg-red-100";
+      case "High":
+        return "text-orange-600 bg-orange-100";
+      case "Medium":
+        return "text-yellow-600 bg-yellow-100";
+      case "Low":
+        return "text-green-600 bg-green-100";
+      default:
+        return "text-gray-600 bg-gray-100";
+    }
+  };
+
+  // Group tasks by status
+  const pendingTasks = filteredTasks.filter((t) => t.status === "Pending");
+  const inProgressTasks = filteredTasks.filter((t) => t.status === "In Progress");
+  const overdueTasks = filteredTasks.filter((t) => t.status === "Overdue");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link to="/" className="mr-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-white">Active Tasks</h1>
-                <p className="text-green-100">
-                  Monitor and manage all maintenance tasks
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-white/20 text-white border-0">
-                <Activity className="h-3 w-3 mr-1" />
-                {allTasks.length} Total
-              </Badge>
+          <div className="flex items-center">
+            <Link to="/" className="mr-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Task Management</h1>
+              <p className="text-green-100">
+                {hasData ? `${allTasks.length} tasks across all machines` : 'No tasks available'}
+              </p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Search and Filter */}
-        <Card className="mb-8 bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Search tasks..."
-                  className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
-                />
-              </div>
-              <Button
-                variant="outline"
-                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
+        {!hasData ? (
+          // Empty State
+          <div className="text-center py-20">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
+              <AlertCircle className="h-24 w-24 text-green-400 mx-auto mb-6" />
+              <h2 className="relative text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent mb-6">
+                No Tasks Available
+              </h2>
+            </div>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
+              Your maintenance tasks will appear here once they're uploaded. Contact your administrator to set up your maintenance schedule.
+            </p>
+            <Link to="/admin/database">
+              <Button className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 text-lg">
+                <Upload className="h-5 w-5 mr-2" />
+                Upload Task Data
               </Button>
+            </Link>
+          </div>
+        ) : (
+          // Tasks Dashboard with Data
+          <div className="space-y-8">
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-6">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search tasks or machines..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-slate-700/50 border-slate-600 text-white"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-40 bg-slate-700/50 border-slate-600 text-white">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                  <SelectTrigger className="w-40 bg-slate-700/50 border-slate-600 text-white">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Task Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-orange-600 to-orange-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <AlertTriangle className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
-                {overdueTasks.length}
-              </div>
-              <div className="text-sm text-orange-100">Overdue</div>
-            </CardContent>
-          </Card>
+            {/* Task Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-gradient-to-br from-red-600/20 to-red-700/20 border-red-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Overdue Tasks
+                  </CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-400">
+                    {overdueTasks.length}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Require immediate attention
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <Activity className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
-                {inProgressTasks.length}
-              </div>
-              <div className="text-sm text-blue-100">In Progress</div>
-            </CardContent>
-          </Card>
+              <Card className="bg-gradient-to-br from-yellow-600/20 to-yellow-700/20 border-yellow-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Pending Tasks
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {pendingTasks.length}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Scheduled for completion
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card className="bg-gradient-to-br from-slate-600 to-slate-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <Clock className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
-                {pendingTasks.length}
-              </div>
-              <div className="text-sm text-slate-100">Pending</div>
-            </CardContent>
-          </Card>
+              <Card className="bg-gradient-to-br from-green-600/20 to-green-700/20 border-green-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Completed Today
+                  </CardTitle>
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-400">
+                    {filteredTasks.filter(t => t.status === 'Completed').length}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Tasks finished today
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card className="bg-gradient-to-br from-green-600 to-green-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <CheckCircle2 className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
-                {completedTasks.length}
-              </div>
-              <div className="text-sm text-green-100">Completed</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Task Sections */}
-        <div className="space-y-8">
-          {/* Overdue Tasks */}
-          {overdueTasks.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <AlertTriangle className="h-5 w-5 text-red-400" />
-                <h2 className="text-xl font-bold text-white">Overdue Tasks</h2>
-                <Badge className="bg-red-500/20 text-red-300 border-red-500/30">
-                  {overdueTasks.length}
-                </Badge>
-              </div>
-              <div className="grid gap-4">
-                {overdueTasks.map((task) => (
-                  <Card
-                    key={`${task.machineId}-${task.id}`}
-                    className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 border-l-4 border-l-red-500"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-white">
-                              {task.name}
-                            </h3>
-                            <Badge
-                              className={`${getTaskStatusColor(task.status)} capitalize`}
-                            >
-                              {task.status.replace("-", " ")}
-                            </Badge>
-                          </div>
-                          <p className="text-slate-400 mb-2">
-                            {task.machineName} - {task.machineLocation}
-                          </p>
-                          {task.description && (
-                            <p className="text-slate-300 mb-3">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-slate-400">
-                            <span>
-                              Due: {task.nextDue.toLocaleDateString()}
-                            </span>
-                            <span>~{task.estimatedTime} min</span>
-                            <span className="capitalize">{task.frequency}</span>
-                          </div>
-                        </div>
-                        <Link
-                          to={`/machine/${task.machineId}/task/${task.id}?from=tasks`}
+            {/* Tasks List */}
+            {filteredTasks.length === 0 ? (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardContent className="text-center py-12">
+                  <Search className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No matching tasks</h3>
+                  <p className="text-slate-400">Try adjusting your search or filter criteria</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {/* Overdue Tasks */}
+                {overdueTasks.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-bold text-red-400 mb-4 flex items-center">
+                      <AlertTriangle className="h-5 w-5 mr-2" />
+                      Overdue Tasks ({overdueTasks.length})
+                    </h2>
+                    <div className="grid gap-4">
+                      {overdueTasks.map((task) => (
+                        <Card
+                          key={task.id}
+                          className="bg-slate-800/50 backdrop-blur-sm border-red-500/30 hover:border-red-400/50 transition-colors"
                         >
-                          <Button className="bg-red-600 hover:bg-red-700">
-                            Start Now
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* In Progress Tasks */}
-          {inProgressTasks.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Activity className="h-5 w-5 text-blue-400" />
-                <h2 className="text-xl font-bold text-white">In Progress</h2>
-                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
-                  {inProgressTasks.length}
-                </Badge>
-              </div>
-              <div className="grid gap-4">
-                {inProgressTasks.map((task) => (
-                  <Card
-                    key={`${task.machineId}-${task.id}`}
-                    className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 border-l-4 border-l-blue-500"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-white">
-                              {task.name}
-                            </h3>
-                            <Badge
-                              className={`${getTaskStatusColor(task.status)} capitalize`}
-                            >
-                              {task.status.replace("-", " ")}
-                            </Badge>
-                          </div>
-                          <p className="text-slate-400 mb-2">
-                            {task.machineName} - {task.machineLocation}
-                          </p>
-                          {task.description && (
-                            <p className="text-slate-300 mb-3">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-slate-400">
-                            <span>
-                              Due: {task.nextDue.toLocaleDateString()}
-                            </span>
-                            <span>~{task.estimatedTime} min</span>
-                            <span className="capitalize">{task.frequency}</span>
-                          </div>
-                          <div className="mt-3">
-                            <div className="w-full bg-slate-700 rounded-full h-2">
-                              <div
-                                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${(task.checklist.filter((item) => item.completed).length / task.checklist.length) * 100}%`,
-                                }}
-                              ></div>
+                          <CardContent className="p-6">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="font-semibold text-white text-lg">
+                                    {task.name}
+                                  </h3>
+                                  <Badge className={getTaskStatusColor(task.status)}>
+                                    {task.status}
+                                  </Badge>
+                                  <Badge className={getPriorityColor(task.priority)}>
+                                    {task.priority}
+                                  </Badge>
+                                </div>
+                                <p className="text-slate-400 mb-2">{task.description}</p>
+                                <div className="flex items-center gap-4 text-sm text-slate-300">
+                                  <span className="flex items-center">
+                                    <Wrench className="h-4 w-4 mr-1" />
+                                    {task.machine}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-1" />
+                                    <span className="text-red-400">
+                                      Overdue: {task.nextDue.toLocaleDateString()}
+                                    </span>
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-1" />
+                                    {task.estimatedTime} min
+                                  </span>
+                                </div>
+                              </div>
+                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`}>
+                                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                                  Start Task
+                                </Button>
+                              </Link>
                             </div>
-                            <p className="text-xs text-slate-400 mt-1">
-                              {
-                                task.checklist.filter((item) => item.completed)
-                                  .length
-                              }{" "}
-                              of {task.checklist.length} items completed
-                            </p>
-                          </div>
-                        </div>
-                        <Link
-                          to={`/machine/${task.machineId}/task/${task.id}?from=tasks`}
-                        >
-                          <Button className="bg-blue-600 hover:bg-blue-700">
-                            Continue
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-          {/* Pending Tasks */}
-          {pendingTasks.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-slate-400" />
-                <h2 className="text-xl font-bold text-white">Pending Tasks</h2>
-                <Badge className="bg-slate-500/20 text-slate-300 border-slate-500/30">
-                  {pendingTasks.length}
-                </Badge>
-              </div>
-              <div className="grid gap-4">
-                {pendingTasks.map((task) => (
-                  <Card
-                    key={`${task.machineId}-${task.id}`}
-                    className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-white">
-                              {task.name}
-                            </h3>
-                            <Badge
-                              className={`${getTaskStatusColor(task.status)} capitalize`}
-                            >
-                              {task.status.replace("-", " ")}
-                            </Badge>
-                          </div>
-                          <p className="text-slate-400 mb-2">
-                            {task.machineName} - {task.machineLocation}
-                          </p>
-                          {task.description && (
-                            <p className="text-slate-300 mb-3">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-slate-400">
-                            <span>
-                              Due: {task.nextDue.toLocaleDateString()}
-                            </span>
-                            <span>~{task.estimatedTime} min</span>
-                            <span className="capitalize">{task.frequency}</span>
-                          </div>
-                        </div>
-                        <Link
-                          to={`/machine/${task.machineId}/task/${task.id}?from=tasks`}
+                {/* Pending Tasks */}
+                {pendingTasks.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-bold text-yellow-400 mb-4 flex items-center">
+                      <Clock className="h-5 w-5 mr-2" />
+                      Pending Tasks ({pendingTasks.length})
+                    </h2>
+                    <div className="grid gap-4">
+                      {pendingTasks.map((task) => (
+                        <Card
+                          key={task.id}
+                          className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-colors"
                         >
-                          <Button
-                            variant="outline"
-                            className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                          >
-                            Start Task
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          <CardContent className="p-6">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="font-semibold text-white text-lg">
+                                    {task.name}
+                                  </h3>
+                                  <Badge className={getTaskStatusColor(task.status)}>
+                                    {task.status}
+                                  </Badge>
+                                  <Badge className={getPriorityColor(task.priority)}>
+                                    {task.priority}
+                                  </Badge>
+                                </div>
+                                <p className="text-slate-400 mb-2">{task.description}</p>
+                                <div className="flex items-center gap-4 text-sm text-slate-300">
+                                  <span className="flex items-center">
+                                    <Wrench className="h-4 w-4 mr-1" />
+                                    {task.machine}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-1" />
+                                    <span>
+                                      Due: {task.nextDue.toLocaleDateString()}
+                                    </span>
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-1" />
+                                    {task.estimatedTime} min
+                                  </span>
+                                </div>
+                              </div>
+                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`}>
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                                  Start Task
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
