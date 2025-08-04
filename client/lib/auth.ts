@@ -1,5 +1,5 @@
 // Role-based authentication system
-export type UserRole = 'user' | 'admin' | 'supervisor';
+export type UserRole = 'user' | 'admin';
 
 export interface User {
   id: string;
@@ -10,30 +10,22 @@ export interface User {
   department?: string;
 }
 
-// Mock users for demonstration
-export const mockUsers: User[] = [
+// System users
+export const systemUsers: User[] = [
   {
     id: 'user-001',
-    name: 'John Operator',
-    email: 'john.operator@company.com',
+    name: 'Machine Operator',
+    email: 'operator@company.com',
     role: 'user',
     shift: 'morning',
     department: 'Production'
   },
   {
     id: 'admin-001',
-    name: 'Sarah Manager',
-    email: 'sarah.manager@company.com',
+    name: 'System Administrator',
+    email: 'admin@company.com',
     role: 'admin',
     department: 'Maintenance'
-  },
-  {
-    id: 'supervisor-001',
-    name: 'Mike Supervisor',
-    email: 'mike.supervisor@company.com',
-    role: 'supervisor',
-    shift: 'afternoon',
-    department: 'Quality'
   }
 ];
 
