@@ -23,6 +23,22 @@ import AuthService from "./lib/auth";
 
 const queryClient = new QueryClient();
 
+// Route component that checks authentication and redirects based on role
+const HomeRoute = () => {
+  const currentUser = AuthService.getCurrentUser();
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Users get simplified dashboard, admins/supervisors get full dashboard
+  if (currentUser.role === 'user') {
+    return <UserHome />;
+  } else {
+    return <Home />;
+  }
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -30,15 +46,49 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/scan" element={<Scanner />} />
           <Route path="/machine/:machineId" element={<Machine />} />
           <Route path="/machine/:machineId/task/:taskId" element={<Task />} />
           <Route path="/tasks" element={<Tasks />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/database" element={<AdminDatabase />} />
+
+          {/* Admin/Supervisor only routes */}
+          <Route
+            path="/analytics"
+            element={
+              <RoleBasedRoute allowedRoles={['admin', 'supervisor']} fallback={<Navigate to="/" />}>
+                <Analytics />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <RoleBasedRoute allowedRoles={['admin', 'supervisor']} fallback={<Navigate to="/" />}>
+                <Settings />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Admin only routes */}
+          <Route
+            path="/admin"
+            element={
+              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+                <Admin />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/admin/database"
+            element={
+              <RoleBasedRoute allowedRoles={['admin']} fallback={<Navigate to="/" />}>
+                <AdminDatabase />
+              </RoleBasedRoute>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
