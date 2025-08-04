@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +16,10 @@ import {
   Zap,
   Clock,
   Activity,
+  LogOut,
+  User,
 } from "lucide-react";
+import AuthService from "@/lib/auth";
 
 export default function Home() {
   return (
