@@ -17,6 +17,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   Clock,
@@ -25,13 +27,16 @@ import {
   AlertCircle,
   Camera,
   Save,
+  Upload,
+  Wrench,
+  Shield,
 } from "lucide-react";
 import {
-  getTask,
-  updateChecklistItem,
   getTaskStatusColor,
 } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
+import Database, { TaskScheduler } from "@/lib/database";
+import AuthService from "@/lib/auth";
 
 export default function Task() {
   const { machineId, taskId } = useParams<{
@@ -41,288 +46,450 @@ export default function Task() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [task, setTask] = useState(() =>
-    machineId && taskId ? getTask(machineId, taskId) : undefined,
-  );
+  
+  const [checklist, setChecklist] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [notes, setNotes] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [startTime, setStartTime] = useState<Date | null>(null);
 
-  // Determine the back path based on referrer
-  const fromParam = searchParams.get("from");
-  let backPath = `/machine/${machineId}`;
-  let backLabel = "Back to Machine";
+  const task = taskId ? Database.getTaskById(taskId) : undefined;
+  const currentUser = AuthService.getCurrentUser();
+  const hasData = Database.getTasks().length > 0;
 
-  if (fromParam === "tasks") {
-    backPath = "/tasks";
-    backLabel = "Back to Tasks";
-  } else if (fromParam === "scan") {
-    backPath = `/machine/${machineId}?from=scan`;
-    backLabel = "Back to Machine";
+  useEffect(() => {
+    if (task) {
+      // Generate checklist based on task type and requirements
+      const taskChecklist = [
+        { id: "1", text: "Review safety requirements", completed: false },
+        { id: "2", text: "Gather required tools", completed: false },
+        { id: "3", text: task.description, completed: false },
+        { id: "4", text: "Inspect completed work", completed: false },
+        { id: "5", text: "Clean work area", completed: false },
+      ];
+      
+      // Add safety notes as checklist items
+      task.safetyNotes.forEach((note, index) => {
+        taskChecklist.splice(1, 0, {
+          id: `safety-${index}`,
+          text: `Safety: ${note}`,
+          completed: false
+        });
+      });
+
+      setChecklist(taskChecklist);
+      setStartTime(new Date());
+    }
+  }, [task]);
+
+  // If no data in system, show empty state
+  if (!hasData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center">
+              <Link to="/" className="mr-4">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Task Not Available</h1>
+                <p className="text-purple-100">No task data found</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 blur-3xl rounded-full"></div>
+              <AlertCircle className="h-24 w-24 text-purple-400 mx-auto mb-6" />
+              <h2 className="relative text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent mb-6">
+                No Task Data Available
+              </h2>
+            </div>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
+              Task information will be available once maintenance data is uploaded. Contact your administrator to set up tasks.
+            </p>
+            <Link to="/admin/database">
+              <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 text-lg">
+                <Upload className="h-5 w-5 mr-2" />
+                Upload Task Data
+              </Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
   }
 
-  if (!task || !machineId || !taskId) {
+  // If task not found, show not found message
+  if (!task) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Card className="max-w-md mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center">
+              <Link to={`/machine/${machineId}`} className="mr-4">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Machine
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Task Not Found</h1>
+                <p className="text-purple-100">Task ID: {taskId}</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-2xl mx-auto">
+            <CardHeader className="text-center">
+              <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
+              <CardTitle className="text-white text-2xl">Task Not Found</CardTitle>
+              <CardDescription className="text-slate-400">
+                The requested task could not be found in the system.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-slate-300 mb-6">
+                This task may have been removed or the ID is incorrect.
+              </p>
+              <div className="flex justify-center gap-4">
+                <Link to={`/machine/${machineId}`}>
+                  <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+                    Back to Machine
+                  </Button>
+                </Link>
+                <Link to="/tasks">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                    View All Tasks
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  const toggleChecklistItem = (id: string) => {
+    setChecklist(prev => 
+      prev.map(item => 
+        item.id === id ? { ...item, completed: !item.completed } : item
+      )
+    );
+  };
+
+  const completedItems = checklist.filter(item => item.completed).length;
+  const progress = checklist.length > 0 ? (completedItems / checklist.length) * 100 : 0;
+  const isAllChecked = completedItems === checklist.length;
+
+  const handleCompleteTask = () => {
+    if (!currentUser || !startTime) return;
+
+    const success = TaskScheduler.completeTask(
+      task.id,
+      currentUser.id,
+      currentUser.name,
+      notes
+    );
+
+    if (success) {
+      setIsCompleted(true);
+      toast({
+        title: "Task Completed!",
+        description: `${task.taskName} has been marked as complete.`,
+      });
+
+      // Navigate back after a short delay
+      setTimeout(() => {
+        navigate(`/machine/${machineId}`);
+      }, 2000);
+    }
+  };
+
+  const taskStatus = task.nextDueDate < new Date() ? 'Overdue' :
+                   task.lastCompletedDate && 
+                   task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
+                   'Pending';
+
+  const elapsedTime = startTime ? Math.floor((new Date().getTime() - startTime.getTime()) / 60000) : 0;
+
+  if (isCompleted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-md mx-auto">
           <CardHeader className="text-center">
-            <CardTitle className="text-red-700">Task Not Found</CardTitle>
-            <CardDescription>
-              The requested task could not be found.
+            <CheckCircle2 className="h-20 w-20 text-green-400 mx-auto mb-4" />
+            <CardTitle className="text-white text-2xl">Task Completed!</CardTitle>
+            <CardDescription className="text-slate-400">
+              Great job! The task has been marked as complete.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Link to={backPath}>
-              <Button className="w-full">{backLabel}</Button>
-            </Link>
+          <CardContent className="text-center">
+            <p className="text-slate-300 mb-4">
+              Time spent: {elapsedTime} minutes
+            </p>
+            <p className="text-slate-300 mb-6">
+              Next due: {TaskScheduler.calculateNextDueDate(task.frequency, new Date(), task.weeklyDay).toLocaleDateString()}
+            </p>
+            <Button 
+              onClick={() => navigate(`/machine/${machineId}`)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              Return to Machine
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const completedItems = task.checklist.filter((item) => item.completed).length;
-  const totalItems = task.checklist.length;
-  const requiredItems = task.checklist.filter((item) => item.required);
-  const completedRequired = requiredItems.filter(
-    (item) => item.completed,
-  ).length;
-  const progressPercentage =
-    totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
-  const canCompleteTask = completedRequired === requiredItems.length;
-
-  const handleChecklistChange = (itemId: string, checked: boolean) => {
-    updateChecklistItem(machineId, taskId, itemId, checked);
-
-    // Update local state to trigger re-render
-    const updatedTask = getTask(machineId, taskId);
-    if (updatedTask) {
-      setTask({ ...updatedTask });
-
-      toast({
-        title: checked ? "Item completed" : "Item unchecked",
-        description: `Checklist item ${checked ? "marked as complete" : "unmarked"}`,
-        duration: 2000,
-      });
-    }
-  };
-
-  const handleCompleteTask = () => {
-    if (canCompleteTask) {
-      toast({
-        title: "Task Completed!",
-        description: `${task.name} has been successfully completed.`,
-        duration: 3000,
-      });
-
-      // Navigate back to previous page after a short delay
-      setTimeout(() => {
-        navigate(backPath);
-      }, 2000);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="bg-slate-900 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <Link to={backPath} className="mr-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-slate-700"
+      <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center">
+            <Link 
+              to={`/machine/${machineId}`}
+              className="mr-4"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {backLabel}
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{task.name}</h1>
-            <p className="text-slate-300">Machine: {machineId}</p>
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Machine
+              </Button>
+            </Link>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-white">{task.taskName}</h1>
+              <p className="text-purple-100">
+                {task.machineName} • {task.frequency} {task.category}
+              </p>
+            </div>
+            <div className="text-right">
+              <Badge className={getTaskStatusColor(taskStatus)}>
+                {taskStatus}
+              </Badge>
+            </div>
           </div>
-          <Badge className={`${getTaskStatusColor(task.status)} capitalize`}>
-            {task.status.replace("-", " ")}
-          </Badge>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Task Overview */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Task Overview</CardTitle>
-            {task.description && (
-              <CardDescription className="text-base">
-                {task.description}
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-slate-500" />
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Task Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Task Information */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Task Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <p className="font-semibold text-slate-800">Estimated Time</p>
-                  <p className="text-slate-600">
-                    ~{task.estimatedTime} minutes
-                  </p>
+                  <h3 className="font-semibold text-white mb-2">Description</h3>
+                  <p className="text-slate-300">{task.description}</p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-slate-500" />
-                <div>
-                  <p className="font-semibold text-slate-800">Due Date</p>
-                  <p className="text-slate-600">
-                    {task.nextDue.toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-slate-500" />
-                <div>
-                  <p className="font-semibold text-slate-800">Frequency</p>
-                  <p className="text-slate-600 capitalize">{task.frequency}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-700">
-                  Progress: {completedItems} of {totalItems} items completed
-                </span>
-                <span className="text-sm text-slate-500">
-                  {Math.round(progressPercentage)}%
-                </span>
-              </div>
-              <Progress value={progressPercentage} className="h-3" />
-
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>
-                  Required items: {completedRequired}/{requiredItems.length}
-                </span>
-                <span>
-                  Optional items: {completedItems - completedRequired}/
-                  {totalItems - requiredItems.length}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Checklist */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5" />
-              Task Checklist
-            </CardTitle>
-            <CardDescription>
-              Complete all required items to finish this task. Optional items
-              help ensure thorough maintenance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {task.checklist.map((item, index) => (
-                <div key={item.id}>
-                  <div className="flex items-start gap-4 p-4 rounded-lg border bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
-                    <Checkbox
-                      id={item.id}
-                      checked={item.completed}
-                      onCheckedChange={(checked) =>
-                        handleChecklistChange(item.id, checked as boolean)
-                      }
-                      className="mt-1"
-                    />
-
-                    <div className="flex-1">
-                      <label
-                        htmlFor={item.id}
-                        className={`cursor-pointer block ${
-                          item.completed
-                            ? "text-slate-500 line-through"
-                            : "text-slate-800"
-                        }`}
-                      >
-                        <span className="font-medium">
-                          Step {index + 1}: {item.text}
-                        </span>
-                        {item.required && (
-                          <Badge variant="destructive" className="ml-2 text-xs">
-                            Required
-                          </Badge>
-                        )}
-                        {!item.required && (
-                          <Badge variant="secondary" className="ml-2 text-xs">
-                            Optional
-                          </Badge>
-                        )}
-                      </label>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-slate-600 hover:text-slate-800"
-                      >
-                        <Camera className="h-4 w-4" />
-                      </Button>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold text-white mb-2">Task Info</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center text-slate-300">
+                        <Clock className="h-4 w-4 mr-2" />
+                        Estimated: {task.estimatedTimeMinutes} minutes
+                      </div>
+                      <div className="flex items-center text-slate-300">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Due: {task.nextDueDate.toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center text-slate-300">
+                        <Wrench className="h-4 w-4 mr-2" />
+                        Frequency: {task.frequency}
+                      </div>
                     </div>
                   </div>
-
-                  {index < task.checklist.length - 1 && (
-                    <Separator className="my-2" />
+                  
+                  {task.requiredTools.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-white mb-2">Required Tools</h4>
+                      <ul className="text-sm text-slate-300 space-y-1">
+                        {task.requiredTools.map((tool, index) => (
+                          <li key={index}>• {tool}</li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
-              ))}
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 mt-8 pt-6 border-t">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => navigate(backPath)}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Progress
-              </Button>
+                {task.safetyNotes.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-white mb-2 flex items-center">
+                      <Shield className="h-4 w-4 mr-2 text-yellow-400" />
+                      Safety Notes
+                    </h4>
+                    <ul className="text-sm text-yellow-100 space-y-1">
+                      {task.safetyNotes.map((note, index) => (
+                        <li key={index} className="flex items-start">
+                          <AlertCircle className="h-4 w-4 mr-2 mt-0.5 text-yellow-400 flex-shrink-0" />
+                          {note}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <Button
-                className={`flex-1 ${
-                  canCompleteTask
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-slate-400 cursor-not-allowed"
-                }`}
-                disabled={!canCompleteTask}
-                onClick={handleCompleteTask}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                {canCompleteTask
-                  ? "Complete Task"
-                  : `Complete ${requiredItems.length - completedRequired} more required items`}
-              </Button>
-            </div>
-
-            {!canCompleteTask && (
-              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex items-center gap-2 text-amber-800">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="font-medium">
-                    Complete all required items to finish this task
-                  </span>
+            {/* Task Checklist */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white">Task Checklist</CardTitle>
+                  <div className="text-sm text-slate-300">
+                    {completedItems} of {checklist.length} completed
+                  </div>
                 </div>
-                <p className="text-amber-700 text-sm mt-1">
-                  {requiredItems.length - completedRequired} required item(s)
-                  remaining
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                <Progress value={progress} className="h-2" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {checklist.map((item, index) => (
+                  <div key={item.id}>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id={item.id}
+                        checked={item.completed}
+                        onCheckedChange={() => toggleChecklistItem(item.id)}
+                        className="mt-1"
+                      />
+                      <label
+                        htmlFor={item.id}
+                        className={`text-sm font-medium leading-6 cursor-pointer flex-1 ${
+                          item.completed
+                            ? "line-through text-slate-400"
+                            : "text-white"
+                        }`}
+                      >
+                        {item.text}
+                      </label>
+                    </div>
+                    {index < checklist.length - 1 && (
+                      <Separator className="mt-4 bg-slate-700/50" />
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Completion Notes */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Completion Notes</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Add any observations or notes about this task
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="notes" className="text-slate-300">Notes (Optional)</Label>
+                  <Textarea
+                    id="notes"
+                    placeholder="Enter any observations, issues, or notes..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    rows={4}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Progress Sidebar */}
+          <div className="space-y-6">
+            {/* Progress Summary */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Progress</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">
+                    {Math.round(progress)}%
+                  </div>
+                  <Progress value={progress} className="h-3" />
+                  <p className="text-sm text-slate-400 mt-2">
+                    {completedItems} of {checklist.length} steps completed
+                  </p>
+                </div>
+                
+                <Separator className="bg-slate-700/50" />
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Started:</span>
+                    <span className="text-white">
+                      {startTime?.toLocaleTimeString() || "Not started"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Elapsed:</span>
+                    <span className="text-white">{elapsedTime} minutes</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Estimated:</span>
+                    <span className="text-white">{task.estimatedTimeMinutes} minutes</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  onClick={handleCompleteTask}
+                  disabled={!isAllChecked}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Complete Task
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Take Photo
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Progress
+                </Button>
+                
+                {!isAllChecked && (
+                  <p className="text-xs text-slate-400 text-center">
+                    Complete all checklist items to finish the task
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
     </div>
   );
