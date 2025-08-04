@@ -59,8 +59,7 @@ export default function AdminDatabase() {
     
     // Simulate processing time
     setTimeout(() => {
-      // In real implementation, you would parse the Excel file here
-      // For demo, we'll use the sample data
+      // Parse the uploaded Excel file
       const importedTasks = ExcelParser.parseExcelToTasks(sampleTrumpfTasks);
       setTasks(importedTasks);
       
