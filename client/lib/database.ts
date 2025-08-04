@@ -1,422 +1,229 @@
-// Database schema and task scheduling system
-export interface DatabaseTask {
+// Task management database system
+export interface Task {
   id: string;
   machineId: string;
   machineName: string;
   taskName: string;
   description: string;
-  frequency: "daily" | "weekly" | "monthly" | "quarterly" | "annually";
-  category: "maintenance" | "inspection" | "cleaning" | "safety";
+  frequency: 'daily' | 'weekly' | 'monthly';
+  category: 'maintenance' | 'inspection' | 'cleaning';
   estimatedTimeMinutes: number;
-  requiredTools?: string[];
-  safetyNotes?: string[];
-
-  // Scheduling fields
+  weeklyDay?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
+  safetyNotes: string[];
+  requiredTools: string[];
   isActive: boolean;
   createdDate: Date;
-  lastCompletedDate?: Date;
-  lastCompletedBy?: string;
   nextDueDate: Date;
-
-  // Weekly task specific
-  weeklyDay?:
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
-
-  // Monthly task specific
-  monthlyDate?: number; // Day of month (1-31)
-
-  // Completion tracking
+  lastCompletedDate?: Date;
   completionHistory: TaskCompletion[];
 }
 
 export interface TaskCompletion {
   id: string;
+  taskId: string;
+  userId: string;
+  userName: string;
   completedDate: Date;
-  completedBy: string;
-  completedByRole: string;
-  shift?: "morning" | "afternoon" | "night";
   notes?: string;
   timeSpentMinutes?: number;
-  issuesFound?: string[];
-  correctiveActions?: string[];
 }
 
-export interface ExcelTaskData {
-  machineId: string;
-  machineName: string;
-  taskName: string;
-  description?: string;
-  frequency: string;
-  category?: string;
-  estimatedTime?: number;
-  weeklyDay?: string;
-  monthlyDate?: number;
+export interface Machine {
+  id: string;
+  name: string;
+  type: string;
+  location: string;
+  status: 'operational' | 'maintenance' | 'offline';
+  lastMaintenance?: Date;
+  nextMaintenance?: Date;
+  tasks: Task[];
 }
 
-// Task scheduling logic
+// Task scheduler for intelligent frequency-based scheduling
 export class TaskScheduler {
-  /**
-   * Calculate next due date based on frequency and last completion
-   */
   static calculateNextDueDate(
-    frequency: string,
-    lastCompletedDate: Date | null,
-    weeklyDay?: string,
-    monthlyDate?: number,
+    frequency: Task['frequency'],
+    lastCompleted: Date,
+    weeklyDay?: Task['weeklyDay']
   ): Date {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (!lastCompletedDate) {
-      // First time task - due today
-      return today;
-    }
-
-    const lastCompleted = new Date(
-      lastCompletedDate.getFullYear(),
-      lastCompletedDate.getMonth(),
-      lastCompletedDate.getDate(),
-    );
-
-    switch (frequency.toLowerCase()) {
-      case "daily":
-        // Daily tasks: if completed today, next due is tomorrow
-        const nextDay = new Date(lastCompleted);
-        nextDay.setDate(nextDay.getDate() + 1);
-        return nextDay;
-
-      case "weekly":
-        // Weekly tasks: if completed today, next due is same day next week
-        const nextWeek = new Date(lastCompleted);
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        return nextWeek;
-
-      case "monthly":
-        // Monthly tasks: next due is same date next month
-        const nextMonth = new Date(lastCompleted);
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        if (monthlyDate) {
-          nextMonth.setDate(monthlyDate);
+    const next = new Date(lastCompleted);
+    
+    switch (frequency) {
+      case 'daily':
+        next.setDate(next.getDate() + 1);
+        break;
+      case 'weekly':
+        if (weeklyDay) {
+          const dayMap = {
+            monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5
+          };
+          const targetDay = dayMap[weeklyDay];
+          const currentDay = next.getDay();
+          const daysUntilNext = (7 + targetDay - currentDay) % 7 || 7;
+          next.setDate(next.getDate() + daysUntilNext);
+        } else {
+          next.setDate(next.getDate() + 7);
         }
-        return nextMonth;
-
-      case "quarterly":
-        // Quarterly tasks: next due is 3 months later
-        const nextQuarter = new Date(lastCompleted);
-        nextQuarter.setMonth(nextQuarter.getMonth() + 3);
-        return nextQuarter;
-
-      case "annually":
-        // Annual tasks: next due is same date next year
-        const nextYear = new Date(lastCompleted);
-        nextYear.setFullYear(nextYear.getFullYear() + 1);
-        return nextYear;
-
-      default:
-        // Default to daily if frequency is unknown
-        const defaultNext = new Date(lastCompleted);
-        defaultNext.setDate(defaultNext.getDate() + 1);
-        return defaultNext;
+        break;
+      case 'monthly':
+        next.setMonth(next.getMonth() + 1);
+        break;
     }
+    
+    return next;
   }
 
-  /**
-   * Check if a task is due today
-   */
-  static isTaskDueToday(task: DatabaseTask): boolean {
-    const today = new Date();
-    const todayStr = today.toDateString();
-    const dueDateStr = task.nextDueDate.toDateString();
+  static completeTask(taskId: string, userId: string, userName: string, notes?: string): boolean {
+    const task = taskDatabase.find(t => t.id === taskId);
+    if (!task) return false;
 
-    return todayStr === dueDateStr;
-  }
-
-  /**
-   * Check if a task is overdue
-   */
-  static isTaskOverdue(task: DatabaseTask): boolean {
-    const today = new Date();
-    return task.nextDueDate < today;
-  }
-
-  /**
-   * Get tasks that should be displayed today
-   */
-  static getTasksForToday(allTasks: DatabaseTask[]): {
-    due: DatabaseTask[];
-    overdue: DatabaseTask[];
-    upcoming: DatabaseTask[];
-  } {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const due: DatabaseTask[] = [];
-    const overdue: DatabaseTask[] = [];
-    const upcoming: DatabaseTask[] = [];
-
-    allTasks.forEach((task) => {
-      if (!task.isActive) return;
-
-      if (this.isTaskOverdue(task)) {
-        overdue.push(task);
-      } else if (this.isTaskDueToday(task)) {
-        due.push(task);
-      } else if (task.nextDueDate <= tomorrow) {
-        upcoming.push(task);
-      }
-    });
-
-    return { due, overdue, upcoming };
-  }
-
-  /**
-   * Complete a task and update next due date
-   */
-  static completeTask(
-    task: DatabaseTask,
-    completedBy: string,
-    completedByRole: string,
-    shift?: string,
-    notes?: string,
-    timeSpentMinutes?: number,
-    issuesFound?: string[],
-    correctiveActions?: string[],
-  ): DatabaseTask {
-    const now = new Date();
-
-    // Create completion record
     const completion: TaskCompletion = {
       id: `completion-${Date.now()}`,
-      completedDate: now,
-      completedBy,
-      completedByRole,
-      shift: shift as any,
-      notes,
-      timeSpentMinutes,
-      issuesFound,
-      correctiveActions,
+      taskId,
+      userId,
+      userName,
+      completedDate: new Date(),
+      notes
     };
 
-    // Update task
-    const updatedTask: DatabaseTask = {
-      ...task,
-      lastCompletedDate: now,
-      lastCompletedBy: completedBy,
-      nextDueDate: this.calculateNextDueDate(
-        task.frequency,
-        now,
-        task.weeklyDay,
-        task.monthlyDate,
-      ),
-      completionHistory: [...task.completionHistory, completion],
-    };
+    task.completionHistory.push(completion);
+    task.lastCompletedDate = completion.completedDate;
+    task.nextDueDate = this.calculateNextDueDate(
+      task.frequency,
+      completion.completedDate,
+      task.weeklyDay
+    );
 
-    return updatedTask;
+    return true;
   }
 }
 
 // Excel parsing utilities
 export class ExcelParser {
-  /**
-   * Parse Excel data and convert to database tasks
-   */
-  static parseExcelToTasks(excelData: ExcelTaskData[]): DatabaseTask[] {
-    return excelData.map((row, index) => {
-      const now = new Date();
-
-      // Determine weekly day if it's a weekly task
-      let weeklyDay: any = undefined;
-      if (row.frequency.toLowerCase() === "weekly" && row.weeklyDay) {
-        weeklyDay = row.weeklyDay.toLowerCase();
-      }
-
-      const task: DatabaseTask = {
-        id: `task-${row.machineId}-${index}`,
-        machineId: row.machineId,
-        machineName: row.machineName,
-        taskName: row.taskName,
-        description: row.description || "",
-        frequency: this.normalizeFrequency(row.frequency),
-        category: this.normalizeCategory(row.category),
-        estimatedTimeMinutes: row.estimatedTime || 30,
-        requiredTools: [],
-        safetyNotes: [],
-        isActive: true,
-        createdDate: now,
-        nextDueDate: TaskScheduler.calculateNextDueDate(row.frequency, null),
-        weeklyDay,
-        monthlyDate: row.monthlyDate,
-        completionHistory: [],
-      };
-
-      return task;
-    });
+  static parseExcelToTasks(excelData: any[]): Task[] {
+    return excelData.map((row, index) => ({
+      id: `task-${Date.now()}-${index}`,
+      machineId: row['Machine ID'] || '',
+      machineName: row['Machine Name'] || '',
+      taskName: row['Task Name'] || '',
+      description: row['Description'] || '',
+      frequency: (row['Frequency'] || 'weekly').toLowerCase() as Task['frequency'],
+      category: (row['Category'] || 'maintenance').toLowerCase() as Task['category'],
+      estimatedTimeMinutes: parseInt(row['Estimated Time (min)']) || 30,
+      weeklyDay: row['Weekly Day']?.toLowerCase() as Task['weeklyDay'],
+      safetyNotes: row['Safety Notes'] ? [row['Safety Notes']] : [],
+      requiredTools: row['Required Tools'] ? [row['Required Tools']] : [],
+      isActive: true,
+      createdDate: new Date(),
+      nextDueDate: new Date(), // Will be calculated based on frequency
+      completionHistory: []
+    }));
   }
 
-  private static normalizeFrequency(
-    frequency: string,
-  ): "daily" | "weekly" | "monthly" | "quarterly" | "annually" {
-    const freq = frequency.toLowerCase().trim();
-    if (freq.includes("daily")) return "daily";
-    if (freq.includes("weekly")) return "weekly";
-    if (freq.includes("monthly")) return "monthly";
-    if (freq.includes("quarterly")) return "quarterly";
-    if (freq.includes("annual")) return "annually";
-    return "daily"; // default
-  }
+  static exportTasksToCSV(tasks: Task[]): string {
+    const headers = [
+      'Machine ID', 'Machine Name', 'Task Name', 'Description', 'Frequency',
+      'Category', 'Estimated Time (min)', 'Weekly Day', 'Safety Notes', 'Required Tools',
+      'Status', 'Next Due Date', 'Last Completed'
+    ];
 
-  private static normalizeCategory(
-    category?: string,
-  ): "maintenance" | "inspection" | "cleaning" | "safety" {
-    if (!category) return "maintenance";
-    const cat = category.toLowerCase().trim();
-    if (cat.includes("inspect")) return "inspection";
-    if (cat.includes("clean")) return "cleaning";
-    if (cat.includes("safety")) return "safety";
-    return "maintenance";
+    const rows = tasks.map(task => [
+      task.machineId,
+      task.machineName,
+      task.taskName,
+      task.description,
+      task.frequency,
+      task.category,
+      task.estimatedTimeMinutes.toString(),
+      task.weeklyDay || '',
+      task.safetyNotes.join('; '),
+      task.requiredTools.join('; '),
+      task.isActive ? 'Active' : 'Inactive',
+      task.nextDueDate.toLocaleDateString(),
+      task.lastCompletedDate?.toLocaleDateString() || 'Never'
+    ]);
+
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
   }
 }
 
-// Sample data based on your Trumpf 5000 Punch sheet
-export const sampleTrumpfTasks: ExcelTaskData[] = [
-  // Daily tasks
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Visual Inspection of Turret, Tables, Make sure rails are clear",
-    frequency: "daily",
-    category: "inspection",
-    estimatedTime: 10,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Chip Vacuum System: Clean Chip Flag, replace seal if needed",
-    frequency: "daily",
-    category: "cleaning",
-    estimatedTime: 15,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Visual inspection of chip conveyor belt and guarding condition",
-    frequency: "daily",
-    category: "inspection",
-    estimatedTime: 10,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName:
-      "Inspect Tooling During Setup for proper clearance, setup and alignment",
-    frequency: "daily",
-    category: "inspection",
-    estimatedTime: 20,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Clean Punching Tool holder and check stripper segment",
-    frequency: "daily",
-    category: "cleaning",
-    estimatedTime: 15,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Wipe Glass Sheet Master Section Cups and replace as needed",
-    frequency: "daily",
-    category: "cleaning",
-    estimatedTime: 10,
-  },
+// In-memory database - starts empty, will be populated via Excel uploads
+export const taskDatabase: Task[] = [];
+export const machineDatabase: Machine[] = [];
 
-  // Weekly tasks
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Clean strainer and filter on Chip Vacuum System - Suction Tube",
-    frequency: "weekly",
-    weeklyDay: "monday",
-    category: "cleaning",
-    estimatedTime: 30,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Inspect Punching Fluid Reservoir fill as needed",
-    frequency: "weekly",
-    weeklyDay: "tuesday",
-    category: "maintenance",
-    estimatedTime: 20,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Inspect Tapping Fluid Reservoir fill as needed",
-    frequency: "weekly",
-    weeklyDay: "wednesday",
-    category: "maintenance",
-    estimatedTime: 20,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Clean the index pin",
-    frequency: "weekly",
-    weeklyDay: "thursday",
-    category: "cleaning",
-    estimatedTime: 15,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Clean sensor and deflector for stripper detection",
-    frequency: "weekly",
-    weeklyDay: "friday",
-    category: "cleaning",
-    estimatedTime: 15,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Clean Tool Cartridge Rail",
-    frequency: "weekly",
-    weeklyDay: "friday",
-    category: "cleaning",
-    estimatedTime: 20,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Wipe Excess Oil From Slides",
-    frequency: "weekly",
-    weeklyDay: "friday",
-    category: "cleaning",
-    estimatedTime: 15,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Wipe Machine Down",
-    frequency: "weekly",
-    weeklyDay: "friday",
-    category: "cleaning",
-    estimatedTime: 25,
-  },
-  {
-    machineId: "TRUMPF-5000-001",
-    machineName: "Trumpf 5000 Punch",
-    taskName: "Sharpen Any Dull Tooling",
-    frequency: "weekly",
-    weeklyDay: "friday",
-    category: "maintenance",
-    estimatedTime: 45,
-  },
-];
+// Database operations
+export class Database {
+  static addTask(task: Task): void {
+    taskDatabase.push(task);
+  }
+
+  static addTasks(tasks: Task[]): void {
+    taskDatabase.push(...tasks);
+  }
+
+  static getTasks(): Task[] {
+    return taskDatabase;
+  }
+
+  static getTaskById(id: string): Task | undefined {
+    return taskDatabase.find(t => t.id === id);
+  }
+
+  static getTasksByMachine(machineId: string): Task[] {
+    return taskDatabase.filter(t => t.machineId === machineId);
+  }
+
+  static getMachines(): Machine[] {
+    // Generate machines from tasks
+    const machineMap = new Map<string, Machine>();
+    
+    taskDatabase.forEach(task => {
+      if (!machineMap.has(task.machineId)) {
+        machineMap.set(task.machineId, {
+          id: task.machineId,
+          name: task.machineName,
+          type: 'Industrial Equipment',
+          location: 'Production Floor',
+          status: 'operational' as const,
+          tasks: []
+        });
+      }
+      machineMap.get(task.machineId)!.tasks.push(task);
+    });
+
+    return Array.from(machineMap.values());
+  }
+
+  static getMachineById(id: string): Machine | undefined {
+    return this.getMachines().find(m => m.id === id);
+  }
+
+  static clearDatabase(): void {
+    taskDatabase.length = 0;
+    machineDatabase.length = 0;
+  }
+
+  static getAnalytics() {
+    const tasks = this.getTasks();
+    const machines = this.getMachines();
+    
+    return {
+      totalTasks: tasks.length,
+      totalMachines: machines.length,
+      completedToday: tasks.filter(t => 
+        t.lastCompletedDate && 
+        t.lastCompletedDate.toDateString() === new Date().toDateString()
+      ).length,
+      overdueTasks: tasks.filter(t => t.nextDueDate < new Date()).length,
+      upcomingTasks: tasks.filter(t => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return t.nextDueDate.toDateString() === tomorrow.toDateString();
+      }).length
+    };
+  }
+}
+
+export default Database;
