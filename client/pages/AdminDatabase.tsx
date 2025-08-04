@@ -17,7 +17,7 @@ export default function AdminDatabase() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
 
-  // Load sample data for demonstration
+  // Load template data
   const loadSampleData = () => {
     const trumpfTasks = convertExcelToDatabase();
     setTasks(trumpfTasks as any);
