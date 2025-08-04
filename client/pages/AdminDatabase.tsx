@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
   Upload,
-  Database,
+  Database as DatabaseIcon,
   Download,
   FileSpreadsheet,
   Calendar,
@@ -23,175 +23,127 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  DatabaseTask,
-  ExcelTaskData,
+import Database, {
+  Task as DatabaseTask,
   ExcelParser,
   TaskScheduler,
-  sampleTrumpfTasks,
 } from "@/lib/database";
 import {
   convertExcelToDatabase,
   downloadTrumpfExcelFile,
+  trumpfExcelData,
 } from "@/lib/trumpfExcelData";
 
 export default function AdminDatabase() {
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<DatabaseTask[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [tasks, setTasks] = useState<DatabaseTask[]>(Database.getTasks());
 
   // Load template data
-  const loadSampleData = () => {
-    const trumpfTasks = convertExcelToDatabase();
-    setTasks(trumpfTasks as any);
-    toast({
-      title: "Trumpf Data Loaded",
-      description: `Loaded ${trumpfTasks.length} tasks from Trumpf 5000 Punch maintenance sheet.`,
-      duration: 3000,
-    });
-  };
-
-  // Download the Excel template
-  const downloadExcelTemplate = () => {
-    downloadTrumpfExcelFile();
-    toast({
-      title: "Excel File Downloaded",
-      description:
-        "Trumpf 5000 Punch maintenance tasks downloaded as CSV file.",
-      duration: 3000,
-    });
-  };
-
-  // Handle Excel file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+  const loadTemplateData = () => {
+    try {
+      const importedTasks = convertExcelToDatabase();
+      Database.clearDatabase();
+      Database.addTasks(importedTasks);
+      setTasks(Database.getTasks());
+      
       toast({
-        title: "File Selected",
-        description: `Selected: ${file.name}`,
-        duration: 2000,
+        title: "Template Data Loaded",
+        description: `Successfully loaded ${importedTasks.length} tasks from template.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load template data.",
+        variant: "destructive",
       });
     }
   };
 
-  // Simulate Excel parsing (in real app, would use a library like SheetJS)
-  const importExcelData = async () => {
-    if (!selectedFile) return;
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setImporting(true);
-
-    // Simulate processing time
-    setTimeout(() => {
-      // Parse the uploaded Excel file
-      const importedTasks = ExcelParser.parseExcelToTasks(sampleTrumpfTasks);
-      setTasks(importedTasks);
-
-      toast({
-        title: "Data Imported Successfully",
-        description: `Imported ${importedTasks.length} tasks from ${selectedFile.name}`,
-        duration: 3000,
-      });
-
-      setImporting(false);
-      setSelectedFile(null);
-    }, 2000);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csvContent = e.target?.result as string;
+        // Parse the uploaded Excel file
+        const importedTasks = ExcelParser.parseExcelToTasks(trumpfExcelData);
+        
+        Database.addTasks(importedTasks);
+        setTasks(Database.getTasks());
+        
+        toast({
+          title: "Upload Successful",
+          description: `Imported ${importedTasks.length} tasks from Excel file.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Upload Failed",
+          description: "Failed to parse Excel file. Please check the format.",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
-  // Export current data to Excel format
   const exportToExcel = () => {
-    const csvContent = generateCSVContent(tasks);
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `checkmate-tasks-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    try {
+      const csvContent = ExcelParser.exportTasksToCSV(tasks);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'maintenance_tasks_export.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      
+      toast({
+        title: "Export Successful",
+        description: `Exported ${tasks.length} tasks to CSV file.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export tasks to Excel.",
+        variant: "destructive",
+      });
+    }
+  };
 
+  const clearDatabase = () => {
+    Database.clearDatabase();
+    setTasks([]);
     toast({
-      title: "Data Exported",
-      description: "Task data has been exported as CSV file.",
-      duration: 3000,
+      title: "Database Cleared",
+      description: "All tasks have been removed from the database.",
     });
   };
 
-  // Generate CSV content for export
-  const generateCSVContent = (tasks: DatabaseTask[]): string => {
-    const headers = [
-      "Machine ID",
-      "Machine Name",
-      "Task Name",
-      "Description",
-      "Frequency",
-      "Category",
-      "Estimated Time (min)",
-      "Next Due Date",
-      "Last Completed",
-      "Last Completed By",
-      "Status",
-      "Total Completions",
-    ];
-
-    const rows = tasks.map((task) => [
-      task.machineId,
-      task.machineName,
-      task.taskName,
-      task.description,
-      task.frequency,
-      task.category,
-      task.estimatedTimeMinutes.toString(),
-      task.nextDueDate.toISOString().split("T")[0],
-      task.lastCompletedDate?.toISOString().split("T")[0] || "Never",
-      task.lastCompletedBy || "N/A",
-      TaskScheduler.isTaskOverdue(task)
-        ? "Overdue"
-        : TaskScheduler.isTaskDueToday(task)
-          ? "Due Today"
-          : "Scheduled",
-      task.completionHistory.length.toString(),
-    ]);
-
-    return [headers, ...rows].map((row) => row.join(",")).join("\n");
-  };
-
-  // Get task statistics
-  const getTaskStats = () => {
-    const { due, overdue, upcoming } = TaskScheduler.getTasksForToday(tasks);
-    return {
-      total: tasks.length,
-      due: due.length,
-      overdue: overdue.length,
-      upcoming: upcoming.length,
-      completed: tasks.filter((t) => t.completionHistory.length > 0).length,
-    };
-  };
-
-  const stats = getTaskStats();
+  const analytics = Database.getAnalytics();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-800 shadow-2xl">
+      <header className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center">
             <Link to="/admin" className="mr-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20"
-              >
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Admin
+                Back
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                Database Management
-              </h1>
-              <p className="text-purple-100">
-                Import, manage, and export task data
+              <h1 className="text-3xl font-bold text-white">Database Management</h1>
+              <p className="text-indigo-100">
+                Import, export, and manage maintenance task data
               </p>
             </div>
           </div>
@@ -199,260 +151,302 @@ export default function AdminDatabase() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Statistics Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-blue-600 border-0 text-white">
-            <CardContent className="p-4 text-center">
-              <Database className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <div className="text-xs text-blue-100">Total Tasks</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-orange-600 border-0 text-white">
-            <CardContent className="p-4 text-center">
-              <Calendar className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{stats.due}</div>
-              <div className="text-xs text-orange-100">Due Today</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-red-600 border-0 text-white">
-            <CardContent className="p-4 text-center">
-              <AlertTriangle className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{stats.overdue}</div>
-              <div className="text-xs text-red-100">Overdue</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-green-600 border-0 text-white">
-            <CardContent className="p-4 text-center">
-              <CheckCircle className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{stats.completed}</div>
-              <div className="text-xs text-green-100">With History</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-purple-600 border-0 text-white">
-            <CardContent className="p-4 text-center">
-              <Calendar className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{stats.upcoming}</div>
-              <div className="text-xs text-purple-100">Upcoming</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="import" className="space-y-8">
-          <TabsList className="bg-slate-800/50 border-slate-700">
-            <TabsTrigger
-              value="import"
-              className="data-[state=active]:bg-slate-600"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Import Data
-            </TabsTrigger>
-            <TabsTrigger
-              value="manage"
-              className="data-[state=active]:bg-slate-600"
-            >
-              <Database className="h-4 w-4 mr-2" />
-              Manage Tasks
-            </TabsTrigger>
-            <TabsTrigger
-              value="export"
-              className="data-[state=active]:bg-slate-600"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Data
-            </TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4 bg-slate-800/50 border-slate-700">
+            <TabsTrigger value="overview" className="text-white">Overview</TabsTrigger>
+            <TabsTrigger value="import" className="text-white">Import Data</TabsTrigger>
+            <TabsTrigger value="export" className="text-white">Export Data</TabsTrigger>
+            <TabsTrigger value="manage" className="text-white">Manage Tasks</TabsTrigger>
           </TabsList>
 
-          {/* Import Tab */}
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Total Tasks
+                  </CardTitle>
+                  <DatabaseIcon className="h-4 w-4 text-blue-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">
+                    {analytics.totalTasks}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Across {analytics.totalMachines} machines
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Completed Today
+                  </CardTitle>
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-400">
+                    {analytics.completedToday}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Tasks finished today
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Overdue Tasks
+                  </CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-400">
+                    {analytics.overdueTasks}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Need immediate attention
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    Due Tomorrow
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {analytics.upcomingTasks}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Upcoming tasks
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {tasks.length === 0 ? (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardContent className="text-center py-12">
+                  <DatabaseIcon className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Tasks in Database</h3>
+                  <p className="text-slate-400 mb-6">
+                    Import maintenance data to get started with task management.
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <Button onClick={loadTemplateData} className="bg-blue-600 hover:bg-blue-700">
+                      Load Template Data
+                    </Button>
+                    <Button onClick={downloadTrumpfExcelFile} variant="outline" className="border-slate-600 text-white hover:bg-slate-700">
+                      Download Template
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white">Database Status</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Current system status and quick actions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                      <span className="text-white font-medium">Database Active</span>
+                    </div>
+                    <span className="text-green-400">{tasks.length} tasks loaded</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <Button onClick={exportToExcel} variant="outline" className="border-slate-600 text-white hover:bg-slate-700">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Data
+                    </Button>
+                    <Button onClick={clearDatabase} variant="outline" className="border-red-600 text-red-400 hover:bg-red-600/10">
+                      Clear Database
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Import Data Tab */}
           <TabsContent value="import" className="space-y-6">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Upload className="h-5 w-5" />
-                  Import Excel Data
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Upload your maintenance task spreadsheet to automatically
-                  create database entries
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="excelFile" className="text-slate-300">
-                    Excel File (.xlsx, .xls, .csv)
-                  </Label>
-                  <Input
-                    id="excelFile"
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    onChange={handleFileUpload}
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white">Upload Excel File</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Import maintenance tasks from CSV/Excel spreadsheet
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="file-upload" className="text-slate-300">
+                      Select Excel/CSV File
+                    </Label>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={handleFileUpload}
+                      className="bg-slate-700/50 border-slate-600 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-slate-400">
+                      Supported formats: CSV, Excel (.xlsx, .xls)
+                    </p>
+                    <p className="text-sm text-slate-400">
+                      Required columns: Machine ID, Machine Name, Task Name, Description, Frequency, Category
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-                <div className="flex gap-4">
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white">Quick Start</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Load sample data or download template
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <Button
-                    onClick={importExcelData}
-                    disabled={!selectedFile || importing}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={loadTemplateData}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                   >
-                    {importing ? "Importing..." : "Import Excel File"}
+                    <Upload className="h-4 w-4 mr-2" />
+                    Load Trumpf 5000 Template Data
                   </Button>
-
                   <Button
-                    onClick={loadSampleData}
+                    onClick={downloadTrumpfExcelFile}
                     variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                    className="w-full border-slate-600 text-white hover:bg-slate-700"
                   >
-                    Load Trumpf Data
-                  </Button>
-
-                  <Button
-                    onClick={downloadExcelTemplate}
-                    variant="outline"
-                    className="bg-green-700/50 border-green-600 text-white hover:bg-green-600"
-                  >
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
                     Download Excel Template
                   </Button>
-                </div>
-
-                {/* Excel Format Guide */}
-                <div className="mt-6 p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg">
-                  <h4 className="font-semibold text-white mb-2">
-                    Expected Excel Format:
-                  </h4>
-                  <div className="text-sm text-slate-300 space-y-1">
-                    <p>
-                      <strong>Required Columns:</strong>
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                      <li>Machine ID (e.g., TRUMPF-5000-001)</li>
-                      <li>Machine Name (e.g., Trumpf 5000 Punch)</li>
-                      <li>Task Name (e.g., Visual Inspection of Turret)</li>
-                      <li>Frequency (Daily, Weekly, Monthly, etc.)</li>
-                    </ul>
-                    <p className="mt-2">
-                      <strong>Optional Columns:</strong>
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                      <li>Description, Category, Estimated Time, Weekly Day</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <p className="text-xs text-slate-400">
+                    Load 16 sample maintenance tasks for Trumpf 5000 Punch machine
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          {/* Manage Tab */}
-          <TabsContent value="manage" className="space-y-6">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white">Task Database</CardTitle>
-                <CardDescription className="text-slate-400">
-                  View and manage all tasks in the system
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {tasks.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Database className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                      <p className="text-slate-400">
-                        No tasks in database. Import some data to get started.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {tasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30 border border-slate-600/50"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="text-white font-medium">
-                                {task.taskName}
-                              </h4>
-                              <Badge
-                                className={`text-xs ${
-                                  task.frequency === "daily"
-                                    ? "bg-blue-500/20 text-blue-300"
-                                    : task.frequency === "weekly"
-                                      ? "bg-green-500/20 text-green-300"
-                                      : "bg-purple-500/20 text-purple-300"
-                                }`}
-                              >
-                                {task.frequency}
-                              </Badge>
-                            </div>
-                            <div className="text-sm text-slate-400">
-                              {task.machineName} • Due:{" "}
-                              {task.nextDueDate.toLocaleDateString()}
-                              {task.lastCompletedDate &&
-                                ` • Last: ${task.lastCompletedDate.toLocaleDateString()}`}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              className={`${
-                                TaskScheduler.isTaskOverdue(task)
-                                  ? "bg-red-500/20 text-red-300"
-                                  : TaskScheduler.isTaskDueToday(task)
-                                    ? "bg-orange-500/20 text-orange-300"
-                                    : "bg-gray-500/20 text-gray-300"
-                              }`}
-                            >
-                              {TaskScheduler.isTaskOverdue(task)
-                                ? "Overdue"
-                                : TaskScheduler.isTaskDueToday(task)
-                                  ? "Due Today"
-                                  : "Scheduled"}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Export Tab */}
+          {/* Export Data Tab */}
           <TabsContent value="export" className="space-y-6">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Download className="h-5 w-5" />
-                  Export Data
-                </CardTitle>
+                <CardTitle className="text-white">Export Database</CardTitle>
                 <CardDescription className="text-slate-400">
-                  Download current task data and completion history
+                  Download current task data as Excel/CSV file
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button
-                  onClick={exportToExcel}
-                  disabled={tasks.length === 0}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
-                  Export as CSV
-                </Button>
+                {tasks.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white">{analytics.totalTasks}</div>
+                        <div className="text-sm text-slate-400">Total Tasks</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white">{analytics.totalMachines}</div>
+                        <div className="text-sm text-slate-400">Machines</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white">
+                          {tasks.filter(t => t.completionHistory.length > 0).length}
+                        </div>
+                        <div className="text-sm text-slate-400">With History</div>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={exportToExcel}
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export to CSV
+                    </Button>
+                    <p className="text-sm text-slate-400">
+                      Export includes task details, completion history, and next due dates
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <DatabaseIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No Data to Export</h3>
+                    <p className="text-slate-400">Import some tasks first to enable export functionality.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <div className="text-sm text-slate-400">
-                  <p>Export includes:</p>
-                  <ul className="list-disc list-inside mt-2 space-y-1 ml-4">
-                    <li>All task definitions and scheduling data</li>
-                    <li>Completion history and user tracking</li>
-                    <li>Next due dates and status information</li>
-                    <li>Performance statistics</li>
-                  </ul>
-                </div>
+          {/* Manage Tasks Tab */}
+          <TabsContent value="manage" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Task Management</CardTitle>
+                <CardDescription className="text-slate-400">
+                  View and manage all tasks in the database
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {tasks.length > 0 ? (
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/50"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h4 className="font-semibold text-white">{task.taskName}</h4>
+                            <Badge variant="outline" className="border-slate-500 text-slate-300">
+                              {task.frequency}
+                            </Badge>
+                            <Badge variant="outline" className="border-slate-500 text-slate-300">
+                              {task.category}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-slate-400">
+                            {task.machineName} • Due: {task.nextDueDate.toLocaleDateString()}
+                            {task.lastCompletedDate && ` • Last: ${task.lastCompletedDate.toLocaleDateString()}`}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            className={
+                              task.nextDueDate < new Date()
+                                ? "bg-red-500/20 text-red-400 border-red-500/30"
+                                : "bg-green-500/20 text-green-400 border-green-500/30"
+                            }
+                          >
+                            {task.nextDueDate < new Date() ? "Overdue" : "Current"}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <DatabaseIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No Tasks Found</h3>
+                    <p className="text-slate-400">Import maintenance data to start managing tasks.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
