@@ -14,6 +14,7 @@ import Tasks from "./pages/Tasks";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
+import AdminDatabase from "./pages/AdminDatabase";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
