@@ -364,6 +364,21 @@ export const updateChecklistItem = (
       if (completedRequired.length === requiredItems.length) {
         task.status = "completed";
         task.lastCompleted = new Date();
+
+        // Calculate next due date based on frequency
+        if (task.frequency === 'daily') {
+          const nextDue = new Date();
+          nextDue.setDate(nextDue.getDate() + 1);
+          task.nextDue = nextDue;
+        } else if (task.frequency === 'weekly') {
+          const nextDue = new Date();
+          nextDue.setDate(nextDue.getDate() + 7);
+          task.nextDue = nextDue;
+        } else if (task.frequency === 'monthly') {
+          const nextDue = new Date();
+          nextDue.setMonth(nextDue.getMonth() + 1);
+          task.nextDue = nextDue;
+        }
       } else if (completedRequired.length > 0) {
         task.status = "in-progress";
       } else {
