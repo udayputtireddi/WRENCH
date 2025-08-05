@@ -205,42 +205,7 @@ export default function UserHome() {
           </div>
         )}
 
-        {/* Quick Tips - Only show if no data */}
-        {analytics.totalTasks === 0 && (
-          <div className="max-w-2xl mx-auto">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white text-center">Getting Started</CardTitle>
-                <CardDescription className="text-slate-400 text-center">
-                  Here's what you can do once your tasks are set up:
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <QrCode className="h-6 w-6 text-blue-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Scan Machine QR Codes</p>
-                    <p className="text-slate-400 text-sm">Quickly access specific machine maintenance tasks</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckSquare className="h-6 w-6 text-green-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Complete Task Checklists</p>
-                    <p className="text-slate-400 text-sm">Follow step-by-step maintenance procedures</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Activity className="h-6 w-6 text-purple-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Track Your Progress</p>
-                    <p className="text-slate-400 text-sm">Monitor daily task completion and performance</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
       </main>
     </div>
   );
