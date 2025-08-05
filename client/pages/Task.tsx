@@ -34,9 +34,7 @@ import {
   X,
   Image as ImageIcon,
 } from "lucide-react";
-import {
-  getTaskStatusColor,
-} from "@/lib/mockData";
+import { getTaskStatusColor } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
@@ -50,8 +48,10 @@ export default function Task() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [checklist, setChecklist] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+
+  const [checklist, setChecklist] = useState<
+    { id: string; text: string; completed: boolean }[]
+  >([]);
   const [notes, setNotes] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -65,8 +65,11 @@ export default function Task() {
   useEffect(() => {
     if (task && currentUser) {
       // Load existing progress if any
-      const savedProgress = TaskScheduler.getTaskProgress(task.id, currentUser.id);
-      
+      const savedProgress = TaskScheduler.getTaskProgress(
+        task.id,
+        currentUser.id,
+      );
+
       if (savedProgress) {
         setChecklist(savedProgress.checklistItems);
         setNotes(savedProgress.notes || "");
@@ -80,19 +83,19 @@ export default function Task() {
           { id: "4", text: "Inspect completed work", completed: false },
           { id: "5", text: "Clean work area", completed: false },
         ];
-        
+
         // Add safety notes as checklist items
         task.safetyNotes.forEach((note, index) => {
           taskChecklist.splice(1, 0, {
             id: `safety-${index}`,
             text: `Safety: ${note}`,
-            completed: false
+            completed: false,
           });
         });
 
         setChecklist(taskChecklist);
       }
-      
+
       setStartTime(new Date());
     }
   }, [task, currentUser]);
@@ -105,13 +108,19 @@ export default function Task() {
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
               <Link to="/" className="mr-4">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-white">Task Not Available</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  Task Not Available
+                </h1>
                 <p className="text-purple-100">No task data found</p>
               </div>
             </div>
@@ -128,7 +137,8 @@ export default function Task() {
               </h2>
             </div>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
-              Task information will be available once maintenance data is uploaded. Contact your administrator to set up tasks.
+              Task information will be available once maintenance data is
+              uploaded. Contact your administrator to set up tasks.
             </p>
             <Link to="/admin/database">
               <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 text-lg">
@@ -150,13 +160,19 @@ export default function Task() {
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
               <Link to="/" className="mr-4">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Home
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-white">Task Not Found</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  Task Not Found
+                </h1>
                 <p className="text-purple-100">Task ID: {taskId}</p>
               </div>
             </div>
@@ -167,7 +183,9 @@ export default function Task() {
           <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-2xl mx-auto">
             <CardHeader className="text-center">
               <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-2xl">Task Not Found</CardTitle>
+              <CardTitle className="text-white text-2xl">
+                Task Not Found
+              </CardTitle>
               <CardDescription className="text-slate-400">
                 The requested task could not be found in the system.
               </CardDescription>
@@ -191,15 +209,16 @@ export default function Task() {
   }
 
   const toggleChecklistItem = (id: string) => {
-    setChecklist(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
+    setChecklist((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, completed: !item.completed } : item,
+      ),
     );
   };
 
-  const completedItems = checklist.filter(item => item.completed).length;
-  const progress = checklist.length > 0 ? (completedItems / checklist.length) * 100 : 0;
+  const completedItems = checklist.filter((item) => item.completed).length;
+  const progress =
+    checklist.length > 0 ? (completedItems / checklist.length) * 100 : 0;
   const isAllChecked = completedItems === checklist.length;
 
   const handleCompleteTask = () => {
@@ -211,7 +230,7 @@ export default function Task() {
       currentUser.name,
       checklist,
       notes,
-      photos
+      photos,
     );
 
     if (success) {
@@ -224,7 +243,7 @@ export default function Task() {
         if (machine) {
           navigate(`/machine/${task.machineId}`);
         } else {
-          navigate('/tasks');
+          navigate("/tasks");
         }
       }, 1500);
     }
@@ -239,7 +258,7 @@ export default function Task() {
       currentUser.name,
       checklist,
       notes,
-      photos
+      photos,
     );
 
     if (success) {
@@ -259,22 +278,27 @@ export default function Task() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setPhotos(prev => [...prev, result]);
+        setPhotos((prev) => [...prev, result]);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const taskStatus = task.nextDueDate < new Date() ? 'Overdue' :
-                   task.lastCompletedDate && 
-                   task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
-                   'Pending';
+  const taskStatus =
+    task.nextDueDate < new Date()
+      ? "Overdue"
+      : task.lastCompletedDate &&
+          task.lastCompletedDate.toDateString() === new Date().toDateString()
+        ? "Completed"
+        : "Pending";
 
-  const elapsedTime = startTime ? Math.floor((new Date().getTime() - startTime.getTime()) / 60000) : 0;
+  const elapsedTime = startTime
+    ? Math.floor((new Date().getTime() - startTime.getTime()) / 60000)
+    : 0;
 
   if (isCompleted) {
     return (
@@ -282,7 +306,9 @@ export default function Task() {
         <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-md mx-auto">
           <CardHeader className="text-center">
             <CheckCircle2 className="h-20 w-20 text-green-400 mx-auto mb-4" />
-            <CardTitle className="text-white text-2xl">Task Completed!</CardTitle>
+            <CardTitle className="text-white text-2xl">
+              Task Completed!
+            </CardTitle>
             <CardDescription className="text-slate-400">
               Great job! The task has been marked as complete.
             </CardDescription>
@@ -292,15 +318,20 @@ export default function Task() {
               Time spent: {elapsedTime} minutes
             </p>
             <p className="text-slate-300 mb-6">
-              Next due: {TaskScheduler.calculateNextDueDate(task.frequency, new Date(), task.weeklyDay).toLocaleDateString()}
+              Next due:{" "}
+              {TaskScheduler.calculateNextDueDate(
+                task.frequency,
+                new Date(),
+                task.weeklyDay,
+              ).toLocaleDateString()}
             </p>
-            <Button 
+            <Button
               onClick={() => {
                 const machine = Database.getMachineById(task.machineId);
                 if (machine) {
                   navigate(`/machine/${task.machineId}`);
                 } else {
-                  navigate('/tasks');
+                  navigate("/tasks");
                 }
               }}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
@@ -319,18 +350,21 @@ export default function Task() {
       <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0">
-            <Link
-              to="/tasks"
-              className="self-start"
-            >
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 px-2 sm:px-3">
+            <Link to="/tasks" className="self-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 px-2 sm:px-3"
+              >
                 <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Back to Tasks</span>
                 <span className="sm:hidden">Back</span>
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">{task.taskName}</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">
+                {task.taskName}
+              </h1>
               <p className="text-purple-100 text-sm sm:text-base">
                 {task.machineName} • {task.frequency} {task.category}
               </p>
@@ -358,7 +392,7 @@ export default function Task() {
                   <h3 className="font-semibold text-white mb-2">Description</h3>
                   <p className="text-slate-300">{task.description}</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-semibold text-white mb-2">Task Info</h4>
@@ -377,10 +411,12 @@ export default function Task() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {task.requiredTools.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-white mb-2">Required Tools</h4>
+                      <h4 className="font-semibold text-white mb-2">
+                        Required Tools
+                      </h4>
                       <ul className="text-sm text-slate-300 space-y-1">
                         {task.requiredTools.map((tool, index) => (
                           <li key={index}>• {tool}</li>
@@ -459,7 +495,7 @@ export default function Task() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Button 
+                  <Button
                     onClick={handleTakePhoto}
                     variant="outline"
                     className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
@@ -467,7 +503,7 @@ export default function Task() {
                     <Camera className="h-4 w-4 mr-2" />
                     Take Photo
                   </Button>
-                  
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -475,7 +511,7 @@ export default function Task() {
                     onChange={handleFileSelect}
                     className="hidden"
                   />
-                  
+
                   {photos.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
                       {photos.map((photo, index) => (
@@ -511,7 +547,9 @@ export default function Task() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-slate-300">Notes (Optional)</Label>
+                  <Label htmlFor="notes" className="text-slate-300">
+                    Notes (Optional)
+                  </Label>
                   <Textarea
                     id="notes"
                     placeholder="Enter any observations, issues, or notes..."
@@ -542,9 +580,9 @@ export default function Task() {
                     {completedItems} of {checklist.length} steps completed
                   </p>
                 </div>
-                
+
                 <Separator className="bg-slate-700/50" />
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-300">Started:</span>
@@ -558,7 +596,9 @@ export default function Task() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-300">Estimated:</span>
-                    <span className="text-white">{task.estimatedTimeMinutes} minutes</span>
+                    <span className="text-white">
+                      {task.estimatedTimeMinutes} minutes
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-300">Photos:</span>
@@ -582,7 +622,7 @@ export default function Task() {
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Complete Task
                 </Button>
-                
+
                 <Button
                   onClick={handleSaveProgress}
                   variant="outline"
@@ -596,9 +636,12 @@ export default function Task() {
                   <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                     <div className="text-center">
                       <CheckCircle2 className="h-5 w-5 text-blue-400 mx-auto mb-1" />
-                      <p className="text-sm text-blue-300 font-medium">Progress Saved</p>
+                      <p className="text-sm text-blue-300 font-medium">
+                        Progress Saved
+                      </p>
                       <p className="text-xs text-blue-200">
-                        {completedItems}/{checklist.length} items completed • Not finished
+                        {completedItems}/{checklist.length} items completed •
+                        Not finished
                       </p>
                     </div>
                   </div>

@@ -28,8 +28,8 @@ export default function Login() {
 
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const user = AuthService.login(email, password);
       if (user) {
         navigate("/");
@@ -123,12 +123,18 @@ export default function Login() {
                 Contact your system administrator for access
               </p>
               <div className="p-2 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left mx-2 sm:mx-0">
-                <p className="text-blue-300 text-xs font-medium mb-1">Quick Login Examples:</p>
-                <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">admin@company.com</span> with any password
+                <p className="text-blue-300 text-xs font-medium mb-1">
+                  Quick Login Examples:
                 </p>
                 <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">operator@company.com</span> with any password
+                  <span className="font-mono text-xs">admin@company.com</span>{" "}
+                  with any password
+                </p>
+                <p className="text-blue-200 text-xs break-all">
+                  <span className="font-mono text-xs">
+                    operator@company.com
+                  </span>{" "}
+                  with any password
                 </p>
                 <p className="text-slate-400 text-xs mt-1">
                   Note: Use strong passwords to avoid browser security warnings

@@ -41,8 +41,12 @@ export default function UserHome() {
               <div className="flex items-center text-white">
                 <User className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                 <div>
-                  <p className="font-semibold text-sm sm:text-base truncate max-w-32 sm:max-w-none">{currentUser?.name}</p>
-                  <p className="text-blue-200 text-xs sm:text-sm">{currentUser?.department}</p>
+                  <p className="font-semibold text-sm sm:text-base truncate max-w-32 sm:max-w-none">
+                    {currentUser?.name}
+                  </p>
+                  <p className="text-blue-200 text-xs sm:text-sm">
+                    {currentUser?.department}
+                  </p>
                 </div>
               </div>
               <Button
@@ -86,10 +90,14 @@ export default function UserHome() {
               </h2>
             </div>
             <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8">
-              Your maintenance schedule hasn't been uploaded yet. Contact your supervisor or administrator to set up your tasks.
+              Your maintenance schedule hasn't been uploaded yet. Contact your
+              supervisor or administrator to set up your tasks.
             </p>
             <div className="flex justify-center gap-4">
-              <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 text-sm px-4 py-2">
+              <Button
+                variant="outline"
+                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 text-sm px-4 py-2"
+              >
                 Contact Support
               </Button>
             </div>
@@ -103,7 +111,8 @@ export default function UserHome() {
               </h2>
             </div>
             <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              You have {analytics.totalTasks} tasks scheduled across {analytics.totalMachines} machines.
+              You have {analytics.totalTasks} tasks scheduled across{" "}
+              {analytics.totalMachines} machines.
             </p>
           </div>
         )}
@@ -119,7 +128,9 @@ export default function UserHome() {
                 <QrCode className="h-16 w-16 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">Scan Machine</CardTitle>
+              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">
+                Scan Machine
+              </CardTitle>
               <CardDescription className="text-blue-100 text-sm sm:text-base lg:text-lg">
                 Scan QR code to access machine tasks
               </CardDescription>
@@ -143,7 +154,9 @@ export default function UserHome() {
                 <CheckSquare className="h-16 w-16 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">My Tasks</CardTitle>
+              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">
+                My Tasks
+              </CardTitle>
               <CardDescription className="text-green-100 text-sm sm:text-base lg:text-lg">
                 View your assigned maintenance tasks
               </CardDescription>
@@ -205,8 +218,6 @@ export default function UserHome() {
             </Card>
           </div>
         )}
-
-
       </main>
     </div>
   );

@@ -97,14 +97,14 @@ export default function Admin() {
     }
 
     // Download the CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -118,17 +118,34 @@ export default function Admin() {
 
   const generateTaskPerformanceReport = (): string => {
     const headers = [
-      'Task Name', 'Machine', 'Frequency', 'Total Completions', 'Average Time (min)',
-      'Last Completed', 'Last Completed By', 'On Time Percentage'
+      "Task Name",
+      "Machine",
+      "Frequency",
+      "Total Completions",
+      "Average Time (min)",
+      "Last Completed",
+      "Last Completed By",
+      "On Time Percentage",
     ];
 
-    const rows = tasks.map(task => {
+    const rows = tasks.map((task) => {
       const completions = task.completionHistory;
-      const avgTime = completions.length > 0 
-        ? Math.round(completions.reduce((sum, c) => sum + (c.timeSpentMinutes || 0), 0) / completions.length)
-        : 0;
-      const onTimeCount = completions.filter(c => c.completedDate <= task.nextDueDate).length;
-      const onTimePercentage = completions.length > 0 ? Math.round((onTimeCount / completions.length) * 100) : 0;
+      const avgTime =
+        completions.length > 0
+          ? Math.round(
+              completions.reduce(
+                (sum, c) => sum + (c.timeSpentMinutes || 0),
+                0,
+              ) / completions.length,
+            )
+          : 0;
+      const onTimeCount = completions.filter(
+        (c) => c.completedDate <= task.nextDueDate,
+      ).length;
+      const onTimePercentage =
+        completions.length > 0
+          ? Math.round((onTimeCount / completions.length) * 100)
+          : 0;
       const lastCompletion = completions[completions.length - 1];
 
       return [
@@ -137,36 +154,41 @@ export default function Admin() {
         task.frequency,
         completions.length.toString(),
         avgTime.toString(),
-        task.lastCompletedDate?.toLocaleDateString() || 'Never',
-        lastCompletion?.userName || 'N/A',
-        `${onTimePercentage}%`
+        task.lastCompletedDate?.toLocaleDateString() || "Never",
+        lastCompletion?.userName || "N/A",
+        `${onTimePercentage}%`,
       ];
     });
 
-    return [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
   };
 
   const generateMaintenanceScheduleReport = (): string => {
     const headers = [
-      'Date', 'Machine', 'Task Name', 'Category', 'Estimated Time (min)', 'Status'
+      "Date",
+      "Machine",
+      "Task Name",
+      "Category",
+      "Estimated Time (min)",
+      "Status",
     ];
 
     const rows: string[][] = [];
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
 
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       if (task.nextDueDate <= nextWeek) {
-        const status = task.nextDueDate < new Date() ? 'Overdue' : 'Scheduled';
+        const status = task.nextDueDate < new Date() ? "Overdue" : "Scheduled";
         rows.push([
           task.nextDueDate.toLocaleDateString(),
           task.machineName,
           task.taskName,
           task.category,
           task.estimatedTimeMinutes.toString(),
-          status
+          status,
         ]);
       }
     });
@@ -174,27 +196,46 @@ export default function Admin() {
     // Sort by date
     rows.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
 
-    return [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
   };
 
   const generateMachineEfficiencyReport = (): string => {
     const headers = [
-      'Machine ID', 'Machine Name', 'Total Tasks', 'Completed Tasks', 'Overdue Tasks',
-      'Efficiency %', 'Last Maintenance', 'Average Task Time'
+      "Machine ID",
+      "Machine Name",
+      "Total Tasks",
+      "Completed Tasks",
+      "Overdue Tasks",
+      "Efficiency %",
+      "Last Maintenance",
+      "Average Task Time",
     ];
 
-    const rows = machines.map(machine => {
+    const rows = machines.map((machine) => {
       const totalTasks = machine.tasks.length;
-      const completedTasks = machine.tasks.filter(t => t.lastCompletedDate).length;
-      const overdueTasks = machine.tasks.filter(t => t.nextDueDate < new Date()).length;
-      const efficiency = totalTasks > 0 ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100) : 0;
-      
-      const allCompletions = machine.tasks.flatMap(t => t.completionHistory);
-      const avgTime = allCompletions.length > 0 
-        ? Math.round(allCompletions.reduce((sum, c) => sum + (c.timeSpentMinutes || 0), 0) / allCompletions.length)
-        : 0;
+      const completedTasks = machine.tasks.filter(
+        (t) => t.lastCompletedDate,
+      ).length;
+      const overdueTasks = machine.tasks.filter(
+        (t) => t.nextDueDate < new Date(),
+      ).length;
+      const efficiency =
+        totalTasks > 0
+          ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100)
+          : 0;
+
+      const allCompletions = machine.tasks.flatMap((t) => t.completionHistory);
+      const avgTime =
+        allCompletions.length > 0
+          ? Math.round(
+              allCompletions.reduce(
+                (sum, c) => sum + (c.timeSpentMinutes || 0),
+                0,
+              ) / allCompletions.length,
+            )
+          : 0;
 
       return [
         machine.id,
@@ -203,44 +244,54 @@ export default function Admin() {
         completedTasks.toString(),
         overdueTasks.toString(),
         `${efficiency}%`,
-        machine.lastMaintenance?.toLocaleDateString() || 'N/A',
-        `${avgTime} min`
+        machine.lastMaintenance?.toLocaleDateString() || "N/A",
+        `${avgTime} min`,
       ];
     });
 
-    return [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
   };
 
   const generateIssuesAlertsReport = (): string => {
     const headers = [
-      'Date', 'Type', 'Machine', 'Task', 'Description', 'Severity', 'Days Overdue'
+      "Date",
+      "Type",
+      "Machine",
+      "Task",
+      "Description",
+      "Severity",
+      "Days Overdue",
     ];
 
     const rows: string[][] = [];
     const today = new Date();
 
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       if (task.nextDueDate < today) {
-        const daysOverdue = Math.floor((today.getTime() - task.nextDueDate.getTime()) / (1000 * 60 * 60 * 24));
-        const severity = daysOverdue > 7 ? 'Critical' : daysOverdue > 3 ? 'High' : 'Medium';
-        
+        const daysOverdue = Math.floor(
+          (today.getTime() - task.nextDueDate.getTime()) /
+            (1000 * 60 * 60 * 24),
+        );
+        const severity =
+          daysOverdue > 7 ? "Critical" : daysOverdue > 3 ? "High" : "Medium";
+
         rows.push([
           task.nextDueDate.toLocaleDateString(),
-          'Overdue Task',
+          "Overdue Task",
           task.machineName,
           task.taskName,
           `Task is ${daysOverdue} days overdue`,
           severity,
-          daysOverdue.toString()
+          daysOverdue.toString(),
         ]);
       }
     });
 
-    return [headers, ...rows].map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
   };
 
   return (
@@ -286,7 +337,9 @@ export default function Admin() {
               <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.totalMachines}
               </div>
-              <div className="text-xs sm:text-sm text-blue-100">Total Machines</div>
+              <div className="text-xs sm:text-sm text-blue-100">
+                Total Machines
+              </div>
             </CardContent>
           </Card>
 
@@ -296,7 +349,9 @@ export default function Admin() {
               <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.completedToday}
               </div>
-              <div className="text-xs sm:text-sm text-green-100">Completed Today</div>
+              <div className="text-xs sm:text-sm text-green-100">
+                Completed Today
+              </div>
             </CardContent>
           </Card>
 
@@ -306,7 +361,9 @@ export default function Admin() {
               <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.overdueTasks}
               </div>
-              <div className="text-xs sm:text-sm text-orange-100">Overdue Tasks</div>
+              <div className="text-xs sm:text-sm text-orange-100">
+                Overdue Tasks
+              </div>
             </CardContent>
           </Card>
 
@@ -316,7 +373,9 @@ export default function Admin() {
               <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.totalTasks}
               </div>
-              <div className="text-xs sm:text-sm text-purple-100">Total Tasks</div>
+              <div className="text-xs sm:text-sm text-purple-100">
+                Total Tasks
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -466,8 +525,12 @@ export default function Admin() {
                 {machines.length === 0 ? (
                   <div className="text-center py-8">
                     <DatabaseIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No Machines Found</h3>
-                    <p className="text-slate-400">Import maintenance data to register machines.</p>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      No Machines Found
+                    </h3>
+                    <p className="text-slate-400">
+                      Import maintenance data to register machines.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -533,15 +596,20 @@ export default function Admin() {
                   Registered Users ({allUsers.length})
                 </CardTitle>
                 <CardDescription className="text-slate-400">
-                  Users are automatically registered when they sign in for the first time
+                  Users are automatically registered when they sign in for the
+                  first time
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {allUsers.length === 0 ? (
                   <div className="text-center py-8">
                     <Users className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No Users Yet</h3>
-                    <p className="text-slate-400">Users will appear here when they sign in.</p>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      No Users Yet
+                    </h3>
+                    <p className="text-slate-400">
+                      Users will appear here when they sign in.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -568,8 +636,16 @@ export default function Admin() {
                           <div className="flex items-center gap-4 text-sm text-slate-400">
                             <span>{user.email}</span>
                             <span>Dept: {user.department}</span>
-                            <span>Joined: {new Date(user.createdAt).toLocaleDateString()}</span>
-                            {user.lastLogin && <span>Last login: {new Date(user.lastLogin).toLocaleDateString()}</span>}
+                            <span>
+                              Joined:{" "}
+                              {new Date(user.createdAt).toLocaleDateString()}
+                            </span>
+                            {user.lastLogin && (
+                              <span>
+                                Last login:{" "}
+                                {new Date(user.lastLogin).toLocaleDateString()}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -618,8 +694,8 @@ export default function Admin() {
                     <Upload className="h-4 w-4 mr-2" />
                     Import Excel
                   </Button>
-                  <Button 
-                    onClick={() => generateReport('task-performance')}
+                  <Button
+                    onClick={() => generateReport("task-performance")}
                     className="w-full bg-orange-600 hover:bg-orange-700"
                   >
                     <Download className="h-4 w-4 mr-2" />
@@ -638,15 +714,21 @@ export default function Admin() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">Total Completions</span>
-                    <span className="text-white font-medium">{analytics.totalCompletions}</span>
+                    <span className="text-white font-medium">
+                      {analytics.totalCompletions}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">Average Task Time</span>
-                    <span className="text-white font-medium">{analytics.averageTaskTime} min</span>
+                    <span className="text-white font-medium">
+                      {analytics.averageTaskTime} min
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">Most Active User</span>
-                    <span className="text-white font-medium">{analytics.mostActiveUser.name}</span>
+                    <span className="text-white font-medium">
+                      {analytics.mostActiveUser.name}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">System Status</span>
@@ -668,54 +750,67 @@ export default function Admin() {
                   System Reports
                 </CardTitle>
                 <CardDescription className="text-slate-400">
-                  Generate and download detailed system reports based on real data
+                  Generate and download detailed system reports based on real
+                  data
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Button
-                    onClick={() => generateReport('task-performance')}
+                    onClick={() => generateReport("task-performance")}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <BarChart3 className="h-6 w-6 mb-2" />
                     Task Performance Report
-                    <span className="text-xs text-slate-400">Completion rates & timing</span>
+                    <span className="text-xs text-slate-400">
+                      Completion rates & timing
+                    </span>
                   </Button>
                   <Button
-                    onClick={() => generateReport('maintenance-schedule')}
+                    onClick={() => generateReport("maintenance-schedule")}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <Clock className="h-6 w-6 mb-2" />
                     Maintenance Schedule Report
-                    <span className="text-xs text-slate-400">Upcoming & overdue tasks</span>
+                    <span className="text-xs text-slate-400">
+                      Upcoming & overdue tasks
+                    </span>
                   </Button>
                   <Button
-                    onClick={() => generateReport('machine-efficiency')}
+                    onClick={() => generateReport("machine-efficiency")}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <Activity className="h-6 w-6 mb-2" />
                     Machine Efficiency Report
-                    <span className="text-xs text-slate-400">Performance by machine</span>
+                    <span className="text-xs text-slate-400">
+                      Performance by machine
+                    </span>
                   </Button>
                   <Button
-                    onClick={() => generateReport('issues-alerts')}
+                    onClick={() => generateReport("issues-alerts")}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <AlertTriangle className="h-6 w-6 mb-2" />
                     Issues & Alerts Report
-                    <span className="text-xs text-slate-400">Overdue tasks & problems</span>
+                    <span className="text-xs text-slate-400">
+                      Overdue tasks & problems
+                    </span>
                   </Button>
                 </div>
-                
+
                 {analytics.totalTasks === 0 && (
                   <div className="text-center py-8 bg-slate-700/20 rounded-lg">
                     <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No Data for Reports</h3>
-                    <p className="text-slate-400">Import maintenance data to generate meaningful reports.</p>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      No Data for Reports
+                    </h3>
+                    <p className="text-slate-400">
+                      Import maintenance data to generate meaningful reports.
+                    </p>
                   </div>
                 )}
               </CardContent>

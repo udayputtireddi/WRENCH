@@ -44,8 +44,12 @@ export default function Home() {
               <div className="flex items-center text-white">
                 <User className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                 <div>
-                  <p className="font-semibold text-sm sm:text-base truncate max-w-28 sm:max-w-none">{currentUser?.name}</p>
-                  <p className="text-blue-200 text-xs sm:text-sm capitalize">{currentUser?.role} • {currentUser?.department}</p>
+                  <p className="font-semibold text-sm sm:text-base truncate max-w-28 sm:max-w-none">
+                    {currentUser?.name}
+                  </p>
+                  <p className="text-blue-200 text-xs sm:text-sm capitalize">
+                    {currentUser?.role} • {currentUser?.department}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
@@ -100,7 +104,8 @@ export default function Home() {
               </h2>
             </div>
             <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8">
-              No maintenance data found. Upload your equipment maintenance schedules to get started.
+              No maintenance data found. Upload your equipment maintenance
+              schedules to get started.
             </p>
             <Link to="/admin/database">
               <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg">
@@ -118,7 +123,8 @@ export default function Home() {
               </h2>
             </div>
             <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              {analytics.totalTasks} tasks across {analytics.totalMachines} machines ready for maintenance.
+              {analytics.totalTasks} tasks across {analytics.totalMachines}{" "}
+              machines ready for maintenance.
             </p>
           </div>
         )}
@@ -134,7 +140,9 @@ export default function Home() {
                 <QrCode className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Scan Machine</CardTitle>
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">
+                Scan Machine
+              </CardTitle>
               <CardDescription className="text-blue-100 text-xs sm:text-sm">
                 Instant machine identification via QR codes
               </CardDescription>
@@ -158,7 +166,9 @@ export default function Home() {
                 <CheckSquare className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Active Tasks</CardTitle>
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">
+                Active Tasks
+              </CardTitle>
               <CardDescription className="text-green-100 text-xs sm:text-sm">
                 View and manage your maintenance tasks
               </CardDescription>
@@ -182,7 +192,9 @@ export default function Home() {
                 <BarChart3 className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Analytics</CardTitle>
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">
+                Analytics
+              </CardTitle>
               <CardDescription className="text-purple-100 text-xs sm:text-sm">
                 Performance metrics and insights
               </CardDescription>
@@ -206,7 +218,9 @@ export default function Home() {
                 <Settings className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Settings</CardTitle>
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">
+                Settings
+              </CardTitle>
               <CardDescription className="text-orange-100 text-xs sm:text-sm">
                 Configure system preferences
               </CardDescription>

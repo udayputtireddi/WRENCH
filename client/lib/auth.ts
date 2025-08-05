@@ -20,16 +20,21 @@ class AuthService {
   // Authenticate user with email and password
   static login(email: string, password: string): User | null {
     let userRecord = userDatabase.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase()
+      (u) => u.email.toLowerCase() === email.toLowerCase(),
     );
-    
+
     // If user doesn't exist, create a new account automatically
     if (!userRecord) {
       // Determine role based on email domain or specific patterns
-      const role: UserRole = email.toLowerCase().includes('admin') ? 'admin' : 'user';
-      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const department = role === 'admin' ? 'Management' : 'Production';
-      
+      const role: UserRole = email.toLowerCase().includes("admin")
+        ? "admin"
+        : "user";
+      const name = email
+        .split("@")[0]
+        .replace(/[._]/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+      const department = role === "admin" ? "Management" : "Production";
+
       userRecord = {
         id: `${role}-${Date.now()}`,
         name,
@@ -39,7 +44,7 @@ class AuthService {
         department,
         createdAt: new Date(),
       };
-      
+
       userDatabase.push(userRecord);
     } else if (userRecord.password !== password) {
       // If user exists but password doesn't match, reject login
@@ -59,10 +64,10 @@ class AuthService {
 
     this.currentUser = user;
     localStorage.setItem("currentUser", JSON.stringify(user));
-    
+
     // Update last login in database
     userRecord.lastLogin = new Date();
-    
+
     return user;
   }
 
@@ -75,7 +80,11 @@ class AuthService {
     department?: string;
   }): User | null {
     // Check if user already exists
-    if (userDatabase.find(u => u.email.toLowerCase() === userData.email.toLowerCase())) {
+    if (
+      userDatabase.find(
+        (u) => u.email.toLowerCase() === userData.email.toLowerCase(),
+      )
+    ) {
       return null;
     }
 
@@ -140,7 +149,7 @@ class AuthService {
 
   // Update user (admin only)
   static updateUser(userId: string, updates: Partial<User>): boolean {
-    const userIndex = userDatabase.findIndex(u => u.id === userId);
+    const userIndex = userDatabase.findIndex((u) => u.id === userId);
     if (userIndex !== -1) {
       userDatabase[userIndex] = { ...userDatabase[userIndex], ...updates };
       return true;
@@ -150,7 +159,7 @@ class AuthService {
 
   // Delete user (admin only)
   static deleteUser(userId: string): boolean {
-    const userIndex = userDatabase.findIndex(u => u.id === userId);
+    const userIndex = userDatabase.findIndex((u) => u.id === userId);
     if (userIndex !== -1) {
       userDatabase.splice(userIndex, 1);
       return true;

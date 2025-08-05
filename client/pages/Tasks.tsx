@@ -40,22 +40,22 @@ export default function Tasks() {
   const hasData = allTasks.length > 0;
 
   // Convert database tasks to display format
-  const displayTasks = allTasks.map(task => {
+  const displayTasks = allTasks.map((task) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let status = 'Pending';
+    let status = "Pending";
     if (task.lastCompletedDate) {
       const completedDate = new Date(task.lastCompletedDate);
       completedDate.setHours(0, 0, 0, 0);
 
       if (completedDate.getTime() === today.getTime()) {
-        status = 'Completed';
+        status = "Completed";
       } else if (task.nextDueDate < new Date()) {
-        status = 'Overdue';
+        status = "Overdue";
       }
     } else if (task.nextDueDate < new Date()) {
-      status = 'Overdue';
+      status = "Overdue";
     }
 
     return {
@@ -63,8 +63,12 @@ export default function Tasks() {
       name: task.taskName,
       description: task.description,
       machine: task.machineName,
-      priority: task.category === 'inspection' ? 'Medium' :
-                task.category === 'cleaning' ? 'Low' : 'High',
+      priority:
+        task.category === "inspection"
+          ? "Medium"
+          : task.category === "cleaning"
+            ? "Low"
+            : "High",
       status,
       dueDate: task.nextDueDate,
       nextDue: task.nextDueDate,
@@ -72,16 +76,21 @@ export default function Tasks() {
       estimatedTime: task.estimatedTimeMinutes,
       assignedTo: "Current User",
       category: task.category,
-      frequency: task.frequency
+      frequency: task.frequency,
     };
   });
 
   // Filter tasks
   const filteredTasks = displayTasks.filter((task) => {
-    const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.machine.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || task.status.toLowerCase() === filterStatus.toLowerCase();
-    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority.toLowerCase();
+    const matchesSearch =
+      task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.machine.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" ||
+      task.status.toLowerCase() === filterStatus.toLowerCase();
+    const matchesPriority =
+      filterPriority === "all" ||
+      task.priority.toLowerCase() === filterPriority.toLowerCase();
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
@@ -115,7 +124,9 @@ export default function Tasks() {
 
   // Group tasks by status
   const pendingTasks = filteredTasks.filter((t) => t.status === "Pending");
-  const inProgressTasks = filteredTasks.filter((t) => t.status === "In Progress");
+  const inProgressTasks = filteredTasks.filter(
+    (t) => t.status === "In Progress",
+  );
   const overdueTasks = filteredTasks.filter((t) => t.status === "Overdue");
 
   return (
@@ -125,15 +136,23 @@ export default function Tasks() {
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center">
             <Link to="/" className="mr-2 sm:mr-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 px-2 sm:px-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20 px-2 sm:px-3"
+              >
                 <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Back</span>
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Task Management</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+                Task Management
+              </h1>
               <p className="text-green-100 text-sm sm:text-base">
-                {hasData ? `${allTasks.length} tasks across all machines` : 'No tasks available'}
+                {hasData
+                  ? `${allTasks.length} tasks across all machines`
+                  : "No tasks available"}
               </p>
             </div>
           </div>
@@ -152,7 +171,8 @@ export default function Tasks() {
               </h2>
             </div>
             <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
-              Your maintenance tasks will appear here once they're uploaded. Contact your administrator to set up your maintenance schedule.
+              Your maintenance tasks will appear here once they're uploaded.
+              Contact your administrator to set up your maintenance schedule.
             </p>
           </div>
         ) : (
@@ -183,7 +203,10 @@ export default function Tasks() {
                     <SelectItem value="overdue">Overdue</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                <Select
+                  value={filterPriority}
+                  onValueChange={setFilterPriority}
+                >
                   <SelectTrigger className="w-full sm:w-40 bg-slate-700/50 border-slate-600 text-white">
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
@@ -242,11 +265,12 @@ export default function Tasks() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-400">
-                    {filteredTasks.filter(t => t.status === 'Completed').length}
+                    {
+                      filteredTasks.filter((t) => t.status === "Completed")
+                        .length
+                    }
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Tasks finished today
-                  </p>
+                  <p className="text-xs text-slate-400">Tasks finished today</p>
                 </CardContent>
               </Card>
             </div>
@@ -256,8 +280,12 @@ export default function Tasks() {
               <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
                 <CardContent className="text-center py-12">
                   <Search className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No matching tasks</h3>
-                  <p className="text-slate-400">Try adjusting your search or filter criteria</p>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    No matching tasks
+                  </h3>
+                  <p className="text-slate-400">
+                    Try adjusting your search or filter criteria
+                  </p>
                 </CardContent>
               </Card>
             ) : (
@@ -282,23 +310,32 @@ export default function Tasks() {
                                   <h3 className="font-semibold text-white text-base sm:text-lg break-words">
                                     {task.name}
                                   </h3>
-                                  <Badge className={getTaskStatusColor(task.status)}>
+                                  <Badge
+                                    className={getTaskStatusColor(task.status)}
+                                  >
                                     {task.status}
                                   </Badge>
-                                  <Badge className={getPriorityColor(task.priority)}>
+                                  <Badge
+                                    className={getPriorityColor(task.priority)}
+                                  >
                                     {task.priority}
                                   </Badge>
                                 </div>
-                                <p className="text-slate-400 mb-2 text-sm sm:text-base">{task.description}</p>
+                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
+                                  {task.description}
+                                </p>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
                                   <span className="flex items-center">
                                     <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="truncate">{task.machine}</span>
+                                    <span className="truncate">
+                                      {task.machine}
+                                    </span>
                                   </span>
                                   <span className="flex items-center">
                                     <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                     <span className="text-red-400">
-                                      Overdue: {task.nextDue.toLocaleDateString()}
+                                      Overdue:{" "}
+                                      {task.nextDue.toLocaleDateString()}
                                     </span>
                                   </span>
                                   <span className="flex items-center">
@@ -307,7 +344,10 @@ export default function Tasks() {
                                   </span>
                                 </div>
                               </div>
-                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`} className="self-start sm:self-auto">
+                              <Link
+                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
+                                className="self-start sm:self-auto"
+                              >
                                 <Button className="bg-red-600 hover:bg-red-700 text-white text-sm w-full sm:w-auto">
                                   Start Task
                                 </Button>
@@ -340,18 +380,26 @@ export default function Tasks() {
                                   <h3 className="font-semibold text-white text-base sm:text-lg break-words">
                                     {task.name}
                                   </h3>
-                                  <Badge className={getTaskStatusColor(task.status)}>
+                                  <Badge
+                                    className={getTaskStatusColor(task.status)}
+                                  >
                                     {task.status}
                                   </Badge>
-                                  <Badge className={getPriorityColor(task.priority)}>
+                                  <Badge
+                                    className={getPriorityColor(task.priority)}
+                                  >
                                     {task.priority}
                                   </Badge>
                                 </div>
-                                <p className="text-slate-400 mb-2 text-sm sm:text-base">{task.description}</p>
+                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
+                                  {task.description}
+                                </p>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
                                   <span className="flex items-center">
                                     <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="truncate">{task.machine}</span>
+                                    <span className="truncate">
+                                      {task.machine}
+                                    </span>
                                   </span>
                                   <span className="flex items-center">
                                     <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -365,7 +413,10 @@ export default function Tasks() {
                                   </span>
                                 </div>
                               </div>
-                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`} className="self-start sm:self-auto">
+                              <Link
+                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
+                                className="self-start sm:self-auto"
+                              >
                                 <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto">
                                   Start Task
                                 </Button>
