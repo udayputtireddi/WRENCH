@@ -92,6 +92,14 @@ export default function Admin() {
         csvContent = generateIssuesAlertsReport();
         filename = "issues_alerts_report.csv";
         break;
+      case "completion-history":
+        csvContent = Database.exportCompletionHistoryToCSV(tasks);
+        filename = "completion_history_report.csv";
+        break;
+      case "photo-log":
+        csvContent = generatePhotoLogReport();
+        filename = "photo_log_report.csv";
+        break;
       default:
         return;
     }
