@@ -161,7 +161,7 @@ export default function UserHome() {
 
         {/* Personal Statistics - Only show if data exists */}
         {analytics.totalTasks > 0 && (
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto animate-fadeInUp">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto animate-fadeInUp">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-slate-300 text-sm font-medium text-center">
