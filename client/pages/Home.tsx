@@ -38,56 +38,58 @@ export default function Home() {
       {/* Header */}
       <header className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="container mx-auto px-4 py-6 sm:py-8 relative">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-            <div className="flex items-center text-white order-2 sm:order-1">
-              <User className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3" />
-              <div>
-                <p className="font-semibold text-sm sm:text-base">{currentUser?.name}</p>
-                <p className="text-blue-200 text-xs sm:text-sm capitalize">{currentUser?.role} • {currentUser?.department}</p>
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative">
+          <div className="flex flex-col items-center gap-3 sm:gap-4">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center text-white">
+                <User className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                <div>
+                  <p className="font-semibold text-sm sm:text-base truncate max-w-28 sm:max-w-none">{currentUser?.name}</p>
+                  <p className="text-blue-200 text-xs sm:text-sm capitalize">{currentUser?.role} • {currentUser?.department}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Link to="/admin">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs px-2 py-1"
+                  >
+                    <Shield className="h-3 w-3 mr-1" />
+                    <span className="hidden sm:inline">Admin</span>
+                  </Button>
+                </Link>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs px-2 py-1"
+                >
+                  <LogOut className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
               </div>
             </div>
-            <div className="text-center animate-fadeInUp order-1 sm:order-2">
+            <div className="text-center">
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10 blur-2xl rounded-full"></div>
-                <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-2 sm:mb-3 tracking-wider">
+                <h1 className="relative text-2xl sm:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2 tracking-wider">
                   Check<span className="text-green-400">Mate</span>
                 </h1>
               </div>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-300/20 to-green-300/20 blur-lg rounded-full"></div>
-                <p className="relative text-blue-100 text-sm sm:text-lg font-medium tracking-wide uppercase">
+                <p className="relative text-blue-100 text-xs sm:text-sm lg:text-lg font-medium tracking-wide uppercase">
                   Smart Maintenance Management
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3 order-3">
-              <Link to="/admin" className="animate-fadeInRight">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm"
-                >
-                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Admin</span>
-                </Button>
-              </Link>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm"
-              >
-                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         {/* System Status */}
         {analytics.totalTasks === 0 ? (
           <div className="text-center mb-16 animate-fadeInUp">
