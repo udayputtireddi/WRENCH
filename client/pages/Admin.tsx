@@ -439,10 +439,10 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger
               value="system"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/30"
             >
-              <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>System</span>
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-orange-300" />
+              <span className="text-orange-200">System</span>
             </TabsTrigger>
             <TabsTrigger
               value="reports"
