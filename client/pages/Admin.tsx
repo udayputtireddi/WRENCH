@@ -281,12 +281,12 @@ export default function Admin() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <DatabaseIcon className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <DatabaseIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.totalMachines}
               </div>
-              <div className="text-sm text-blue-100">Total Machines</div>
+              <div className="text-xs sm:text-sm text-blue-100">Total Machines</div>
             </CardContent>
           </Card>
 
