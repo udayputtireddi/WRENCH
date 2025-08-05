@@ -215,11 +215,24 @@ export class ExcelParser {
       "Last Completed",
       "Completion Count",
       "Last Completed By",
+      "Photos Attached",
+      "Total Photos",
+      "Last Completion Notes",
+      "Time Spent (min)",
     ];
 
     const rows = tasks.map((task) => {
       const lastCompletion =
         task.completionHistory[task.completionHistory.length - 1];
+
+      // Count total photos across all completions
+      const totalPhotos = task.completionHistory.reduce(
+        (total, completion) => total + (completion.photos?.length || 0),
+        0
+      );
+
+      const hasPhotos = totalPhotos > 0 ? "Yes" : "No";
+
       return [
         task.machineId,
         task.machineName,
@@ -236,6 +249,10 @@ export class ExcelParser {
         task.lastCompletedDate?.toLocaleDateString() || "Never",
         task.completionHistory.length.toString(),
         lastCompletion?.userName || "N/A",
+        hasPhotos,
+        totalPhotos.toString(),
+        lastCompletion?.notes || "No notes",
+        lastCompletion?.timeSpentMinutes?.toString() || "N/A",
       ];
     });
 
