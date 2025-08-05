@@ -432,10 +432,10 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger
               value="users"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30"
             >
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Users</span>
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-green-300" />
+              <span className="text-green-200">Users</span>
             </TabsTrigger>
             <TabsTrigger
               value="system"
