@@ -80,8 +80,8 @@ export default function Tasks() {
   const filteredTasks = displayTasks.filter((task) => {
     const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.machine.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || task.status.toLowerCase() === filterStatus;
-    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority;
+    const matchesStatus = filterStatus === "all" || task.status.toLowerCase() === filterStatus.toLowerCase();
+    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority.toLowerCase();
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
