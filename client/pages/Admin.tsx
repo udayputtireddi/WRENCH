@@ -302,6 +302,36 @@ export default function Admin() {
       .join("\n");
   };
 
+  const generatePhotoLogReport = (): string => {
+    const headers = [
+      'Completion Date',
+      'Task Name',
+      'Machine Name',
+      'Completed By',
+      'Photos Count',
+      'Time Spent (min)',
+      'Completion Notes',
+      'Photo Available'
+    ];
+
+    const photoData = Database.getAllTaskPhotos();
+
+    const rows = photoData.map(item => [
+      item.completedDate.toLocaleDateString(),
+      item.taskName,
+      item.machineName,
+      item.completedBy,
+      item.photos.length.toString(),
+      item.timeSpent?.toString() || 'N/A',
+      item.notes || 'No notes',
+      'Yes'
+    ]);
+
+    return [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
