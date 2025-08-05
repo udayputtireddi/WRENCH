@@ -243,16 +243,9 @@ export default function Task() {
     );
 
     if (success) {
-      toast({
-        title: "Progress Saved",
-        description: "Your progress has been saved and can be resumed later.",
-      });
-    } else {
-      toast({
-        title: "Save Failed",
-        description: "Failed to save progress. Please try again.",
-        variant: "destructive",
-      });
+      setProgressSaved(true);
+      // Hide the indicator after 3 seconds
+      setTimeout(() => setProgressSaved(false), 3000);
     }
   };
 
