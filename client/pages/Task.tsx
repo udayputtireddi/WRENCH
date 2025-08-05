@@ -216,10 +216,6 @@ export default function Task() {
 
     if (success) {
       setIsCompleted(true);
-      toast({
-        title: "Task Completed!",
-        description: `${task.taskName} has been marked as complete.`,
-      });
 
       // Navigate back after a short delay
       setTimeout(() => {
@@ -230,7 +226,7 @@ export default function Task() {
         } else {
           navigate('/tasks');
         }
-      }, 2000);
+      }, 1500);
     }
   };
 
