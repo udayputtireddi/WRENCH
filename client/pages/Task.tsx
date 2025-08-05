@@ -358,7 +358,7 @@ export default function Task() {
                   <p className="text-slate-300">{task.description}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-semibold text-white mb-2">Task Info</h4>
                     <div className="space-y-2 text-sm">
