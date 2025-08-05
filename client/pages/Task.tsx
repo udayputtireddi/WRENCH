@@ -317,24 +317,25 @@ export default function Task() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center">
-            <Link 
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0">
+            <Link
               to="/tasks"
-              className="mr-4"
+              className="self-start"
             >
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Tasks
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 px-2 sm:px-3">
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Tasks</span>
+                <span className="sm:hidden">Back</span>
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white">{task.taskName}</h1>
-              <p className="text-purple-100">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">{task.taskName}</h1>
+              <p className="text-purple-100 text-sm sm:text-base">
                 {task.machineName} • {task.frequency} {task.category}
               </p>
             </div>
-            <div className="text-right">
+            <div className="self-start sm:self-auto">
               <Badge className={getTaskStatusColor(taskStatus)}>
                 {taskStatus}
               </Badge>
