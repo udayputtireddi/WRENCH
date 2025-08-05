@@ -118,10 +118,22 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-2">
               <p className="text-slate-400 text-sm">
                 Contact your system administrator for access
               </p>
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left">
+                <p className="text-blue-300 text-xs font-medium mb-1">Quick Login Examples:</p>
+                <p className="text-blue-200 text-xs">
+                  <span className="font-mono">admin@company.com</span> with any password
+                </p>
+                <p className="text-blue-200 text-xs">
+                  <span className="font-mono">operator@company.com</span> with any password
+                </p>
+                <p className="text-slate-400 text-xs mt-1">
+                  Note: Use strong passwords to avoid browser security warnings
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
