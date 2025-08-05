@@ -260,10 +260,6 @@ export default function Task() {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setPhotos(prev => [...prev, result]);
-        toast({
-          title: "Photo Added",
-          description: "Photo has been attached to this task.",
-        });
       };
       reader.readAsDataURL(file);
     }
