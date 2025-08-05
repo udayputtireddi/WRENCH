@@ -260,6 +260,50 @@ export class ExcelParser {
       .map((row) => row.map((cell) => `"${cell}"`).join(","))
       .join("\n");
   }
+
+  // Export detailed completion history with photo information
+  static exportCompletionHistoryToCSV(tasks: Task[]): string {
+    const headers = [
+      "Completion ID",
+      "Task Name",
+      "Machine Name",
+      "Completed By",
+      "Completion Date",
+      "Time Spent (min)",
+      "Notes",
+      "Photos Count",
+      "Photo Data Available",
+      "Checklist Items Completed",
+      "Total Checklist Items",
+    ];
+
+    const rows: string[][] = [];
+
+    tasks.forEach((task) => {
+      task.completionHistory.forEach((completion) => {
+        const completedItems = completion.checklistItems.filter(item => item.completed).length;
+        const totalItems = completion.checklistItems.length;
+
+        rows.push([
+          completion.id,
+          task.taskName,
+          task.machineName,
+          completion.userName,
+          completion.completedDate.toLocaleDateString(),
+          completion.timeSpentMinutes?.toString() || "N/A",
+          completion.notes || "No notes",
+          (completion.photos?.length || 0).toString(),
+          completion.photos && completion.photos.length > 0 ? "Yes" : "No",
+          completedItems.toString(),
+          totalItems.toString(),
+        ]);
+      });
+    });
+
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+  }
 }
 
 // In-memory database - starts empty, will be populated via Excel uploads
