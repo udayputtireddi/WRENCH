@@ -244,7 +244,13 @@ export class Database {
   }
 
   static addTasks(tasks: Task[]): void {
-    taskDatabase.push(...tasks);
+    // Ensure all tasks have required properties initialized
+    const initializedTasks = tasks.map(task => ({
+      ...task,
+      completionHistory: task.completionHistory || [],
+      progressSaves: task.progressSaves || []
+    }));
+    taskDatabase.push(...initializedTasks);
   }
 
   static getTasks(): Task[] {
