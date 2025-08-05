@@ -161,7 +161,7 @@ export default function UserHome() {
 
         {/* Personal Statistics - Only show if data exists */}
         {analytics.totalTasks > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto animate-fadeInUp">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-4xl mx-auto animate-fadeInUp">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-slate-300 text-sm font-medium text-center">
@@ -169,7 +169,7 @@ export default function UserHome() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="text-4xl font-bold text-green-400">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-400">
                   {analytics.completedToday}
                 </div>
                 <p className="text-slate-400 text-sm mt-1">Tasks Finished</p>
@@ -183,7 +183,7 @@ export default function UserHome() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="text-4xl font-bold text-yellow-400">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-yellow-400">
                   {analytics.totalTasks - analytics.completedToday}
                 </div>
                 <p className="text-slate-400 text-sm mt-1">Remaining</p>
@@ -197,7 +197,7 @@ export default function UserHome() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="text-4xl font-bold text-red-400">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-400">
                   {analytics.overdueTasks}
                 </div>
                 <p className="text-slate-400 text-sm mt-1">Need Attention</p>
