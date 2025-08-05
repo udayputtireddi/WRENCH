@@ -151,15 +151,9 @@ export default function Tasks() {
                 No Tasks Available
               </h2>
             </div>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
               Your maintenance tasks will appear here once they're uploaded. Contact your administrator to set up your maintenance schedule.
             </p>
-            <Link to="/admin/database">
-              <Button className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 text-lg">
-                <Upload className="h-5 w-5 mr-2" />
-                Upload Task Data
-              </Button>
-            </Link>
           </div>
         ) : (
           // Tasks Dashboard with Data
