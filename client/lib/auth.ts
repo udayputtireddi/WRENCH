@@ -100,7 +100,15 @@ class AuthService {
 
     const stored = localStorage.getItem("currentUser");
     if (stored) {
-      this.currentUser = JSON.parse(stored);
+      const userData = JSON.parse(stored);
+      // Convert date strings back to Date objects
+      if (userData.createdAt) {
+        userData.createdAt = new Date(userData.createdAt);
+      }
+      if (userData.lastLogin) {
+        userData.lastLogin = new Date(userData.lastLogin);
+      }
+      this.currentUser = userData;
       return this.currentUser;
     }
 
