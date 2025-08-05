@@ -432,35 +432,31 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger
               value="users"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
             >
               <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Users</span>
-              <span className="sm:hidden">Users</span>
+              <span>Users</span>
             </TabsTrigger>
             <TabsTrigger
               value="system"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
             >
               <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">System</span>
-              <span className="sm:hidden">System</span>
+              <span>System</span>
             </TabsTrigger>
             <TabsTrigger
               value="reports"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
             >
               <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Reports</span>
-              <span className="sm:hidden">Reports</span>
+              <span>Reports</span>
             </TabsTrigger>
             <TabsTrigger
               value="photos"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
             >
               <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Photos</span>
-              <span className="sm:hidden">Photos</span>
+              <span>Photos</span>
             </TabsTrigger>
             </TabsList>
           </div>
