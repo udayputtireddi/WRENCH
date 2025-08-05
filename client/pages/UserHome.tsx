@@ -41,13 +41,7 @@ export default function UserHome() {
               <User className="h-8 w-8 mr-3" />
               <div>
                 <p className="font-semibold">{currentUser?.name}</p>
-                <p className="text-blue-200 text-sm">
-                  {currentUser?.department} • Last login: {
-                    currentUser?.lastLogin
-                      ? new Date(currentUser.lastLogin).toLocaleDateString() + ' ' + new Date(currentUser.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : 'Not recorded'
-                  }
-                </p>
+                <p className="text-blue-200 text-sm">{currentUser?.department}</p>
               </div>
             </div>
             <div className="text-center animate-fadeInUp">
