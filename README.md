@@ -14,6 +14,7 @@
 ## ✨ Features
 
 ### 🏭 **Production-Ready Maintenance Management**
+
 - **Smart Task Scheduling** - Automated daily, weekly, and monthly maintenance schedules
 - **QR Code Machine Integration** - Instant machine identification and task access
 - **Photo Documentation** - Attach photos to completed maintenance tasks
@@ -21,12 +22,14 @@
 - **Mobile-First Design** - Optimized for tablets and mobile devices
 
 ### 👥 **Role-Based Access Control**
+
 - **Admin Dashboard** - Complete system oversight and management
 - **Operator Interface** - Simplified task-focused experience
 - **Dynamic User Registration** - Automatic account creation based on email patterns
 - **Department Management** - Organize users by production departments
 
 ### 📊 **Advanced Reporting & Analytics**
+
 - **Task Performance Reports** - Completion rates and timing analysis
 - **Photo Log Reports** - Visual documentation tracking
 - **Maintenance Schedules** - Upcoming and overdue task reports
@@ -34,6 +37,7 @@
 - **CSV Export** - All reports exportable for external analysis
 
 ### 📱 **Mobile-Optimized Experience**
+
 - **Responsive Design** - Works seamlessly on phones, tablets, and desktops
 - **Touch-Friendly Interface** - Optimized for industrial tablet use
 - **Offline-Ready** - Local storage for reliable operation
@@ -42,6 +46,7 @@
 ## 🛠 Tech Stack
 
 ### **Frontend**
+
 - **React 18** with TypeScript
 - **Vite** for fast development and building
 - **TailwindCSS** for responsive styling
@@ -49,12 +54,14 @@
 - **Lucide React** for icons
 
 ### **Backend & Data**
+
 - **Node.js** server architecture
 - **LocalStorage** for client-side data persistence
 - **Base64 encoding** for photo storage
 - **CSV generation** for reports
 
 ### **Deployment**
+
 - **Firebase Hosting** for production deployment
 - **GitHub Actions** for CI/CD
 - **Netlify Functions** for serverless API
@@ -62,23 +69,27 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn package manager
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/udayputtireddi/checkmate.git
    cd checkmate
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -87,6 +98,7 @@
    Navigate to `http://localhost:5173`
 
 ### Production Build
+
 ```bash
 npm run build
 npm run preview
@@ -95,12 +107,14 @@ npm run preview
 ## 🎯 Usage Guide
 
 ### **For Operators**
+
 1. **Login** with your company email (e.g., `operator@company.com`)
 2. **Scan QR codes** on machines to access tasks
 3. **Complete maintenance checklists** with photo documentation
 4. **Save progress** for tasks that can't be completed immediately
 
 ### **For Administrators**
+
 1. **Login** with admin credentials (e.g., `admin@company.com`)
 2. **Upload maintenance schedules** via Excel import
 3. **Monitor task completion** in real-time
@@ -108,12 +122,14 @@ npm run preview
 5. **Generate reports** for performance analysis
 
 ### **Demo Accounts**
+
 - **Admin**: `admin@company.com` (any password)
 - **Operator**: `operator@company.com` (any password)
 
 ## 📋 Core Workflows
 
 ### **Task Completion Process**
+
 ```mermaid
 graph LR
     A[Scan QR Code] --> B[Select Task]
@@ -125,6 +141,7 @@ graph LR
 ```
 
 ### **Admin Management**
+
 ```mermaid
 graph TD
     A[Admin Dashboard] --> B[Upload Task Data]
@@ -140,21 +157,27 @@ graph TD
 <summary>🖼️ View Application Screenshots</summary>
 
 ### Login Screen
+
 ![Login](https://via.placeholder.com/600x400/1e293b/22c55e?text=Login+Screen)
 
 ### Operator Dashboard
+
 ![Operator Dashboard](https://via.placeholder.com/600x400/1e293b/3b82f6?text=Operator+Dashboard)
 
 ### Task Completion
+
 ![Task Completion](https://via.placeholder.com/600x400/1e293b/f59e0b?text=Task+Completion)
 
 ### Admin Dashboard
+
 ![Admin Dashboard](https://via.placeholder.com/600x400/1e293b/ef4444?text=Admin+Dashboard)
 
 ### Photo Gallery
+
 ![Photo Gallery](https://via.placeholder.com/600x400/1e293b/8b5cf6?text=Photo+Gallery)
 
 ### Mobile View
+
 ![Mobile View](https://via.placeholder.com/300x500/1e293b/06b6d4?text=Mobile+Optimized)
 
 </details>
@@ -177,7 +200,9 @@ checkmate/
 ## 🔧 Configuration
 
 ### **Environment Variables**
+
 Create a `.env` file in the root directory:
+
 ```env
 # Development
 VITE_API_URL=http://localhost:3000
@@ -188,6 +213,7 @@ VITE_API_URL=https://your-api-domain.com
 ```
 
 ### **Firebase Deployment**
+
 1. Install Firebase CLI: `npm install -g firebase-tools`
 2. Login: `firebase login`
 3. Deploy: `firebase deploy`
@@ -214,18 +240,21 @@ npm run preview
 ## 🚀 Deployment Options
 
 ### **Firebase Hosting** (Recommended)
+
 ```bash
 npm run build
 firebase deploy
 ```
 
 ### **Netlify**
+
 ```bash
 npm run build
 # Deploy dist/ folder to Netlify
 ```
 
 ### **Vercel**
+
 ```bash
 npm run build
 vercel --prod
@@ -242,6 +271,7 @@ We welcome contributions! Here's how to get started:
 5. **Open a Pull Request**
 
 ### **Development Guidelines**
+
 - Follow TypeScript best practices
 - Use TailwindCSS for styling
 - Maintain mobile-first responsive design
