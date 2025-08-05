@@ -224,7 +224,7 @@ export default function Home() {
 
         {/* System Statistics */}
         {analytics.totalTasks > 0 && (
-          <div className="grid md:grid-cols-4 gap-6 animate-fadeInUp">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 animate-fadeInUp">
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-slate-300 text-sm font-medium">
@@ -232,7 +232,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
                   {analytics.totalMachines}
                 </div>
               </CardContent>
@@ -245,7 +245,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-400">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-400">
                   {analytics.completedToday}
                 </div>
               </CardContent>
@@ -258,7 +258,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-red-400">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-400">
                   {analytics.overdueTasks}
                 </div>
               </CardContent>
@@ -271,7 +271,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-yellow-400">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-400">
                   {analytics.upcomingTasks}
                 </div>
               </CardContent>
