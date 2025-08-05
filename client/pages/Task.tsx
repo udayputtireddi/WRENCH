@@ -344,8 +344,8 @@ export default function Task() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Task Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Task Information */}
