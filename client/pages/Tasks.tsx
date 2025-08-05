@@ -122,17 +122,17 @@ export default function Tasks() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center">
-            <Link to="/" className="mr-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+            <Link to="/" className="mr-2 sm:mr-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 px-2 sm:px-3">
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back</span>
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Task Management</h1>
-              <p className="text-green-100">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Task Management</h1>
+              <p className="text-green-100 text-sm sm:text-base">
                 {hasData ? `${allTasks.length} tasks across all machines` : 'No tasks available'}
               </p>
             </div>
@@ -140,18 +140,18 @@ export default function Tasks() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {!hasData ? (
           // Empty State
           <div className="text-center py-20">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
               <AlertCircle className="h-24 w-24 text-green-400 mx-auto mb-6" />
-              <h2 className="relative text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent mb-6">
+              <h2 className="relative text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent mb-4 sm:mb-6">
                 No Tasks Available
               </h2>
             </div>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
               Your maintenance tasks will appear here once they're uploaded. Contact your administrator to set up your maintenance schedule.
             </p>
           </div>
