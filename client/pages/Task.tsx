@@ -590,8 +590,20 @@ export default function Task() {
                   <Save className="h-4 w-4 mr-2" />
                   Save Progress
                 </Button>
-                
-                {!isAllChecked && (
+
+                {progressSaved && (
+                  <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                    <div className="text-center">
+                      <CheckCircle2 className="h-5 w-5 text-blue-400 mx-auto mb-1" />
+                      <p className="text-sm text-blue-300 font-medium">Progress Saved</p>
+                      <p className="text-xs text-blue-200">
+                        {completedItems}/{checklist.length} items completed • Not finished
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {!isAllChecked && !progressSaved && (
                   <p className="text-xs text-slate-400 text-center">
                     Complete all checklist items to finish the task
                   </p>
