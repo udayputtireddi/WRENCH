@@ -46,16 +46,16 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
       <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-3 sm:mb-4 tracking-wider">
+        <div className="text-center mb-6 sm:mb-12">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white mb-2 sm:mb-4 tracking-wider">
             Check<span className="text-green-400">Mate</span>
           </h1>
-          <p className="text-slate-300 text-lg sm:text-xl">
+          <p className="text-slate-300 text-base sm:text-lg lg:text-xl px-4">
             Smart Maintenance Management System
           </p>
         </div>
 
-        <Card className="w-full max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+        <Card className="w-full max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm border-slate-700/50 overflow-hidden">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-white">Sign In</CardTitle>
             <CardDescription className="text-slate-400">
@@ -118,17 +118,17 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-slate-400 text-sm">
+            <div className="mt-4 sm:mt-6 text-center space-y-2">
+              <p className="text-slate-400 text-xs sm:text-sm px-2">
                 Contact your system administrator for access
               </p>
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left">
+              <div className="p-2 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left mx-2 sm:mx-0">
                 <p className="text-blue-300 text-xs font-medium mb-1">Quick Login Examples:</p>
-                <p className="text-blue-200 text-xs">
-                  <span className="font-mono">admin@company.com</span> with any password
+                <p className="text-blue-200 text-xs break-all">
+                  <span className="font-mono text-xs">admin@company.com</span> with any password
                 </p>
-                <p className="text-blue-200 text-xs">
-                  <span className="font-mono">operator@company.com</span> with any password
+                <p className="text-blue-200 text-xs break-all">
+                  <span className="font-mono text-xs">operator@company.com</span> with any password
                 </p>
                 <p className="text-slate-400 text-xs mt-1">
                   Note: Use strong passwords to avoid browser security warnings
@@ -138,8 +138,8 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-8">
-          <p className="text-slate-500 text-sm">
+        <div className="text-center mt-6 sm:mt-8 px-4">
+          <p className="text-slate-500 text-xs sm:text-sm">
             © 2024 CheckMate. All rights reserved.
           </p>
         </div>
