@@ -291,12 +291,12 @@ export default function Admin() {
           </Card>
 
           <Card className="bg-gradient-to-br from-green-600 to-green-700 border-0 text-white">
-            <CardContent className="p-6 text-center">
-              <CheckCircle className="h-8 w-8 mx-auto mb-3" />
-              <div className="text-2xl font-bold mb-1">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
                 {analytics.completedToday}
               </div>
-              <div className="text-sm text-green-100">Completed Today</div>
+              <div className="text-xs sm:text-sm text-green-100">Completed Today</div>
             </CardContent>
           </Card>
 
