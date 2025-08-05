@@ -363,16 +363,16 @@ export default function Admin() {
             {/* Add New Machine */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
+                <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
                   Add New Machine
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-400 text-sm">
                   Register a new machine in the system
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <Label htmlFor="machineId" className="text-slate-300">
                       Machine ID
