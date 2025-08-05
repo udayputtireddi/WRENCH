@@ -56,6 +56,7 @@ export default function Task() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
+  const [progressSaved, setProgressSaved] = useState(false);
 
   const task = taskId ? Database.getTaskById(taskId) : undefined;
   const currentUser = AuthService.getCurrentUser();
