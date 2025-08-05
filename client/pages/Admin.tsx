@@ -453,10 +453,10 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger
               value="photos"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30"
             >
-              <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Photos</span>
+              <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-purple-300" />
+              <span className="text-purple-200">Photos</span>
             </TabsTrigger>
             </TabsList>
           </div>
