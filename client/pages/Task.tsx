@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useParams,
   Link,
@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   Clock,
@@ -30,6 +31,8 @@ import {
   Upload,
   Wrench,
   Shield,
+  X,
+  Image as ImageIcon,
 } from "lucide-react";
 import {
   getTaskStatusColor,
@@ -46,9 +49,11 @@ export default function Task() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [checklist, setChecklist] = useState<{ id: string; text: string; completed: boolean }[]>([]);
   const [notes, setNotes] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
 
@@ -57,29 +62,39 @@ export default function Task() {
   const hasData = Database.getTasks().length > 0;
 
   useEffect(() => {
-    if (task) {
-      // Generate checklist based on task type and requirements
-      const taskChecklist = [
-        { id: "1", text: "Review safety requirements", completed: false },
-        { id: "2", text: "Gather required tools", completed: false },
-        { id: "3", text: task.description, completed: false },
-        { id: "4", text: "Inspect completed work", completed: false },
-        { id: "5", text: "Clean work area", completed: false },
-      ];
+    if (task && currentUser) {
+      // Load existing progress if any
+      const savedProgress = TaskScheduler.getTaskProgress(task.id, currentUser.id);
       
-      // Add safety notes as checklist items
-      task.safetyNotes.forEach((note, index) => {
-        taskChecklist.splice(1, 0, {
-          id: `safety-${index}`,
-          text: `Safety: ${note}`,
-          completed: false
+      if (savedProgress) {
+        setChecklist(savedProgress.checklistItems);
+        setNotes(savedProgress.notes || "");
+        setPhotos(savedProgress.photos || []);
+      } else {
+        // Generate checklist based on task type and requirements
+        const taskChecklist = [
+          { id: "1", text: "Review safety requirements", completed: false },
+          { id: "2", text: "Gather required tools", completed: false },
+          { id: "3", text: task.description, completed: false },
+          { id: "4", text: "Inspect completed work", completed: false },
+          { id: "5", text: "Clean work area", completed: false },
+        ];
+        
+        // Add safety notes as checklist items
+        task.safetyNotes.forEach((note, index) => {
+          taskChecklist.splice(1, 0, {
+            id: `safety-${index}`,
+            text: `Safety: ${note}`,
+            completed: false
+          });
         });
-      });
 
-      setChecklist(taskChecklist);
+        setChecklist(taskChecklist);
+      }
+      
       setStartTime(new Date());
     }
-  }, [task]);
+  }, [task, currentUser]);
 
   // If no data in system, show empty state
   if (!hasData) {
@@ -133,10 +148,10 @@ export default function Task() {
         <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
-              <Link to={`/machine/${machineId}`} className="mr-4">
+              <Link to="/" className="mr-4">
                 <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Machine
+                  Back to Home
                 </Button>
               </Link>
               <div>
@@ -161,11 +176,6 @@ export default function Task() {
                 This task may have been removed or the ID is incorrect.
               </p>
               <div className="flex justify-center gap-4">
-                <Link to={`/machine/${machineId}`}>
-                  <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
-                    Back to Machine
-                  </Button>
-                </Link>
                 <Link to="/tasks">
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     View All Tasks
@@ -198,7 +208,9 @@ export default function Task() {
       task.id,
       currentUser.id,
       currentUser.name,
-      notes
+      checklist,
+      notes,
+      photos
     );
 
     if (success) {
@@ -210,9 +222,65 @@ export default function Task() {
 
       // Navigate back after a short delay
       setTimeout(() => {
-        navigate(`/machine/${machineId}`);
+        // Try to navigate back to the machine page, fallback to tasks
+        const machine = Database.getMachineById(task.machineId);
+        if (machine) {
+          navigate(`/machine/${task.machineId}`);
+        } else {
+          navigate('/tasks');
+        }
       }, 2000);
     }
+  };
+
+  const handleSaveProgress = () => {
+    if (!currentUser) return;
+
+    const success = TaskScheduler.saveTaskProgress(
+      task.id,
+      currentUser.id,
+      currentUser.name,
+      checklist,
+      notes,
+      photos
+    );
+
+    if (success) {
+      toast({
+        title: "Progress Saved",
+        description: "Your progress has been saved and can be resumed later.",
+      });
+    } else {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save progress. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTakePhoto = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPhotos(prev => [...prev, result]);
+        toast({
+          title: "Photo Added",
+          description: "Photo has been attached to this task.",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   const taskStatus = task.nextDueDate < new Date() ? 'Overdue' :
@@ -241,10 +309,17 @@ export default function Task() {
               Next due: {TaskScheduler.calculateNextDueDate(task.frequency, new Date(), task.weeklyDay).toLocaleDateString()}
             </p>
             <Button 
-              onClick={() => navigate(`/machine/${machineId}`)}
+              onClick={() => {
+                const machine = Database.getMachineById(task.machineId);
+                if (machine) {
+                  navigate(`/machine/${task.machineId}`);
+                } else {
+                  navigate('/tasks');
+                }
+              }}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
             >
-              Return to Machine
+              Continue
             </Button>
           </CardContent>
         </Card>
@@ -259,12 +334,12 @@ export default function Task() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center">
             <Link 
-              to={`/machine/${machineId}`}
+              to="/tasks"
               className="mr-4"
             >
               <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Machine
+                Back to Tasks
               </Button>
             </Link>
             <div className="flex-1">
@@ -387,6 +462,58 @@ export default function Task() {
               </CardContent>
             </Card>
 
+            {/* Photos */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white">Photos</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Attach photos to document your work
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button 
+                    onClick={handleTakePhoto}
+                    variant="outline"
+                    className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Take Photo
+                  </Button>
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  
+                  {photos.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                      {photos.map((photo, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={photo}
+                            alt={`Task photo ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-slate-600"
+                          />
+                          <Button
+                            onClick={() => removePhoto(index)}
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Completion Notes */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader>
@@ -446,6 +573,10 @@ export default function Task() {
                     <span className="text-slate-300">Estimated:</span>
                     <span className="text-white">{task.estimatedTimeMinutes} minutes</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Photos:</span>
+                    <span className="text-white">{photos.length}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -466,14 +597,7 @@ export default function Task() {
                 </Button>
                 
                 <Button
-                  variant="outline"
-                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Take Photo
-                </Button>
-                
-                <Button
+                  onClick={handleSaveProgress}
                   variant="outline"
                   className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
                 >
