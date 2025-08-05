@@ -446,10 +446,10 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger
               value="reports"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-teal-600/20 to-cyan-600/20 border border-teal-500/30"
             >
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Reports</span>
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-teal-300" />
+              <span className="text-teal-200">Reports</span>
             </TabsTrigger>
             <TabsTrigger
               value="photos"
