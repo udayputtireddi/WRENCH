@@ -322,35 +322,39 @@ export default function Admin() {
         </div>
 
         {/* Admin Tabs */}
-        <Tabs defaultValue="machines" className="space-y-8">
-          <TabsList className="bg-slate-800/50 border-slate-700">
+        <Tabs defaultValue="machines" className="space-y-6 sm:space-y-8">
+          <TabsList className="bg-slate-800/50 border-slate-700 grid grid-cols-2 sm:grid-cols-4 w-full">
             <TabsTrigger
               value="machines"
-              className="data-[state=active]:bg-slate-600"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
             >
-              <DatabaseIcon className="h-4 w-4 mr-2" />
-              Machines
+              <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Machines</span>
+              <span className="sm:hidden">Machines</span>
             </TabsTrigger>
             <TabsTrigger
               value="users"
-              className="data-[state=active]:bg-slate-600"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
             >
-              <Users className="h-4 w-4 mr-2" />
-              Users
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Users</span>
+              <span className="sm:hidden">Users</span>
             </TabsTrigger>
             <TabsTrigger
               value="system"
-              className="data-[state=active]:bg-slate-600"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
             >
-              <Settings className="h-4 w-4 mr-2" />
-              System
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">System</span>
+              <span className="sm:hidden">System</span>
             </TabsTrigger>
             <TabsTrigger
               value="reports"
-              className="data-[state=active]:bg-slate-600"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Reports
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Reports</span>
+              <span className="sm:hidden">Reports</span>
             </TabsTrigger>
           </TabsList>
 
