@@ -421,7 +421,8 @@ export default function Admin() {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="machines" className="space-y-6 sm:space-y-8">
-          <TabsList className="bg-slate-800/50 border-slate-700 grid grid-cols-2 sm:grid-cols-4 w-full">
+          <div className="overflow-x-auto scrollbar-hide">
+            <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max w-full p-1">
             <TabsTrigger
               value="machines"
               className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
@@ -462,7 +463,8 @@ export default function Admin() {
               <span className="hidden sm:inline">Photos</span>
               <span className="sm:hidden">Photos</span>
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
+          </div>
 
           {/* Machines Tab */}
           <TabsContent value="machines" className="space-y-6">
