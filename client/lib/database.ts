@@ -240,7 +240,13 @@ export const machineDatabase: Machine[] = [];
 // Database operations
 export class Database {
   static addTask(task: Task): void {
-    taskDatabase.push(task);
+    // Ensure task has required properties initialized
+    const initializedTask = {
+      ...task,
+      completionHistory: task.completionHistory || [],
+      progressSaves: task.progressSaves || []
+    };
+    taskDatabase.push(initializedTask);
   }
 
   static addTasks(tasks: Task[]): void {
