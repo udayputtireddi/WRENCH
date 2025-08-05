@@ -885,6 +885,127 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Photos Tab */}
+          <TabsContent value="photos" className="space-y-6">
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  Task Photos & Documentation
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  View photos attached to completed maintenance tasks
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const photoData = Database.getAllTaskPhotos();
+
+                  if (photoData.length === 0) {
+                    return (
+                      <div className="text-center py-12">
+                        <Camera className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-white mb-2">No Photos Yet</h3>
+                        <p className="text-slate-400">
+                          Photos will appear here when operators complete tasks with photo documentation.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-6">
+                      {photoData.slice(0, 10).map((item, index) => (
+                        <Card key={`${item.completionId}-${index}`} className="bg-slate-700/30 border-slate-600/50">
+                          <CardHeader className="pb-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div className="flex-1">
+                                <CardTitle className="text-white text-lg">
+                                  {item.taskName}
+                                </CardTitle>
+                                <CardDescription className="text-slate-300">
+                                  {item.machineName} • Completed by {item.completedBy}
+                                </CardDescription>
+                              </div>
+                              <div className="flex flex-col sm:items-end gap-1">
+                                <span className="text-sm text-slate-400">
+                                  {item.completedDate.toLocaleDateString()}
+                                </span>
+                                <span className="text-xs text-blue-400">
+                                  {item.photos.length} photo{item.photos.length !== 1 ? 's' : ''}
+                                </span>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            {item.notes && (
+                              <div className="mb-4 p-3 bg-slate-600/30 rounded-lg">
+                                <p className="text-sm text-slate-300">
+                                  <strong>Notes:</strong> {item.notes}
+                                </p>
+                              </div>
+                            )}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                              {item.photos.map((photo, photoIndex) => (
+                                <div
+                                  key={photoIndex}
+                                  className="relative group cursor-pointer"
+                                  onClick={() => {
+                                    // Create modal to view full size image
+                                    const modal = document.createElement('div');
+                                    modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-50';
+                                    modal.innerHTML = `
+                                      <div class="relative max-w-4xl max-h-4xl p-4">
+                                        <img src="${photo}" alt="Task photo" class="max-w-full max-h-full object-contain rounded-lg" />
+                                        <button class="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">
+                                          ×
+                                        </button>
+                                      </div>
+                                    `;
+                                    modal.onclick = (e) => {
+                                      if (e.target === modal || e.target.tagName === 'BUTTON') {
+                                        document.body.removeChild(modal);
+                                      }
+                                    };
+                                    document.body.appendChild(modal);
+                                  }}
+                                >
+                                  <img
+                                    src={photo}
+                                    alt={`Task photo ${photoIndex + 1}`}
+                                    className="w-full h-24 sm:h-32 object-cover rounded-lg border border-slate-600 group-hover:border-blue-400 transition-colors"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all rounded-lg flex items-center justify-center">
+                                    <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
+                                      Click to view
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            {item.timeSpent && (
+                              <div className="mt-3 text-xs text-slate-400">
+                                Time spent: {item.timeSpent} minutes
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+
+                      {photoData.length > 10 && (
+                        <div className="text-center py-4">
+                          <p className="text-slate-400 text-sm">
+                            Showing latest 10 photo sessions. Export photo log report for complete history.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </main>
     </div>
