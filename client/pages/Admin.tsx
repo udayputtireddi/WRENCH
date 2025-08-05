@@ -247,29 +247,29 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
             <div className="flex items-center">
-              <Link to="/" className="mr-4">
+              <Link to="/" className="mr-2 sm:mr-4">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20"
+                  className="text-white hover:bg-white/20 px-2 sm:px-3"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
+                  <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Back</span>
                 </Button>
               </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-white">
+              <div className="flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
                   Admin Dashboard
                 </h1>
-                <p className="text-purple-100">
+                <p className="text-purple-100 text-sm sm:text-base">
                   System management and configuration
                 </p>
               </div>
             </div>
-            <Badge className="bg-white/20 text-white border-0 px-3 py-1">
+            <Badge className="bg-white/20 text-white border-0 px-2 py-1 text-xs sm:text-sm self-start sm:self-auto">
               <Shield className="h-3 w-3 mr-1" />
               Administrator
             </Badge>
