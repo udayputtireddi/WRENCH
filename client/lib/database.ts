@@ -64,31 +64,20 @@ export class TaskScheduler {
     
     switch (frequency) {
       case 'daily':
+        // Daily task: Add 1 day
+        // Completed Monday 8/4 → Next due Tuesday 8/5
         next.setDate(next.getDate() + 1);
         break;
+        
       case 'weekly':
-        if (weeklyDay) {
-          // Fix: Proper weekly day calculation
-          const dayMap = {
-            monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5,
-            saturday: 6, sunday: 0
-          };
-          const targetDay = dayMap[weeklyDay];
-          const currentDay = next.getDay();
-          let daysUntilNext = targetDay - currentDay;
-          
-          // If target day has passed this week, go to next week
-          if (daysUntilNext <= 0) {
-            daysUntilNext += 7;
-          }
-          
-          next.setDate(next.getDate() + daysUntilNext);
-        } else {
-          // If no specific day, just add 7 days
-          next.setDate(next.getDate() + 7);
-        }
+        // Weekly task: Add exactly 7 days
+        // Completed Monday 8/4 → Next due Monday 8/11
+        // Completed Monday 8/11 → Next due Monday 8/18
+        next.setDate(next.getDate() + 7);
         break;
+        
       case 'monthly':
+        // Monthly task: Add 1 month
         next.setMonth(next.getMonth() + 1);
         break;
     }
