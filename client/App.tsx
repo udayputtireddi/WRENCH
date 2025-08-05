@@ -19,6 +19,7 @@ import Admin from "./pages/Admin";
 import AdminDatabase from "./pages/AdminDatabase";
 import NotFound from "./pages/NotFound";
 import RoleBasedRoute from "./components/RoleBasedRoute";
+import ScrollToTop from "./components/ScrollToTop";
 import AuthService from "./lib/auth";
 
 const queryClient = new QueryClient();
