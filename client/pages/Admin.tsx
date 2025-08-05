@@ -564,8 +564,8 @@ export default function Admin() {
                           <div className="flex items-center gap-4 text-sm text-slate-400">
                             <span>{user.email}</span>
                             <span>Dept: {user.department}</span>
-                            <span>Joined: {user.createdAt.toLocaleDateString()}</span>
-                            {user.lastLogin && <span>Last login: {user.lastLogin.toLocaleDateString()}</span>}
+                            <span>Joined: {new Date(user.createdAt).toLocaleDateString()}</span>
+                            {user.lastLogin && <span>Last login: {new Date(user.lastLogin).toLocaleDateString()}</span>}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
