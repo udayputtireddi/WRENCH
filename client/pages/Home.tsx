@@ -92,39 +92,39 @@ export default function Home() {
       <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         {/* System Status */}
         {analytics.totalTasks === 0 ? (
-          <div className="text-center mb-16 animate-fadeInUp">
+          <div className="text-center mb-8 sm:mb-16 px-4">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 blur-3xl rounded-full"></div>
-              <h2 className="relative text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-6">
+              <h2 className="relative text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-4 sm:mb-6">
                 System Ready for Setup
               </h2>
             </div>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8">
               No maintenance data found. Upload your equipment maintenance schedules to get started.
             </p>
             <Link to="/admin/database">
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg">
-                <Upload className="h-5 w-5 mr-2" />
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base lg:text-lg">
+                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Upload Maintenance Data
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="text-center mb-16 animate-fadeInUp">
+          <div className="text-center mb-8 sm:mb-16 px-4">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl rounded-full"></div>
-              <h2 className="relative text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+              <h2 className="relative text-2xl sm:text-3xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4 sm:mb-6">
                 System Operational
               </h2>
             </div>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               {analytics.totalTasks} tasks across {analytics.totalMachines} machines ready for maintenance.
             </p>
           </div>
         )}
 
         {/* Quick Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-16">
           <Card
             className="group bg-gradient-to-br from-blue-600 to-blue-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/25 animate-slideInUp"
             style={{ animationDelay: "0.1s" }}
@@ -134,15 +134,15 @@ export default function Home() {
                 <QrCode className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-white">Scan Machine</CardTitle>
-              <CardDescription className="text-blue-100">
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Scan Machine</CardTitle>
+              <CardDescription className="text-blue-100 text-xs sm:text-sm">
                 Instant machine identification via QR codes
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/scan">
-                <Button className="w-full bg-white text-blue-700 hover:bg-blue-50 font-semibold">
-                  <Zap className="h-4 w-4 mr-2" />
+                <Button className="w-full bg-white text-blue-700 hover:bg-blue-50 font-semibold text-xs sm:text-sm py-3">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Start Scanning
                 </Button>
               </Link>
@@ -158,15 +158,15 @@ export default function Home() {
                 <CheckSquare className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-white">Active Tasks</CardTitle>
-              <CardDescription className="text-green-100">
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Active Tasks</CardTitle>
+              <CardDescription className="text-green-100 text-xs sm:text-sm">
                 View and manage your maintenance tasks
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/tasks">
-                <Button className="w-full bg-white text-green-700 hover:bg-green-50 font-semibold">
-                  <Activity className="h-4 w-4 mr-2" />
+                <Button className="w-full bg-white text-green-700 hover:bg-green-50 font-semibold text-xs sm:text-sm py-3">
+                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Tasks ({analytics.totalTasks})
                 </Button>
               </Link>
@@ -182,15 +182,15 @@ export default function Home() {
                 <BarChart3 className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-white">Analytics</CardTitle>
-              <CardDescription className="text-purple-100">
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Analytics</CardTitle>
+              <CardDescription className="text-purple-100 text-xs sm:text-sm">
                 Performance metrics and insights
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/analytics">
-                <Button className="w-full bg-white text-purple-700 hover:bg-purple-50 font-semibold">
-                  <Clock className="h-4 w-4 mr-2" />
+                <Button className="w-full bg-white text-purple-700 hover:bg-purple-50 font-semibold text-xs sm:text-sm py-3">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Analytics
                 </Button>
               </Link>
@@ -206,15 +206,15 @@ export default function Home() {
                 <Settings className="h-12 w-12 text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
               </div>
-              <CardTitle className="text-white">Settings</CardTitle>
-              <CardDescription className="text-orange-100">
+              <CardTitle className="text-sm sm:text-base lg:text-lg text-white">Settings</CardTitle>
+              <CardDescription className="text-orange-100 text-xs sm:text-sm">
                 Configure system preferences
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/settings">
-                <Button className="w-full bg-white text-orange-700 hover:bg-orange-50 font-semibold">
-                  <Settings className="h-4 w-4 mr-2" />
+                <Button className="w-full bg-white text-orange-700 hover:bg-orange-50 font-semibold text-xs sm:text-sm py-3">
+                  <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Open Settings
                 </Button>
               </Link>
