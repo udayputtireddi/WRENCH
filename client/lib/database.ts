@@ -16,6 +16,7 @@ export interface Task {
   nextDueDate: Date;
   lastCompletedDate?: Date;
   completionHistory: TaskCompletion[];
+  progressSaves: TaskProgress[];
 }
 
 export interface TaskCompletion {
@@ -26,6 +27,19 @@ export interface TaskCompletion {
   completedDate: Date;
   notes?: string;
   timeSpentMinutes?: number;
+  photos?: string[]; // Base64 encoded images
+  checklistItems: { id: string; text: string; completed: boolean }[];
+}
+
+export interface TaskProgress {
+  id: string;
+  taskId: string;
+  userId: string;
+  userName: string;
+  savedDate: Date;
+  checklistItems: { id: string; text: string; completed: boolean }[];
+  notes?: string;
+  photos?: string[];
 }
 
 export interface Machine {
@@ -54,14 +68,23 @@ export class TaskScheduler {
         break;
       case 'weekly':
         if (weeklyDay) {
+          // Fix: Proper weekly day calculation
           const dayMap = {
-            monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5
+            monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5,
+            saturday: 6, sunday: 0
           };
           const targetDay = dayMap[weeklyDay];
           const currentDay = next.getDay();
-          const daysUntilNext = (7 + targetDay - currentDay) % 7 || 7;
+          let daysUntilNext = targetDay - currentDay;
+          
+          // If target day has passed this week, go to next week
+          if (daysUntilNext <= 0) {
+            daysUntilNext += 7;
+          }
+          
           next.setDate(next.getDate() + daysUntilNext);
         } else {
+          // If no specific day, just add 7 days
           next.setDate(next.getDate() + 7);
         }
         break;
@@ -73,7 +96,14 @@ export class TaskScheduler {
     return next;
   }
 
-  static completeTask(taskId: string, userId: string, userName: string, notes?: string): boolean {
+  static completeTask(
+    taskId: string, 
+    userId: string, 
+    userName: string, 
+    checklistItems: { id: string; text: string; completed: boolean }[],
+    notes?: string,
+    photos?: string[]
+  ): boolean {
     const task = taskDatabase.find(t => t.id === taskId);
     if (!task) return false;
 
@@ -83,7 +113,9 @@ export class TaskScheduler {
       userId,
       userName,
       completedDate: new Date(),
-      notes
+      notes,
+      photos: photos || [],
+      checklistItems
     };
 
     task.completionHistory.push(completion);
@@ -95,6 +127,42 @@ export class TaskScheduler {
     );
 
     return true;
+  }
+
+  static saveTaskProgress(
+    taskId: string,
+    userId: string,
+    userName: string,
+    checklistItems: { id: string; text: string; completed: boolean }[],
+    notes?: string,
+    photos?: string[]
+  ): boolean {
+    const task = taskDatabase.find(t => t.id === taskId);
+    if (!task) return false;
+
+    const progress: TaskProgress = {
+      id: `progress-${Date.now()}`,
+      taskId,
+      userId,
+      userName,
+      savedDate: new Date(),
+      checklistItems,
+      notes,
+      photos: photos || []
+    };
+
+    // Remove any previous progress saves for this task by this user
+    task.progressSaves = task.progressSaves.filter(p => !(p.taskId === taskId && p.userId === userId));
+    task.progressSaves.push(progress);
+
+    return true;
+  }
+
+  static getTaskProgress(taskId: string, userId: string): TaskProgress | null {
+    const task = taskDatabase.find(t => t.id === taskId);
+    if (!task) return null;
+
+    return task.progressSaves.find(p => p.taskId === taskId && p.userId === userId) || null;
   }
 }
 
@@ -116,7 +184,8 @@ export class ExcelParser {
       isActive: true,
       createdDate: new Date(),
       nextDueDate: new Date(), // Will be calculated based on frequency
-      completionHistory: []
+      completionHistory: [],
+      progressSaves: []
     }));
   }
 
@@ -124,24 +193,29 @@ export class ExcelParser {
     const headers = [
       'Machine ID', 'Machine Name', 'Task Name', 'Description', 'Frequency',
       'Category', 'Estimated Time (min)', 'Weekly Day', 'Safety Notes', 'Required Tools',
-      'Status', 'Next Due Date', 'Last Completed'
+      'Status', 'Next Due Date', 'Last Completed', 'Completion Count', 'Last Completed By'
     ];
 
-    const rows = tasks.map(task => [
-      task.machineId,
-      task.machineName,
-      task.taskName,
-      task.description,
-      task.frequency,
-      task.category,
-      task.estimatedTimeMinutes.toString(),
-      task.weeklyDay || '',
-      task.safetyNotes.join('; '),
-      task.requiredTools.join('; '),
-      task.isActive ? 'Active' : 'Inactive',
-      task.nextDueDate.toLocaleDateString(),
-      task.lastCompletedDate?.toLocaleDateString() || 'Never'
-    ]);
+    const rows = tasks.map(task => {
+      const lastCompletion = task.completionHistory[task.completionHistory.length - 1];
+      return [
+        task.machineId,
+        task.machineName,
+        task.taskName,
+        task.description,
+        task.frequency,
+        task.category,
+        task.estimatedTimeMinutes.toString(),
+        task.weeklyDay || '',
+        task.safetyNotes.join('; '),
+        task.requiredTools.join('; '),
+        task.isActive ? 'Active' : 'Inactive',
+        task.nextDueDate.toLocaleDateString(),
+        task.lastCompletedDate?.toLocaleDateString() || 'Never',
+        task.completionHistory.length.toString(),
+        lastCompletion?.userName || 'N/A'
+      ];
+    });
 
     return [headers, ...rows].map(row => 
       row.map(cell => `"${cell}"`).join(',')
@@ -208,21 +282,101 @@ export class Database {
   static getAnalytics() {
     const tasks = this.getTasks();
     const machines = this.getMachines();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const completedToday = tasks.filter(t => 
+      t.lastCompletedDate && 
+      t.lastCompletedDate >= today
+    ).length;
+
+    const overdueTasks = tasks.filter(t => t.nextDueDate < new Date()).length;
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const upcomingTasks = tasks.filter(t => {
+      const dueDate = new Date(t.nextDueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      return dueDate.getTime() === tomorrow.getTime();
+    }).length;
     
     return {
       totalTasks: tasks.length,
       totalMachines: machines.length,
-      completedToday: tasks.filter(t => 
-        t.lastCompletedDate && 
-        t.lastCompletedDate.toDateString() === new Date().toDateString()
-      ).length,
-      overdueTasks: tasks.filter(t => t.nextDueDate < new Date()).length,
-      upcomingTasks: tasks.filter(t => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return t.nextDueDate.toDateString() === tomorrow.toDateString();
-      }).length
+      completedToday,
+      overdueTasks,
+      upcomingTasks,
+      totalCompletions: tasks.reduce((sum, task) => sum + task.completionHistory.length, 0),
+      averageTaskTime: this.getAverageTaskTime(),
+      mostActiveUser: this.getMostActiveUser(),
+      machineEfficiency: this.getMachineEfficiency()
     };
+  }
+
+  static getAverageTaskTime(): number {
+    const allCompletions = taskDatabase.flatMap(task => task.completionHistory);
+    if (allCompletions.length === 0) return 0;
+    
+    const totalTime = allCompletions.reduce((sum, completion) => {
+      return sum + (completion.timeSpentMinutes || 0);
+    }, 0);
+    
+    return Math.round(totalTime / allCompletions.length);
+  }
+
+  static getMostActiveUser(): { name: string; completions: number } {
+    const userCompletions = new Map<string, number>();
+    
+    taskDatabase.forEach(task => {
+      task.completionHistory.forEach(completion => {
+        const current = userCompletions.get(completion.userName) || 0;
+        userCompletions.set(completion.userName, current + 1);
+      });
+    });
+
+    let mostActive = { name: 'N/A', completions: 0 };
+    userCompletions.forEach((completions, userName) => {
+      if (completions > mostActive.completions) {
+        mostActive = { name: userName, completions };
+      }
+    });
+
+    return mostActive;
+  }
+
+  static getMachineEfficiency(): { [machineId: string]: number } {
+    const efficiency: { [machineId: string]: number } = {};
+    
+    this.getMachines().forEach(machine => {
+      const totalTasks = machine.tasks.length;
+      const onTimeTasks = machine.tasks.filter(task => 
+        task.lastCompletedDate && task.nextDueDate > new Date()
+      ).length;
+      
+      efficiency[machine.id] = totalTasks > 0 ? Math.round((onTimeTasks / totalTasks) * 100) : 0;
+    });
+
+    return efficiency;
+  }
+
+  // Get filtered tasks based on completion status
+  static getTasksByStatus(status: 'completed' | 'pending' | 'overdue'): Task[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return taskDatabase.filter(task => {
+      switch (status) {
+        case 'completed':
+          return task.lastCompletedDate && task.lastCompletedDate >= today;
+        case 'overdue':
+          return task.nextDueDate < new Date();
+        case 'pending':
+          return !task.lastCompletedDate || task.lastCompletedDate < today;
+        default:
+          return true;
+      }
+    });
   }
 }
 
