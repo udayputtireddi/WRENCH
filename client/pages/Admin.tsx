@@ -793,7 +793,7 @@ export default function Admin() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Button
                     onClick={() => generateReport("task-performance")}
                     variant="outline"
@@ -836,6 +836,28 @@ export default function Admin() {
                     Issues & Alerts Report
                     <span className="text-xs text-slate-400">
                       Overdue tasks & problems
+                    </span>
+                  </Button>
+                  <Button
+                    onClick={() => generateReport("completion-history")}
+                    variant="outline"
+                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
+                  >
+                    <CheckCircle className="h-6 w-6 mb-2" />
+                    Completion History Report
+                    <span className="text-xs text-slate-400">
+                      Detailed completion records
+                    </span>
+                  </Button>
+                  <Button
+                    onClick={() => generateReport("photo-log")}
+                    variant="outline"
+                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
+                  >
+                    <Camera className="h-6 w-6 mb-2" />
+                    Photo Log Report
+                    <span className="text-xs text-slate-400">
+                      Tasks with photo attachments
                     </span>
                   </Button>
                 </div>
