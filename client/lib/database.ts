@@ -162,6 +162,11 @@ export class TaskScheduler {
     const task = taskDatabase.find(t => t.id === taskId);
     if (!task) return null;
 
+    // Initialize progressSaves if it doesn't exist (for backward compatibility)
+    if (!task.progressSaves) {
+      task.progressSaves = [];
+    }
+
     return task.progressSaves.find(p => p.taskId === taskId && p.userId === userId) || null;
   }
 }
