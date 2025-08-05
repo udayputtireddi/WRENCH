@@ -40,25 +40,41 @@ export default function Tasks() {
   const hasData = allTasks.length > 0;
 
   // Convert database tasks to display format
-  const displayTasks = allTasks.map(task => ({
-    id: task.id,
-    name: task.taskName,
-    description: task.description,
-    machine: task.machineName,
-    priority: task.category === 'inspection' ? 'Medium' : 
-              task.category === 'cleaning' ? 'Low' : 'High',
-    status: task.nextDueDate < new Date() ? 'Overdue' :
-            task.lastCompletedDate && 
-            task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
-            'Pending',
-    dueDate: task.nextDueDate,
-    nextDue: task.nextDueDate,
-    lastCompleted: task.lastCompletedDate || new Date(0),
-    estimatedTime: task.estimatedTimeMinutes,
-    assignedTo: "Current User",
-    category: task.category,
-    frequency: task.frequency
-  }));
+  const displayTasks = allTasks.map(task => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let status = 'Pending';
+    if (task.lastCompletedDate) {
+      const completedDate = new Date(task.lastCompletedDate);
+      completedDate.setHours(0, 0, 0, 0);
+
+      if (completedDate.getTime() === today.getTime()) {
+        status = 'Completed';
+      } else if (task.nextDueDate < new Date()) {
+        status = 'Overdue';
+      }
+    } else if (task.nextDueDate < new Date()) {
+      status = 'Overdue';
+    }
+
+    return {
+      id: task.id,
+      name: task.taskName,
+      description: task.description,
+      machine: task.machineName,
+      priority: task.category === 'inspection' ? 'Medium' :
+                task.category === 'cleaning' ? 'Low' : 'High',
+      status,
+      dueDate: task.nextDueDate,
+      nextDue: task.nextDueDate,
+      lastCompleted: task.lastCompletedDate || new Date(0),
+      estimatedTime: task.estimatedTimeMinutes,
+      assignedTo: "Current User",
+      category: task.category,
+      frequency: task.frequency
+    };
+  });
 
   // Filter tasks
   const filteredTasks = displayTasks.filter((task) => {
