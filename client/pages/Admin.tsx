@@ -425,10 +425,10 @@ export default function Admin() {
             <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max w-full p-1">
             <TabsTrigger
               value="machines"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30"
             >
-              <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Machines</span>
+              <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-blue-300" />
+              <span className="text-blue-200">Machines</span>
             </TabsTrigger>
             <TabsTrigger
               value="users"
