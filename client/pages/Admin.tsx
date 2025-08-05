@@ -17,7 +17,7 @@ import {
   Shield,
   Users,
   Settings,
-  Database,
+  Database as DatabaseIcon,
   Activity,
   Plus,
   Edit,
@@ -29,7 +29,8 @@ import {
   Clock,
   BarChart3,
 } from "lucide-react";
-import { mockMachines } from "@/lib/mockData";
+import Database from "@/lib/database";
+import AuthService from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Admin() {
@@ -40,6 +41,11 @@ export default function Admin() {
     type: "",
     location: "",
   });
+
+  const analytics = Database.getAnalytics();
+  const allUsers = AuthService.getAllUsers();
+  const machines = Database.getMachines();
+  const tasks = Database.getTasks();
 
   const handleAddMachine = () => {
     if (
@@ -57,13 +63,185 @@ export default function Admin() {
     }
   };
 
-  const allTasks = mockMachines.flatMap((machine) =>
-    machine.tasks.map((task) => ({
-      ...task,
-      machineId: machine.id,
-      machineName: machine.name,
-    })),
-  );
+  const handleDeleteUser = (userId: string) => {
+    AuthService.deleteUser(userId);
+    toast({
+      title: "User Deleted",
+      description: "User has been removed from the system.",
+    });
+  };
+
+  const generateReport = (reportType: string) => {
+    let csvContent = "";
+    let filename = "";
+
+    switch (reportType) {
+      case "task-performance":
+        csvContent = generateTaskPerformanceReport();
+        filename = "task_performance_report.csv";
+        break;
+      case "maintenance-schedule":
+        csvContent = generateMaintenanceScheduleReport();
+        filename = "maintenance_schedule_report.csv";
+        break;
+      case "machine-efficiency":
+        csvContent = generateMachineEfficiencyReport();
+        filename = "machine_efficiency_report.csv";
+        break;
+      case "issues-alerts":
+        csvContent = generateIssuesAlertsReport();
+        filename = "issues_alerts_report.csv";
+        break;
+      default:
+        return;
+    }
+
+    // Download the CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    toast({
+      title: "Report Generated",
+      description: `${filename} has been downloaded.`,
+    });
+  };
+
+  const generateTaskPerformanceReport = (): string => {
+    const headers = [
+      'Task Name', 'Machine', 'Frequency', 'Total Completions', 'Average Time (min)',
+      'Last Completed', 'Last Completed By', 'On Time Percentage'
+    ];
+
+    const rows = tasks.map(task => {
+      const completions = task.completionHistory;
+      const avgTime = completions.length > 0 
+        ? Math.round(completions.reduce((sum, c) => sum + (c.timeSpentMinutes || 0), 0) / completions.length)
+        : 0;
+      const onTimeCount = completions.filter(c => c.completedDate <= task.nextDueDate).length;
+      const onTimePercentage = completions.length > 0 ? Math.round((onTimeCount / completions.length) * 100) : 0;
+      const lastCompletion = completions[completions.length - 1];
+
+      return [
+        task.taskName,
+        task.machineName,
+        task.frequency,
+        completions.length.toString(),
+        avgTime.toString(),
+        task.lastCompletedDate?.toLocaleDateString() || 'Never',
+        lastCompletion?.userName || 'N/A',
+        `${onTimePercentage}%`
+      ];
+    });
+
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+  };
+
+  const generateMaintenanceScheduleReport = (): string => {
+    const headers = [
+      'Date', 'Machine', 'Task Name', 'Category', 'Estimated Time (min)', 'Status'
+    ];
+
+    const rows: string[][] = [];
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    tasks.forEach(task => {
+      if (task.nextDueDate <= nextWeek) {
+        const status = task.nextDueDate < new Date() ? 'Overdue' : 'Scheduled';
+        rows.push([
+          task.nextDueDate.toLocaleDateString(),
+          task.machineName,
+          task.taskName,
+          task.category,
+          task.estimatedTimeMinutes.toString(),
+          status
+        ]);
+      }
+    });
+
+    // Sort by date
+    rows.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+  };
+
+  const generateMachineEfficiencyReport = (): string => {
+    const headers = [
+      'Machine ID', 'Machine Name', 'Total Tasks', 'Completed Tasks', 'Overdue Tasks',
+      'Efficiency %', 'Last Maintenance', 'Average Task Time'
+    ];
+
+    const rows = machines.map(machine => {
+      const totalTasks = machine.tasks.length;
+      const completedTasks = machine.tasks.filter(t => t.lastCompletedDate).length;
+      const overdueTasks = machine.tasks.filter(t => t.nextDueDate < new Date()).length;
+      const efficiency = totalTasks > 0 ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100) : 0;
+      
+      const allCompletions = machine.tasks.flatMap(t => t.completionHistory);
+      const avgTime = allCompletions.length > 0 
+        ? Math.round(allCompletions.reduce((sum, c) => sum + (c.timeSpentMinutes || 0), 0) / allCompletions.length)
+        : 0;
+
+      return [
+        machine.id,
+        machine.name,
+        totalTasks.toString(),
+        completedTasks.toString(),
+        overdueTasks.toString(),
+        `${efficiency}%`,
+        machine.lastMaintenance?.toLocaleDateString() || 'N/A',
+        `${avgTime} min`
+      ];
+    });
+
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+  };
+
+  const generateIssuesAlertsReport = (): string => {
+    const headers = [
+      'Date', 'Type', 'Machine', 'Task', 'Description', 'Severity', 'Days Overdue'
+    ];
+
+    const rows: string[][] = [];
+    const today = new Date();
+
+    tasks.forEach(task => {
+      if (task.nextDueDate < today) {
+        const daysOverdue = Math.floor((today.getTime() - task.nextDueDate.getTime()) / (1000 * 60 * 60 * 24));
+        const severity = daysOverdue > 7 ? 'Critical' : daysOverdue > 3 ? 'High' : 'Medium';
+        
+        rows.push([
+          task.nextDueDate.toLocaleDateString(),
+          'Overdue Task',
+          task.machineName,
+          task.taskName,
+          `Task is ${daysOverdue} days overdue`,
+          severity,
+          daysOverdue.toString()
+        ]);
+      }
+    });
+
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -104,9 +282,9 @@ export default function Admin() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 text-white">
             <CardContent className="p-6 text-center">
-              <Database className="h-8 w-8 mx-auto mb-3" />
+              <DatabaseIcon className="h-8 w-8 mx-auto mb-3" />
               <div className="text-2xl font-bold mb-1">
-                {mockMachines.length}
+                {analytics.totalMachines}
               </div>
               <div className="text-sm text-blue-100">Total Machines</div>
             </CardContent>
@@ -116,9 +294,9 @@ export default function Admin() {
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-8 w-8 mx-auto mb-3" />
               <div className="text-2xl font-bold mb-1">
-                {allTasks.filter((t) => t.status === "completed").length}
+                {analytics.completedToday}
               </div>
-              <div className="text-sm text-green-100">Completed Tasks</div>
+              <div className="text-sm text-green-100">Completed Today</div>
             </CardContent>
           </Card>
 
@@ -126,7 +304,7 @@ export default function Admin() {
             <CardContent className="p-6 text-center">
               <AlertTriangle className="h-8 w-8 mx-auto mb-3" />
               <div className="text-2xl font-bold mb-1">
-                {allTasks.filter((t) => t.status === "overdue").length}
+                {analytics.overdueTasks}
               </div>
               <div className="text-sm text-orange-100">Overdue Tasks</div>
             </CardContent>
@@ -136,9 +314,9 @@ export default function Admin() {
             <CardContent className="p-6 text-center">
               <Activity className="h-8 w-8 mx-auto mb-3" />
               <div className="text-2xl font-bold mb-1">
-                {allTasks.filter((t) => t.status === "in-progress").length}
+                {analytics.totalTasks}
               </div>
-              <div className="text-sm text-purple-100">Active Tasks</div>
+              <div className="text-sm text-purple-100">Total Tasks</div>
             </CardContent>
           </Card>
         </div>
@@ -150,7 +328,7 @@ export default function Admin() {
               value="machines"
               className="data-[state=active]:bg-slate-600"
             >
-              <Database className="h-4 w-4 mr-2" />
+              <DatabaseIcon className="h-4 w-4 mr-2" />
               Machines
             </TabsTrigger>
             <TabsTrigger
@@ -274,62 +452,70 @@ export default function Admin() {
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardHeader>
                 <CardTitle className="text-white">
-                  Registered Machines
+                  Registered Machines ({machines.length})
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   Manage existing machines and their configurations
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {mockMachines.map((machine) => (
-                    <div
-                      key={machine.id}
-                      className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-white font-semibold">
-                            {machine.name}
-                          </h3>
-                          <Badge
-                            className={`${
-                              machine.status === "active"
-                                ? "bg-green-500/20 text-green-300"
-                                : machine.status === "maintenance"
-                                  ? "bg-orange-500/20 text-orange-300"
-                                  : "bg-red-500/20 text-red-300"
-                            } border-0 capitalize`}
+                {machines.length === 0 ? (
+                  <div className="text-center py-8">
+                    <DatabaseIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No Machines Found</h3>
+                    <p className="text-slate-400">Import maintenance data to register machines.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {machines.map((machine) => (
+                      <div
+                        key={machine.id}
+                        className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-white font-semibold">
+                              {machine.name}
+                            </h3>
+                            <Badge
+                              className={`${
+                                machine.status === "operational"
+                                  ? "bg-green-500/20 text-green-300"
+                                  : machine.status === "maintenance"
+                                    ? "bg-orange-500/20 text-orange-300"
+                                    : "bg-red-500/20 text-red-300"
+                              } border-0 capitalize`}
+                            >
+                              {machine.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-6 text-sm text-slate-400">
+                            <span>ID: {machine.id}</span>
+                            <span>Type: {machine.type}</span>
+                            <span>Location: {machine.location}</span>
+                            <span>Tasks: {machine.tasks.length}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
                           >
-                            {machine.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-6 text-sm text-slate-400">
-                          <span>ID: {machine.id}</span>
-                          <span>Type: {machine.type}</span>
-                          <span>Location: {machine.location}</span>
-                          <span>Tasks: {machine.tasks.length}</span>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -340,89 +526,69 @@ export default function Admin() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  User Management
+                  Registered Users ({allUsers.length})
                 </CardTitle>
                 <CardDescription className="text-slate-400">
-                  Manage user accounts and permissions
+                  Users are automatically registered when they sign in for the first time
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {[
-                    {
-                      name: "John Smith",
-                      email: "john@company.com",
-                      role: "Administrator",
-                      status: "Active",
-                    },
-                    {
-                      name: "Sarah Johnson",
-                      email: "sarah@company.com",
-                      role: "Administrator",
-                      status: "Active",
-                    },
-                    {
-                      name: "Mike Wilson",
-                      email: "mike@company.com",
-                      role: "Technician",
-                      status: "Active",
-                    },
-                    {
-                      name: "Lisa Brown",
-                      email: "lisa@company.com",
-                      role: "Technician",
-                      status: "Inactive",
-                    },
-                  ].map((user, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-white font-medium">
-                            {user.name}
-                          </h3>
-                          <Badge
-                            className={`${
-                              user.status === "Active"
-                                ? "bg-green-500/20 text-green-300"
-                                : "bg-gray-500/20 text-gray-300"
-                            } border-0`}
+                {allUsers.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No Users Yet</h3>
+                    <p className="text-slate-400">Users will appear here when they sign in.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {allUsers.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-white font-medium">
+                              {user.name}
+                            </h3>
+                            <Badge
+                              className={`${
+                                user.role === "admin"
+                                  ? "bg-purple-500/20 text-purple-300"
+                                  : "bg-blue-500/20 text-blue-300"
+                              } border-0 capitalize`}
+                            >
+                              {user.role}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-slate-400">
+                            <span>{user.email}</span>
+                            <span>Dept: {user.department}</span>
+                            <span>Joined: {user.createdAt.toLocaleDateString()}</span>
+                            {user.lastLogin && <span>Last login: {user.lastLogin.toLocaleDateString()}</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
                           >
-                            {user.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-400">
-                          <span>{user.email}</span>
-                          <span>Role: {user.role}</span>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New User
-                  </Button>
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -433,14 +599,14 @@ export default function Admin() {
               <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Database className="h-5 w-5" />
+                    <DatabaseIcon className="h-5 w-5" />
                     Data Management
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Link to="/admin/database">
                     <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      <Database className="h-4 w-4 mr-2" />
+                      <DatabaseIcon className="h-4 w-4 mr-2" />
                       Manage Database
                     </Button>
                   </Link>
@@ -448,7 +614,10 @@ export default function Admin() {
                     <Upload className="h-4 w-4 mr-2" />
                     Import Excel
                   </Button>
-                  <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                  <Button 
+                    onClick={() => generateReport('task-performance')}
+                    className="w-full bg-orange-600 hover:bg-orange-700"
+                  >
                     <Download className="h-4 w-4 mr-2" />
                     Export Data
                   </Button>
@@ -459,31 +628,27 @@ export default function Admin() {
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Activity className="h-5 w-5" />
-                    System Status
+                    System Analytics
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Database</span>
-                    <Badge className="bg-green-500/20 text-green-300 border-0">
-                      Online
-                    </Badge>
+                    <span className="text-slate-300">Total Completions</span>
+                    <span className="text-white font-medium">{analytics.totalCompletions}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">QR Scanner Service</span>
-                    <Badge className="bg-green-500/20 text-green-300 border-0">
-                      Running
-                    </Badge>
+                    <span className="text-slate-300">Average Task Time</span>
+                    <span className="text-white font-medium">{analytics.averageTaskTime} min</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Notification Service</span>
-                    <Badge className="bg-green-500/20 text-green-300 border-0">
-                      Active
-                    </Badge>
+                    <span className="text-slate-300">Most Active User</span>
+                    <span className="text-white font-medium">{analytics.mostActiveUser.name}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Last Backup</span>
-                    <span className="text-slate-400 text-sm">2 hours ago</span>
+                    <span className="text-slate-300">System Status</span>
+                    <Badge className="bg-green-500/20 text-green-300 border-0">
+                      Operational
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -499,40 +664,56 @@ export default function Admin() {
                   System Reports
                 </CardTitle>
                 <CardDescription className="text-slate-400">
-                  Generate and download system reports
+                  Generate and download detailed system reports based on real data
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <Button
+                    onClick={() => generateReport('task-performance')}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <BarChart3 className="h-6 w-6 mb-2" />
                     Task Performance Report
+                    <span className="text-xs text-slate-400">Completion rates & timing</span>
                   </Button>
                   <Button
+                    onClick={() => generateReport('maintenance-schedule')}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <Clock className="h-6 w-6 mb-2" />
                     Maintenance Schedule Report
+                    <span className="text-xs text-slate-400">Upcoming & overdue tasks</span>
                   </Button>
                   <Button
+                    onClick={() => generateReport('machine-efficiency')}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <Activity className="h-6 w-6 mb-2" />
                     Machine Efficiency Report
+                    <span className="text-xs text-slate-400">Performance by machine</span>
                   </Button>
                   <Button
+                    onClick={() => generateReport('issues-alerts')}
                     variant="outline"
                     className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
                   >
                     <AlertTriangle className="h-6 w-6 mb-2" />
                     Issues & Alerts Report
+                    <span className="text-xs text-slate-400">Overdue tasks & problems</span>
                   </Button>
                 </div>
+                
+                {analytics.totalTasks === 0 && (
+                  <div className="text-center py-8 bg-slate-700/20 rounded-lg">
+                    <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No Data for Reports</h3>
+                    <p className="text-slate-400">Import maintenance data to generate meaningful reports.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
