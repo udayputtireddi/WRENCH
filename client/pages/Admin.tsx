@@ -454,6 +454,14 @@ export default function Admin() {
               <span className="hidden sm:inline">Reports</span>
               <span className="sm:hidden">Reports</span>
             </TabsTrigger>
+            <TabsTrigger
+              value="photos"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+            >
+              <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Photos</span>
+              <span className="sm:hidden">Photos</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Machines Tab */}
