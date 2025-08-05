@@ -45,12 +45,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-black text-white mb-4 tracking-wider">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-3 sm:mb-4 tracking-wider">
             Check<span className="text-green-400">Mate</span>
           </h1>
-          <p className="text-slate-300 text-xl">
+          <p className="text-slate-300 text-lg sm:text-xl">
             Smart Maintenance Management System
           </p>
         </div>
