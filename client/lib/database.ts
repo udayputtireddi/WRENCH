@@ -151,6 +151,11 @@ export class TaskScheduler {
       photos: photos || []
     };
 
+    // Initialize progressSaves if it doesn't exist (for backward compatibility)
+    if (!task.progressSaves) {
+      task.progressSaves = [];
+    }
+
     // Remove any previous progress saves for this task by this user
     task.progressSaves = task.progressSaves.filter(p => !(p.taskId === taskId && p.userId === userId));
     task.progressSaves.push(progress);
