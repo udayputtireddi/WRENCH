@@ -478,6 +478,116 @@ export class Database {
       }
     });
   }
+
+  // Get all photos from completed tasks
+  static getAllTaskPhotos(): Array<{
+    taskId: string;
+    taskName: string;
+    machineName: string;
+    completionId: string;
+    completedBy: string;
+    completedDate: Date;
+    photos: string[];
+    notes?: string;
+    timeSpent?: number;
+  }> {
+    const photoData: Array<any> = [];
+
+    taskDatabase.forEach(task => {
+      task.completionHistory.forEach(completion => {
+        if (completion.photos && completion.photos.length > 0) {
+          photoData.push({
+            taskId: task.id,
+            taskName: task.taskName,
+            machineName: task.machineName,
+            completionId: completion.id,
+            completedBy: completion.userName,
+            completedDate: completion.completedDate,
+            photos: completion.photos,
+            notes: completion.notes,
+            timeSpent: completion.timeSpentMinutes,
+          });
+        }
+      });
+    });
+
+    // Sort by completion date (newest first)
+    return photoData.sort((a, b) =>
+      new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+    );
+  }
+
+  // Get photos for a specific task
+  static getTaskPhotos(taskId: string): Array<{
+    completionId: string;
+    completedBy: string;
+    completedDate: Date;
+    photos: string[];
+    notes?: string;
+    timeSpent?: number;
+  }> {
+    const task = this.getTaskById(taskId);
+    if (!task) return [];
+
+    return task.completionHistory
+      .filter(completion => completion.photos && completion.photos.length > 0)
+      .map(completion => ({
+        completionId: completion.id,
+        completedBy: completion.userName,
+        completedDate: completion.completedDate,
+        photos: completion.photos!,
+        notes: completion.notes,
+        timeSpent: completion.timeSpentMinutes,
+      }))
+      .sort((a, b) =>
+        new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+      );
+  }
+
+  // Get recent completions with details for admin view
+  static getRecentCompletions(limit: number = 20): Array<TaskCompletion & {
+    taskName: string;
+    machineName: string;
+  }> {
+    const allCompletions: Array<TaskCompletion & {
+      taskName: string;
+      machineName: string;
+    }> = [];
+
+    taskDatabase.forEach(task => {
+      task.completionHistory.forEach(completion => {
+        allCompletions.push({
+          ...completion,
+          taskName: task.taskName,
+          machineName: task.machineName
+        });
+      });
+    });
+
+    return allCompletions
+      .sort((a, b) =>
+        new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+      )
+      .slice(0, limit);
+  }
+
+  // Get completion details by ID
+  static getCompletionById(completionId: string): (TaskCompletion & {
+    taskName: string;
+    machineName: string;
+  }) | undefined {
+    for (const task of taskDatabase) {
+      const completion = task.completionHistory.find(c => c.id === completionId);
+      if (completion) {
+        return {
+          ...completion,
+          taskName: task.taskName,
+          machineName: task.machineName
+        };
+      }
+    }
+    return undefined;
+  }
 }
 
 export default Database;
