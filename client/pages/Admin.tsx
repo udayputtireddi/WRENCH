@@ -425,11 +425,10 @@ export default function Admin() {
             <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max w-full p-1">
             <TabsTrigger
               value="machines"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm"
+              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2"
             >
               <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Machines</span>
-              <span className="sm:hidden">Machines</span>
+              <span>Machines</span>
             </TabsTrigger>
             <TabsTrigger
               value="users"
