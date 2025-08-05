@@ -423,41 +423,41 @@ export default function Admin() {
         <Tabs defaultValue="machines" className="space-y-6 sm:space-y-8">
           <div className="overflow-x-auto scrollbar-hide">
             <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max w-full p-1">
-            <TabsTrigger
-              value="machines"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30"
-            >
-              <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-blue-300" />
-              <span className="text-blue-200">Machines</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="users"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30"
-            >
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-green-300" />
-              <span className="text-green-200">Users</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="system"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/30"
-            >
-              <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-orange-300" />
-              <span className="text-orange-200">System</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="reports"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-teal-600/20 to-cyan-600/20 border border-teal-500/30"
-            >
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-teal-300" />
-              <span className="text-teal-200">Reports</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="photos"
-              className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30"
-            >
-              <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-purple-300" />
-              <span className="text-purple-200">Photos</span>
-            </TabsTrigger>
+              <TabsTrigger
+                value="machines"
+                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30"
+              >
+                <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-blue-300" />
+                <span className="text-blue-200">Machines</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="users"
+                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30"
+              >
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-green-300" />
+                <span className="text-green-200">Users</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="system"
+                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/30"
+              >
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-orange-300" />
+                <span className="text-orange-200">System</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="reports"
+                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-teal-600/20 to-cyan-600/20 border border-teal-500/30"
+              >
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-teal-300" />
+                <span className="text-teal-200">Reports</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="photos"
+                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30"
+              >
+                <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-purple-300" />
+                <span className="text-purple-200">Photos</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
