@@ -228,7 +228,7 @@ export class ExcelParser {
       // Count total photos across all completions
       const totalPhotos = task.completionHistory.reduce(
         (total, completion) => total + (completion.photos?.length || 0),
-        0
+        0,
       );
 
       const hasPhotos = totalPhotos > 0 ? "Yes" : "No";
@@ -281,7 +281,9 @@ export class ExcelParser {
 
     tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
-        const completedItems = completion.checklistItems.filter(item => item.completed).length;
+        const completedItems = completion.checklistItems.filter(
+          (item) => item.completed,
+        ).length;
         const totalItems = completion.checklistItems.length;
 
         rows.push([
@@ -493,8 +495,8 @@ export class Database {
   }> {
     const photoData: Array<any> = [];
 
-    taskDatabase.forEach(task => {
-      task.completionHistory.forEach(completion => {
+    taskDatabase.forEach((task) => {
+      task.completionHistory.forEach((completion) => {
         if (completion.photos && completion.photos.length > 0) {
           photoData.push({
             taskId: task.id,
@@ -512,8 +514,10 @@ export class Database {
     });
 
     // Sort by completion date (newest first)
-    return photoData.sort((a, b) =>
-      new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+    return photoData.sort(
+      (a, b) =>
+        new Date(b.completedDate).getTime() -
+        new Date(a.completedDate).getTime(),
     );
   }
 
@@ -530,8 +534,8 @@ export class Database {
     if (!task) return [];
 
     return task.completionHistory
-      .filter(completion => completion.photos && completion.photos.length > 0)
-      .map(completion => ({
+      .filter((completion) => completion.photos && completion.photos.length > 0)
+      .map((completion) => ({
         completionId: completion.id,
         completedBy: completion.userName,
         completedDate: completion.completedDate,
@@ -539,50 +543,62 @@ export class Database {
         notes: completion.notes,
         timeSpent: completion.timeSpentMinutes,
       }))
-      .sort((a, b) =>
-        new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+      .sort(
+        (a, b) =>
+          new Date(b.completedDate).getTime() -
+          new Date(a.completedDate).getTime(),
       );
   }
 
   // Get recent completions with details for admin view
-  static getRecentCompletions(limit: number = 20): Array<TaskCompletion & {
-    taskName: string;
-    machineName: string;
-  }> {
-    const allCompletions: Array<TaskCompletion & {
+  static getRecentCompletions(limit: number = 20): Array<
+    TaskCompletion & {
       taskName: string;
       machineName: string;
-    }> = [];
+    }
+  > {
+    const allCompletions: Array<
+      TaskCompletion & {
+        taskName: string;
+        machineName: string;
+      }
+    > = [];
 
-    taskDatabase.forEach(task => {
-      task.completionHistory.forEach(completion => {
+    taskDatabase.forEach((task) => {
+      task.completionHistory.forEach((completion) => {
         allCompletions.push({
           ...completion,
           taskName: task.taskName,
-          machineName: task.machineName
+          machineName: task.machineName,
         });
       });
     });
 
     return allCompletions
-      .sort((a, b) =>
-        new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
+      .sort(
+        (a, b) =>
+          new Date(b.completedDate).getTime() -
+          new Date(a.completedDate).getTime(),
       )
       .slice(0, limit);
   }
 
   // Get completion details by ID
-  static getCompletionById(completionId: string): (TaskCompletion & {
-    taskName: string;
-    machineName: string;
-  }) | undefined {
+  static getCompletionById(completionId: string):
+    | (TaskCompletion & {
+        taskName: string;
+        machineName: string;
+      })
+    | undefined {
     for (const task of taskDatabase) {
-      const completion = task.completionHistory.find(c => c.id === completionId);
+      const completion = task.completionHistory.find(
+        (c) => c.id === completionId,
+      );
       if (completion) {
         return {
           ...completion,
           taskName: task.taskName,
-          machineName: task.machineName
+          machineName: task.machineName,
         };
       }
     }

@@ -305,32 +305,32 @@ export default function Admin() {
 
   const generatePhotoLogReport = (): string => {
     const headers = [
-      'Completion Date',
-      'Task Name',
-      'Machine Name',
-      'Completed By',
-      'Photos Count',
-      'Time Spent (min)',
-      'Completion Notes',
-      'Photo Available'
+      "Completion Date",
+      "Task Name",
+      "Machine Name",
+      "Completed By",
+      "Photos Count",
+      "Time Spent (min)",
+      "Completion Notes",
+      "Photo Available",
     ];
 
     const photoData = Database.getAllTaskPhotos();
 
-    const rows = photoData.map(item => [
+    const rows = photoData.map((item) => [
       item.completedDate.toLocaleDateString(),
       item.taskName,
       item.machineName,
       item.completedBy,
       item.photos.length.toString(),
-      item.timeSpent?.toString() || 'N/A',
-      item.notes || 'No notes',
-      'Yes'
+      item.timeSpent?.toString() || "N/A",
+      item.notes || "No notes",
+      "Yes",
     ]);
 
     return [headers, ...rows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
   };
 
   return (
@@ -906,9 +906,12 @@ export default function Admin() {
                     return (
                       <div className="text-center py-12">
                         <Camera className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-white mb-2">No Photos Yet</h3>
+                        <h3 className="text-xl font-semibold text-white mb-2">
+                          No Photos Yet
+                        </h3>
                         <p className="text-slate-400">
-                          Photos will appear here when operators complete tasks with photo documentation.
+                          Photos will appear here when operators complete tasks
+                          with photo documentation.
                         </p>
                       </div>
                     );
@@ -917,7 +920,10 @@ export default function Admin() {
                   return (
                     <div className="space-y-6">
                       {photoData.slice(0, 10).map((item, index) => (
-                        <Card key={`${item.completionId}-${index}`} className="bg-slate-700/30 border-slate-600/50">
+                        <Card
+                          key={`${item.completionId}-${index}`}
+                          className="bg-slate-700/30 border-slate-600/50"
+                        >
                           <CardHeader className="pb-3">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                               <div className="flex-1">
@@ -925,7 +931,8 @@ export default function Admin() {
                                   {item.taskName}
                                 </CardTitle>
                                 <CardDescription className="text-slate-300">
-                                  {item.machineName} • Completed by {item.completedBy}
+                                  {item.machineName} • Completed by{" "}
+                                  {item.completedBy}
                                 </CardDescription>
                               </div>
                               <div className="flex flex-col sm:items-end gap-1">
@@ -933,7 +940,8 @@ export default function Admin() {
                                   {item.completedDate.toLocaleDateString()}
                                 </span>
                                 <span className="text-xs text-blue-400">
-                                  {item.photos.length} photo{item.photos.length !== 1 ? 's' : ''}
+                                  {item.photos.length} photo
+                                  {item.photos.length !== 1 ? "s" : ""}
                                 </span>
                               </div>
                             </div>
@@ -953,8 +961,9 @@ export default function Admin() {
                                   className="relative group cursor-pointer"
                                   onClick={() => {
                                     // Create modal to view full size image
-                                    const modal = document.createElement('div');
-                                    modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-50';
+                                    const modal = document.createElement("div");
+                                    modal.className =
+                                      "fixed inset-0 bg-black/80 flex items-center justify-center z-50";
                                     modal.innerHTML = `
                                       <div class="relative max-w-4xl max-h-4xl p-4">
                                         <img src="${photo}" alt="Task photo" class="max-w-full max-h-full object-contain rounded-lg" />
@@ -964,7 +973,10 @@ export default function Admin() {
                                       </div>
                                     `;
                                     modal.onclick = (e) => {
-                                      if (e.target === modal || e.target.tagName === 'BUTTON') {
+                                      if (
+                                        e.target === modal ||
+                                        e.target.tagName === "BUTTON"
+                                      ) {
                                         document.body.removeChild(modal);
                                       }
                                     };
@@ -996,7 +1008,8 @@ export default function Admin() {
                       {photoData.length > 10 && (
                         <div className="text-center py-4">
                           <p className="text-slate-400 text-sm">
-                            Showing latest 10 photo sessions. Export photo log report for complete history.
+                            Showing latest 10 photo sessions. Export photo log
+                            report for complete history.
                           </p>
                         </div>
                       )}
