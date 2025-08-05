@@ -265,21 +265,21 @@ export default function Tasks() {
                 {/* Overdue Tasks */}
                 {overdueTasks.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-bold text-red-400 mb-4 flex items-center">
-                      <AlertTriangle className="h-5 w-5 mr-2" />
+                    <h2 className="text-lg sm:text-xl font-bold text-red-400 mb-3 sm:mb-4 flex items-center">
+                      <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Overdue Tasks ({overdueTasks.length})
                     </h2>
-                    <div className="grid gap-4">
+                    <div className="grid gap-3 sm:gap-4">
                       {overdueTasks.map((task) => (
                         <Card
                           key={task.id}
                           className="bg-slate-800/50 backdrop-blur-sm border-red-500/30 hover:border-red-400/50 transition-colors"
                         >
-                          <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
                               <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <h3 className="font-semibold text-white text-lg">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                  <h3 className="font-semibold text-white text-base sm:text-lg break-words">
                                     {task.name}
                                   </h3>
                                   <Badge className={getTaskStatusColor(task.status)}>
@@ -289,26 +289,26 @@ export default function Tasks() {
                                     {task.priority}
                                   </Badge>
                                 </div>
-                                <p className="text-slate-400 mb-2">{task.description}</p>
-                                <div className="flex items-center gap-4 text-sm text-slate-300">
+                                <p className="text-slate-400 mb-2 text-sm sm:text-base">{task.description}</p>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
                                   <span className="flex items-center">
-                                    <Wrench className="h-4 w-4 mr-1" />
-                                    {task.machine}
+                                    <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                                    <span className="truncate">{task.machine}</span>
                                   </span>
                                   <span className="flex items-center">
-                                    <Calendar className="h-4 w-4 mr-1" />
+                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                     <span className="text-red-400">
                                       Overdue: {task.nextDue.toLocaleDateString()}
                                     </span>
                                   </span>
                                   <span className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-1" />
+                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                     {task.estimatedTime} min
                                   </span>
                                 </div>
                               </div>
-                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`}>
-                                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`} className="self-start sm:self-auto">
+                                <Button className="bg-red-600 hover:bg-red-700 text-white text-sm w-full sm:w-auto">
                                   Start Task
                                 </Button>
                               </Link>
