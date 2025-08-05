@@ -159,8 +159,8 @@ export default function Tasks() {
           // Tasks Dashboard with Data
           <div className="space-y-8">
             {/* Search and Filter Controls */}
-            <div className="flex flex-col lg:flex-row gap-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-6">
-              <div className="flex-1">
+            <div className="flex flex-col gap-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-4 sm:p-6">
+              <div className="w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
@@ -171,9 +171,9 @@ export default function Tasks() {
                   />
                 </div>
               </div>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-40 bg-slate-700/50 border-slate-600 text-white">
+                  <SelectTrigger className="w-full sm:w-40 bg-slate-700/50 border-slate-600 text-white">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -184,7 +184,7 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
                 <Select value={filterPriority} onValueChange={setFilterPriority}>
-                  <SelectTrigger className="w-40 bg-slate-700/50 border-slate-600 text-white">
+                  <SelectTrigger className="w-full sm:w-40 bg-slate-700/50 border-slate-600 text-white">
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
                   <SelectContent>
