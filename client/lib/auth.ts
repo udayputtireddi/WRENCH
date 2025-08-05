@@ -11,58 +11,59 @@ export interface User {
   lastLogin?: Date;
 }
 
-// User database - In production, this would be a real database
-const userDatabase: Array<User & { password: string }> = [
-  {
-    id: "admin-001",
-    name: "System Administrator",
-    email: "admin@checkmate.com",
-    password: "admin123",
-    role: "admin",
-    department: "IT",
-    createdAt: new Date("2024-01-01"),
-  },
-  {
-    id: "operator-001", 
-    name: "Production Operator",
-    email: "operator@checkmate.com",
-    password: "operator123",
-    role: "user",
-    department: "Production",
-    createdAt: new Date("2024-01-15"),
-  }
-];
+// User database - starts empty, users are added when they sign in
+const userDatabase: Array<User & { password: string }> = [];
 
 class AuthService {
   private static currentUser: User | null = null;
 
   // Authenticate user with email and password
   static login(email: string, password: string): User | null {
-    const userRecord = userDatabase.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    let userRecord = userDatabase.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase()
     );
     
-    if (userRecord) {
-      // Create user object without password
-      const user: User = {
-        id: userRecord.id,
-        name: userRecord.name,
-        email: userRecord.email,
-        role: userRecord.role,
-        department: userRecord.department,
-        createdAt: userRecord.createdAt,
-        lastLogin: new Date(),
+    // If user doesn't exist, create a new account automatically
+    if (!userRecord) {
+      // Determine role based on email domain or specific patterns
+      const role: UserRole = email.toLowerCase().includes('admin') ? 'admin' : 'user';
+      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const department = role === 'admin' ? 'Management' : 'Production';
+      
+      userRecord = {
+        id: `${role}-${Date.now()}`,
+        name,
+        email,
+        password, // In production, this would be hashed
+        role,
+        department,
+        createdAt: new Date(),
       };
-
-      this.currentUser = user;
-      localStorage.setItem("currentUser", JSON.stringify(user));
       
-      // Update last login in database
-      userRecord.lastLogin = new Date();
-      
-      return user;
+      userDatabase.push(userRecord);
+    } else if (userRecord.password !== password) {
+      // If user exists but password doesn't match, reject login
+      return null;
     }
-    return null;
+
+    // Create user object without password
+    const user: User = {
+      id: userRecord.id,
+      name: userRecord.name,
+      email: userRecord.email,
+      role: userRecord.role,
+      department: userRecord.department,
+      createdAt: userRecord.createdAt,
+      lastLogin: new Date(),
+    };
+
+    this.currentUser = user;
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    
+    // Update last login in database
+    userRecord.lastLogin = new Date();
+    
+    return user;
   }
 
   // Register new user (admin only)
@@ -147,6 +148,13 @@ class AuthService {
       return true;
     }
     return false;
+  }
+
+  // Clear all users (admin only - for system reset)
+  static clearAllUsers(): void {
+    userDatabase.length = 0;
+    this.currentUser = null;
+    localStorage.removeItem("currentUser");
   }
 }
 
