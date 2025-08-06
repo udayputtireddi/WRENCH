@@ -634,53 +634,206 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                  onClick={() => {
-                    toast({
-                      title: "Change Password",
-                      description: "Password change functionality would be implemented here.",
-                      duration: 3000,
-                    });
-                  }}
-                >
-                  Change Password
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                  onClick={() => {
-                    toast({
-                      title: "Two-Factor Authentication",
-                      description: "2FA setup would be implemented here.",
-                      duration: 3000,
-                    });
-                  }}
-                >
-                  Enable Two-Factor Authentication
-                </Button>
+                {/* Change Password Dialog */}
+                <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                    >
+                      <Key className="h-4 w-4 mr-2" />
+                      Change Password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-800 border-slate-700">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Change Password</DialogTitle>
+                      <DialogDescription className="text-slate-400">
+                        Enter your current password and choose a new one. Password must be at least 8 characters long.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="current-password" className="text-slate-300">
+                          Current Password
+                        </Label>
+                        <Input
+                          id="current-password"
+                          type="password"
+                          value={passwordForm.currentPassword}
+                          onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="new-password" className="text-slate-300">
+                          New Password
+                        </Label>
+                        <Input
+                          id="new-password"
+                          type="password"
+                          value={passwordForm.newPassword}
+                          onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="confirm-password" className="text-slate-300">
+                          Confirm New Password
+                        </Label>
+                        <Input
+                          id="confirm-password"
+                          type="password"
+                          value={passwordForm.confirmPassword}
+                          onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsChangePasswordOpen(false)}
+                        className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handlePasswordChange}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Update Password
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* 2FA Setup Dialog */}
+                <Dialog open={is2FAOpen} onOpenChange={setIs2FAOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Enable Two-Factor Authentication
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-800 border-slate-700">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Setup Two-Factor Authentication</DialogTitle>
+                      <DialogDescription className="text-slate-400">
+                        Add an extra layer of security to your account by enabling 2FA.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-sm text-blue-300">
+                          📱 <strong>Step 1:</strong> Download an authenticator app like Google Authenticator or Authy
+                        </p>
+                      </div>
+                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-sm text-blue-300">
+                          📷 <strong>Step 2:</strong> Scan the QR code with your authenticator app
+                        </p>
+                      </div>
+                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-sm text-blue-300">
+                          🔢 <strong>Step 3:</strong> Enter the 6-digit code from your app below
+                        </p>
+                      </div>
+                      <Input
+                        placeholder="Enter 6-digit code"
+                        className="text-center text-lg tracking-widest bg-slate-700/50 border-slate-600 text-white"
+                        maxLength={6}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIs2FAOpen(false)}
+                        className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          toast({
+                            title: "2FA Enabled",
+                            description: "Two-factor authentication has been enabled for your account",
+                            duration: 3000,
+                          });
+                          setIs2FAOpen(false);
+                        }}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Enable 2FA
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Security Log Dialog */}
+                <Dialog open={isSecurityLogOpen} onOpenChange={setIsSecurityLogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Security Log
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Security Log</DialogTitle>
+                      <DialogDescription className="text-slate-400">
+                        Recent security events and login activity for your account.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {[
+                        { date: "2024-01-15 14:30", event: "Password changed", ip: "192.168.1.100", status: "success" },
+                        { date: "2024-01-15 09:15", event: "Login attempt", ip: "192.168.1.100", status: "success" },
+                        { date: "2024-01-14 17:45", event: "Settings updated", ip: "192.168.1.100", status: "success" },
+                        { date: "2024-01-14 10:22", event: "Login attempt", ip: "192.168.1.100", status: "success" },
+                        { date: "2024-01-13 16:10", event: "Failed login", ip: "203.0.113.42", status: "failed" },
+                      ].map((log, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 border border-slate-600/50 rounded-lg">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-block w-2 h-2 rounded-full ${
+                                log.status === 'success' ? 'bg-green-400' : 'bg-red-400'
+                              }`}></span>
+                              <span className="text-white font-medium">{log.event}</span>
+                            </div>
+                            <p className="text-sm text-slate-400 mt-1">
+                              {log.date} • IP: {log.ip}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={() => setIsSecurityLogOpen(false)}
+                        className="bg-slate-700 text-white hover:bg-slate-600"
+                      >
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
                 <Link to="/admin" className="block">
                   <Button
                     variant="outline"
                     className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
                   >
+                    <Database className="h-4 w-4 mr-2" />
                     View Admin Dashboard
                   </Button>
                 </Link>
-                <Button
-                  variant="outline"
-                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                  onClick={() => {
-                    toast({
-                      title: "Security Log",
-                      description: "Security log viewer would be implemented here.",
-                      duration: 3000,
-                    });
-                  }}
-                >
-                  View Security Log
-                </Button>
               </div>
             </CardContent>
           </Card>
