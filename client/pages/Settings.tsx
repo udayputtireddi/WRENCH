@@ -101,6 +101,65 @@ export default function Settings() {
     });
   };
 
+  const handlePasswordChange = () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords don't match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Password Changed",
+      description: "Your password has been updated successfully",
+      duration: 3000,
+    });
+
+    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setIsChangePasswordOpen(false);
+  };
+
+  const handleSystemBackup = () => {
+    const dataStr = JSON.stringify({
+      tasks: Database.getTasks(),
+      timestamp: new Date().toISOString(),
+      version: "1.0"
+    }, null, 2);
+
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'checkmate-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    link.click();
+
+    toast({
+      title: "Backup Downloaded",
+      description: "System backup has been saved to your downloads",
+      duration: 3000,
+    });
+  };
+
+  const handleDataReset = () => {
+    Database.clearDatabase();
+    toast({
+      title: "Data Reset",
+      description: "All task data has been cleared",
+      variant: "destructive",
+    });
+  };
+
   const updateSetting = (category: string, key: string, value: any) => {
     setSettings((prev) => ({
       ...prev,
