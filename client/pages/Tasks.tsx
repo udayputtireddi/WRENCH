@@ -265,6 +265,23 @@ export default function Tasks() {
                 </CardContent>
               </Card>
 
+              <Card className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 border-blue-500/30">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-300">
+                    In Progress
+                  </CardTitle>
+                  <Activity className="h-4 w-4 text-blue-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-400">
+                    {inProgressTasks.length}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Tasks with saved progress
+                  </p>
+                </CardContent>
+              </Card>
+
               <Card className="bg-gradient-to-br from-yellow-600/20 to-yellow-700/20 border-yellow-500/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-slate-300">
