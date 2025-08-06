@@ -8,6 +8,9 @@ html {
   height: 100%;
   /* Prevent overscroll bounce on iOS and pull-to-refresh */
   overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  /* Prevent elastic scrolling on mobile */
+  position: relative;
 }
 
 body {
@@ -20,6 +23,10 @@ body {
   -webkit-overflow-scrolling: touch;
   /* Prevent zoom on double tap */
   touch-action: manipulation;
+  /* Prevent pull-to-refresh on mobile browsers */
+  overscroll-behavior-y: contain;
+  /* For iOS Safari */
+  -webkit-overflow-scrolling: auto;
 }
 
 /* Mobile-first responsive improvements */
@@ -61,16 +68,27 @@ body {
     min-height: calc(var(--vh, 1vh) * 100);
     width: 100%;
     position: relative;
-    /* Ensure background extends beyond viewport */
+    /* Ensure background extends beyond viewport and prevents white space */
     padding-bottom: env(safe-area-inset-bottom);
     /* Prevent overscroll behavior */
     overscroll-behavior: none;
     overscroll-behavior-y: none;
+    /* Additional mobile prevention */
+    overflow: hidden;
+    overflow-y: auto;
+    /* Prevent elastic scrolling */
+    -webkit-overflow-scrolling: auto;
+    /* Fix for iOS bounce */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 
-  /* Prevent overscroll on the main content areas */
-  .app-container > * {
+  /* Prevent overscroll on all child elements */
+  .app-container *,
+  .app-container *:before,
+  .app-container *:after {
     overscroll-behavior: none;
+    overscroll-behavior-y: none;
   }
 
   /* Additional mobile optimizations */
@@ -78,6 +96,31 @@ body {
     .app-container {
       /* iOS Safari specific */
       min-height: -webkit-fill-available;
+      /* Prevent elastic scrolling completely on iOS */
+      -webkit-overflow-scrolling: auto;
+    }
+  }
+
+  /* Aggressive overscroll prevention for mobile */
+  @media (max-width: 768px) {
+    html, body {
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      /* Prevent pull to refresh */
+      touch-action: pan-y;
+    }
+
+    .app-container {
+      /* Force containment on mobile */
+      contain: layout style paint;
+      /* Prevent any overflow */
+      overflow-x: hidden;
+      overflow-y: auto;
+      /* Lock the height exactly */
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100vh;
+      max-height: 100dvh;
     }
   }
 }
