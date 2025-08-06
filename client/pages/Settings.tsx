@@ -568,6 +568,56 @@ export default function Settings() {
                   />
                 </div>
               </div>
+
+              <Separator className="bg-slate-700" />
+
+              <div className="space-y-4">
+                <h4 className="text-white font-medium">Data Management</h4>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <Button
+                    onClick={handleSystemBackup}
+                    variant="outline"
+                    className="bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Backup
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Reset All Data
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-slate-800 border-slate-700">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-white">Reset All Data</AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                          This action cannot be undone. This will permanently delete all tasks, completion history, and progress data.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDataReset}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Reset Data
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+                <p className="text-xs text-slate-400">
+                  <strong>Download Backup:</strong> Exports all your task data to a JSON file for safekeeping.<br/>
+                  <strong>Reset Data:</strong> Permanently removes all task and completion data from the system.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
