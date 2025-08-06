@@ -6,19 +6,20 @@
 html {
   overflow-x: hidden;
   height: 100%;
-  position: fixed;
-  width: 100%;
+  /* Prevent overscroll bounce on iOS and pull-to-refresh */
+  overscroll-behavior: none;
 }
 
 body {
   overflow-x: hidden;
-  height: 100%;
-  width: 100%;
-  position: fixed;
+  min-height: 100vh;
+  /* Prevent overscroll bounce and pull-to-refresh */
   overscroll-behavior: none;
-  /* Prevent pull-to-refresh and bounce scrolling */
   overscroll-behavior-y: none;
+  /* Improve mobile scrolling */
   -webkit-overflow-scrolling: touch;
+  /* Prevent zoom on double tap */
+  touch-action: manipulation;
 }
 
 /* Mobile-first responsive improvements */
@@ -147,19 +148,15 @@ body {
 
   body {
     @apply bg-background text-foreground;
-    /* Ensure body background extends beyond content */
-    background-attachment: fixed;
   }
 
-  /* Ensure main app container takes full height and handles scroll properly */
+  /* Ensure main app container prevents overscroll */
   #root {
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
-    overflow-y: auto;
     overflow-x: hidden;
+    /* Prevent overscroll behavior */
     overscroll-behavior: none;
-    /* Prevent elastic scrolling on iOS */
-    -webkit-overflow-scrolling: touch;
   }
 }
 
