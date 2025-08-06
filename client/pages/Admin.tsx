@@ -490,7 +490,7 @@ export default function Admin() {
                           id: e.target.value,
                         }))
                       }
-                      className="mt-1 bg-slate-700/50 border-slate-600 text-white"
+                      className="mt-1 bg-slate-700/50 border-slate-600 text-white w-full min-w-0"
                     />
                   </div>
                   <div>
