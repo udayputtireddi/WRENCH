@@ -110,10 +110,10 @@ export class TaskScheduler {
     };
 
     task.completionHistory.push(completion);
-    task.lastCompletedDate = completion.completedDate;
+    task.lastCompletedDate = completionDate;
     task.nextDueDate = this.calculateNextDueDate(
       task.frequency,
-      completion.completedDate,
+      completionDate,
       task.weeklyDay,
     );
 
