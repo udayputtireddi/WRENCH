@@ -509,7 +509,7 @@ export default function Settings() {
                 System Configuration
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Advanced system settings and data management
+                Control data retention, backups, and system defaults. These settings affect how the system stores and manages your maintenance data.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -517,7 +517,7 @@ export default function Settings() {
                 <div>
                   <Label className="text-slate-300">Automatic Backup</Label>
                   <p className="text-sm text-slate-400">
-                    Daily backup of all task data
+                    Enables daily automatic backup of all maintenance tasks, completion history, and settings
                   </p>
                 </div>
                 <Switch
@@ -531,8 +531,11 @@ export default function Settings() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="retention" className="text-slate-300">
-                    Data Retention (days)
+                    Data Retention Period
                   </Label>
+                  <p className="text-xs text-slate-400 mb-1">
+                    How long to keep completed task history (days)
+                  </p>
                   <Input
                     id="retention"
                     type="number"
@@ -545,8 +548,11 @@ export default function Settings() {
                 </div>
                 <div>
                   <Label htmlFor="duration" className="text-slate-300">
-                    Default Task Duration (minutes)
+                    Default Task Duration
                   </Label>
+                  <p className="text-xs text-slate-400 mb-1">
+                    Default estimated time for new tasks (minutes)
+                  </p>
                   <Input
                     id="duration"
                     type="number"
