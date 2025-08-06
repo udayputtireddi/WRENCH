@@ -52,6 +52,21 @@ body {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Full-screen app container that prevents white space on overscroll */
+  .app-container {
+    min-height: 100vh;
+    min-height: 100dvh; /* Use dynamic viewport height on mobile */
+    width: 100%;
+    position: relative;
+    /* Ensure background extends beyond viewport */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Prevent overscroll on the main content areas */
+  .app-container > * {
+    overscroll-behavior: none;
+  }
 }
 
 @layer base {
