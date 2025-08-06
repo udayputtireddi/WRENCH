@@ -6,6 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Home from "./pages/Home";
 import UserHome from "./pages/UserHome";
 import Login from "./pages/Login";
@@ -40,75 +41,97 @@ const HomeRoute = () => {
   }
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<HomeRoute />} />
-          <Route path="/scan" element={<Scanner />} />
-          <Route path="/machine/:machineId" element={<Machine />} />
-          <Route path="/machine/:machineId/task/:taskId" element={<Task />} />
-          <Route path="/tasks" element={<Tasks />} />
+const App = () => {
+  // Handle mobile viewport height for consistent full-screen experience
+  useEffect(() => {
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
 
-          {/* Admin only routes */}
-          <Route
-            path="/analytics"
-            element={
-              <RoleBasedRoute
-                allowedRoles={["admin"]}
-                fallback={<Navigate to="/" />}
-              >
-                <Analytics />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <RoleBasedRoute
-                allowedRoles={["admin"]}
-                fallback={<Navigate to="/" />}
-              >
-                <Settings />
-              </RoleBasedRoute>
-            }
-          />
+    // Set initial value
+    setVH();
 
-          {/* Admin only routes */}
-          <Route
-            path="/admin"
-            element={
-              <RoleBasedRoute
-                allowedRoles={["admin"]}
-                fallback={<Navigate to="/" />}
-              >
-                <Admin />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="/admin/database"
-            element={
-              <RoleBasedRoute
-                allowedRoles={["admin"]}
-                fallback={<Navigate to="/" />}
-              >
-                <AdminDatabase />
-              </RoleBasedRoute>
-            }
-          />
+    // Update on resize (handles mobile address bar show/hide)
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    return () => {
+      window.removeEventListener('resize', setVH);
+      window.removeEventListener('orientationchange', setVH);
+    };
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/scan" element={<Scanner />} />
+            <Route path="/machine/:machineId" element={<Machine />} />
+            <Route path="/machine/:machineId/task/:taskId" element={<Task />} />
+            <Route path="/tasks" element={<Tasks />} />
+
+            {/* Admin only routes */}
+            <Route
+              path="/analytics"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <Analytics />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <Settings />
+                </RoleBasedRoute>
+              }
+            />
+
+            {/* Admin only routes */}
+            <Route
+              path="/admin"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <Admin />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/admin/database"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <AdminDatabase />
+                </RoleBasedRoute>
+              }
+            />
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 // Ensure root is only created once
 const container = document.getElementById("root");
