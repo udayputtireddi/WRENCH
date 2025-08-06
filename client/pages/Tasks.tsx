@@ -113,6 +113,7 @@ export default function Tasks() {
       task.machine.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === "all" ||
+      (filterStatus === "in progress" && task.status === "In Progress") ||
       task.status.toLowerCase() === filterStatus.toLowerCase();
     const matchesPriority =
       filterPriority === "all" ||
