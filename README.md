@@ -237,28 +237,16 @@ npm run build
 npm run preview
 ```
 
-## 🚀 Deployment Options
+## 🚀 Deployment
 
-### **Firebase Hosting** (Recommended)
+### **Firebase Hosting** (Current Deployment)
 
 ```bash
 npm run build
 firebase deploy
 ```
 
-### **Netlify**
-
-```bash
-npm run build
-# Deploy dist/ folder to Netlify
-```
-
-### **Vercel**
-
-```bash
-npm run build
-vercel --prod
-```
+The project is currently deployed and hosted on Firebase. For alternative hosting platforms, build the project and deploy the `dist/` folder to your preferred provider.
 
 ## 🤝 Contributing
 
