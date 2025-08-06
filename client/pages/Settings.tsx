@@ -44,7 +44,7 @@ import {
   Settings,
   Bell,
   Shield,
-  Database,
+  Database as DatabaseIcon,
   Smartphone,
   Save,
   User,
