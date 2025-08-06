@@ -30,7 +30,7 @@ import {
   BarChart3,
   Camera,
 } from "lucide-react";
-import Database from "@/lib/database";
+import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
