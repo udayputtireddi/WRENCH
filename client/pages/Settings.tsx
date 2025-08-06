@@ -532,7 +532,7 @@ export default function Settings() {
           <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Database className="h-5 w-5" />
+                <DatabaseIcon className="h-5 w-5" />
                 System Configuration
               </CardTitle>
               <CardDescription className="text-slate-400">
@@ -857,7 +857,7 @@ export default function Settings() {
                     variant="outline"
                     className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
                   >
-                    <Database className="h-4 w-4 mr-2" />
+                    <DatabaseIcon className="h-4 w-4 mr-2" />
                     View Admin Dashboard
                   </Button>
                 </Link>
