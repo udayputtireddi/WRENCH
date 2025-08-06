@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
@@ -28,11 +48,27 @@ import {
   Smartphone,
   Save,
   User,
+  Eye,
+  Key,
+  Download,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Database from "@/lib/database";
+import AuthService from "@/lib/auth";
 
 export default function Settings() {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [is2FAOpen, setIs2FAOpen] = useState(false);
+  const [isSecurityLogOpen, setIsSecurityLogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [settings, setSettings] = useState({
     notifications: {
       email: true,
