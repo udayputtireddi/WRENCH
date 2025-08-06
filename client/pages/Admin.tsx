@@ -692,11 +692,11 @@ export default function Admin() {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 self-start sm:self-center">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500"
+                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500 h-8 px-2"
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
@@ -704,7 +704,7 @@ export default function Admin() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteUser(user.id)}
-                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
+                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30 h-8 px-2"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
