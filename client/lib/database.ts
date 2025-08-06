@@ -399,12 +399,18 @@ export class Database {
       return dueDate.getTime() === tomorrow.getTime();
     }).length;
 
+    // Count tasks with saved progress
+    const tasksWithProgress = tasks.filter((task) => {
+      return task.progressSaves && task.progressSaves.length > 0;
+    }).length;
+
     return {
       totalTasks: tasks.length,
       totalMachines: machines.length,
       completedToday,
       overdueTasks,
       upcomingTasks,
+      tasksWithProgress,
       totalCompletions: tasks.reduce(
         (sum, task) => sum + task.completionHistory.length,
         0,
