@@ -604,8 +604,12 @@ export default function Admin() {
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
                             <span className="truncate">ID: {machine.id}</span>
-                            <span className="truncate">Type: {machine.type}</span>
-                            <span className="truncate">Location: {machine.location}</span>
+                            <span className="truncate">
+                              Type: {machine.type}
+                            </span>
+                            <span className="truncate">
+                              Location: {machine.location}
+                            </span>
                             <span>Tasks: {machine.tasks.length}</span>
                           </div>
                         </div>
@@ -680,8 +684,12 @@ export default function Admin() {
                             </Badge>
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
-                            <span className="truncate break-all">{user.email}</span>
-                            <span className="text-xs">Dept: {user.department}</span>
+                            <span className="truncate break-all">
+                              {user.email}
+                            </span>
+                            <span className="text-xs">
+                              Dept: {user.department}
+                            </span>
                             <span className="text-xs">
                               Joined:{" "}
                               {new Date(user.createdAt).toLocaleDateString()}
@@ -797,7 +805,8 @@ export default function Admin() {
                     Smart Scheduling Test
                   </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Test the smart scheduling system without waiting for real time
+                    Test the smart scheduling system without waiting for real
+                    time
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -809,33 +818,50 @@ export default function Admin() {
                         let results = "";
 
                         if (tasks.length === 0) {
-                          results = "⚠️ No tasks found. Please upload task data first to test scheduling.";
+                          results =
+                            "⚠️ No tasks found. Please upload task data first to test scheduling.";
                         } else {
                           results = "🧪 Smart Scheduling Test Results:\n\n";
 
                           // Test daily task scheduling
-                          const dailyTask = tasks.find(t => t.frequency === 'daily');
+                          const dailyTask = tasks.find(
+                            (t) => t.frequency === "daily",
+                          );
                           if (dailyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate('daily', today);
+                            const nextDue = TaskScheduler.calculateNextDueDate(
+                              "daily",
+                              today,
+                            );
                             results += `✅ Daily Task: Completed today → Next due tomorrow (${nextDue.toLocaleDateString()})\n`;
                           }
 
                           // Test weekly task scheduling
-                          const weeklyTask = tasks.find(t => t.frequency === 'weekly');
+                          const weeklyTask = tasks.find(
+                            (t) => t.frequency === "weekly",
+                          );
                           if (weeklyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate('weekly', today);
+                            const nextDue = TaskScheduler.calculateNextDueDate(
+                              "weekly",
+                              today,
+                            );
                             results += `✅ Weekly Task: Completed today → Next due in 7 days (${nextDue.toLocaleDateString()})\n`;
                           }
 
                           // Test monthly task scheduling
-                          const monthlyTask = tasks.find(t => t.frequency === 'monthly');
+                          const monthlyTask = tasks.find(
+                            (t) => t.frequency === "monthly",
+                          );
                           if (monthlyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate('monthly', today);
+                            const nextDue = TaskScheduler.calculateNextDueDate(
+                              "monthly",
+                              today,
+                            );
                             results += `✅ Monthly Task: Completed today → Next due next month (${nextDue.toLocaleDateString()})\n`;
                           }
 
                           if (!dailyTask && !weeklyTask && !monthlyTask) {
-                            results += "⚠️ No tasks with recognizable frequency patterns found.";
+                            results +=
+                              "⚠️ No tasks with recognizable frequency patterns found.";
                           }
                         }
 
@@ -852,14 +878,18 @@ export default function Admin() {
                       onClick={() => {
                         const tasks = Database.getTasks();
                         if (tasks.length === 0) {
-                          setTestResults("⚠️ No tasks found. Please upload task data first.");
+                          setTestResults(
+                            "⚠️ No tasks found. Please upload task data first.",
+                          );
                           setShowTestResults(true);
                           return;
                         }
 
                         const currentUser = AuthService.getCurrentUser();
                         if (!currentUser) {
-                          setTestResults("⚠️ Please log in to simulate task completion.");
+                          setTestResults(
+                            "⚠️ Please log in to simulate task completion.",
+                          );
                           setShowTestResults(true);
                           return;
                         }
@@ -875,24 +905,36 @@ export default function Admin() {
                           currentUser.id,
                           currentUser.name,
                           [
-                            { id: "1", text: "Test completion", completed: true },
-                            { id: "2", text: "Simulated for testing", completed: true }
+                            {
+                              id: "1",
+                              text: "Test completion",
+                              completed: true,
+                            },
+                            {
+                              id: "2",
+                              text: "Simulated for testing",
+                              completed: true,
+                            },
                           ],
                           "Simulated completion for testing smart scheduling",
                           [],
-                          yesterday
+                          yesterday,
                         );
 
                         if (success) {
                           const nextDue = TaskScheduler.calculateNextDueDate(
                             taskToComplete.frequency,
                             yesterday,
-                            taskToComplete.weeklyDay
+                            taskToComplete.weeklyDay,
                           );
 
-                          setTestResults(`✅ Simulated completing "${taskToComplete.taskName}" yesterday.\n\nNext due date: ${nextDue.toLocaleDateString()}\n\nRefresh the page to see updated task list!`);
+                          setTestResults(
+                            `✅ Simulated completing "${taskToComplete.taskName}" yesterday.\n\nNext due date: ${nextDue.toLocaleDateString()}\n\nRefresh the page to see updated task list!`,
+                          );
                         } else {
-                          setTestResults("❌ Failed to simulate task completion.");
+                          setTestResults(
+                            "❌ Failed to simulate task completion.",
+                          );
                         }
                         setShowTestResults(true);
                       }}
@@ -906,7 +948,9 @@ export default function Admin() {
                   {showTestResults && (
                     <div className="mt-4 p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-white font-medium text-sm">Test Results</h4>
+                        <h4 className="text-white font-medium text-sm">
+                          Test Results
+                        </h4>
                         <Button
                           onClick={() => setShowTestResults(false)}
                           variant="ghost"
@@ -923,9 +967,13 @@ export default function Admin() {
                   )}
 
                   <div className="text-xs text-slate-400 p-3 bg-slate-700/30 rounded-lg">
-                    <strong>How to Test:</strong><br/>
-                    1. Use "Test Smart Scheduling Logic" to verify the calculation logic<br/>
-                    2. Use "Simulate Task Completion" to test with real data<br/>
+                    <strong>How to Test:</strong>
+                    <br />
+                    1. Use "Test Smart Scheduling Logic" to verify the
+                    calculation logic
+                    <br />
+                    2. Use "Simulate Task Completion" to test with real data
+                    <br />
                     3. Check the Tasks page to see updated due dates
                   </div>
                 </CardContent>

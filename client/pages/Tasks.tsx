@@ -63,20 +63,24 @@ export default function Tasks() {
     // Check for saved progress
     const currentUser = AuthService.getCurrentUser();
     const savedProgress = currentUser
-      ? task.progressSaves?.find(p => p.userId === currentUser.id)
+      ? task.progressSaves?.find((p) => p.userId === currentUser.id)
       : null;
 
-    const progressInfo = savedProgress ? {
-      completedItems: savedProgress.checklistItems.filter(item => item.completed).length,
-      totalItems: savedProgress.checklistItems.length,
-      hasProgress: true,
-      savedDate: savedProgress.savedDate
-    } : {
-      completedItems: 0,
-      totalItems: 0,
-      hasProgress: false,
-      savedDate: null
-    };
+    const progressInfo = savedProgress
+      ? {
+          completedItems: savedProgress.checklistItems.filter(
+            (item) => item.completed,
+          ).length,
+          totalItems: savedProgress.checklistItems.length,
+          hasProgress: true,
+          savedDate: savedProgress.savedDate,
+        }
+      : {
+          completedItems: 0,
+          totalItems: 0,
+          hasProgress: false,
+          savedDate: null,
+        };
 
     // Update status if there's saved progress but not completed
     if (progressInfo.hasProgress && status !== "Completed") {
@@ -373,10 +377,14 @@ export default function Tasks() {
                                   <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                                     <div className="flex items-center text-blue-400 text-xs">
                                       <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved: {task.progressInfo.completedItems}/{task.progressInfo.totalItems} items
+                                      Progress Saved:{" "}
+                                      {task.progressInfo.completedItems}/
+                                      {task.progressInfo.totalItems} items
                                     </div>
                                     <div className="text-xs text-blue-300">
-                                      {new Date(task.progressInfo.savedDate).toLocaleDateString()}
+                                      {new Date(
+                                        task.progressInfo.savedDate,
+                                      ).toLocaleDateString()}
                                     </div>
                                   </div>
                                 )}
@@ -454,10 +462,14 @@ export default function Tasks() {
                                   <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                                     <div className="flex items-center text-blue-400 text-xs">
                                       <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved: {task.progressInfo.completedItems}/{task.progressInfo.totalItems} items
+                                      Progress Saved:{" "}
+                                      {task.progressInfo.completedItems}/
+                                      {task.progressInfo.totalItems} items
                                     </div>
                                     <div className="text-xs text-blue-300">
-                                      {new Date(task.progressInfo.savedDate).toLocaleDateString()}
+                                      {new Date(
+                                        task.progressInfo.savedDate,
+                                      ).toLocaleDateString()}
                                     </div>
                                   </div>
                                 )}
@@ -480,7 +492,10 @@ export default function Tasks() {
                                   </span>
                                 </div>
                               </div>
-                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`} className="self-start sm:self-auto">
+                              <Link
+                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
+                                className="self-start sm:self-auto"
+                              >
                                 <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto">
                                   Continue Task
                                 </Button>
@@ -531,10 +546,14 @@ export default function Tasks() {
                                   <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                                     <div className="flex items-center text-blue-400 text-xs">
                                       <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved: {task.progressInfo.completedItems}/{task.progressInfo.totalItems} items
+                                      Progress Saved:{" "}
+                                      {task.progressInfo.completedItems}/
+                                      {task.progressInfo.totalItems} items
                                     </div>
                                     <div className="text-xs text-blue-300">
-                                      {new Date(task.progressInfo.savedDate).toLocaleDateString()}
+                                      {new Date(
+                                        task.progressInfo.savedDate,
+                                      ).toLocaleDateString()}
                                     </div>
                                   </div>
                                 )}
