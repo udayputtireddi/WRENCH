@@ -236,6 +236,33 @@ export default function Settings() {
     });
   };
 
+  // Load saved preferences on component mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme-preference');
+    const savedLanguage = localStorage.getItem('language-preference');
+
+    if (savedTheme) {
+      setSettings(prev => ({
+        ...prev,
+        appearance: {
+          ...prev.appearance,
+          theme: savedTheme
+        }
+      }));
+      applyTheme(savedTheme);
+    }
+
+    if (savedLanguage) {
+      setSettings(prev => ({
+        ...prev,
+        appearance: {
+          ...prev.appearance,
+          language: savedLanguage
+        }
+      }));
+    }
+  }, []);
+
   return (
     <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
