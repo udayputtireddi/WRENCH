@@ -103,7 +103,8 @@ body {
 
   /* Aggressive overscroll prevention for mobile */
   @media (max-width: 768px) {
-    html, body {
+    html,
+    body {
       overflow-x: hidden;
       overscroll-behavior-y: contain;
       /* Prevent pull to refresh */

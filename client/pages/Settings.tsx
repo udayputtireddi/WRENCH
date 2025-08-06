@@ -126,22 +126,31 @@ export default function Settings() {
       duration: 3000,
     });
 
-    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setPasswordForm({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
     setIsChangePasswordOpen(false);
   };
 
   const handleSystemBackup = () => {
-    const dataStr = JSON.stringify({
-      tasks: Database.getTasks(),
-      timestamp: new Date().toISOString(),
-      version: "1.0"
-    }, null, 2);
+    const dataStr = JSON.stringify(
+      {
+        tasks: Database.getTasks(),
+        timestamp: new Date().toISOString(),
+        version: "1.0",
+      },
+      null,
+      2,
+    );
 
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'checkmate-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    link.download =
+      "checkmate-backup-" + new Date().toISOString().split("T")[0] + ".json";
     link.click();
 
     toast({
@@ -200,7 +209,9 @@ export default function Settings() {
         duration: 2000,
       });
     } else {
-      const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const systemDarkMode = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
       if (systemDarkMode) {
         root.classList.add("dark");
         root.classList.remove("light");
@@ -215,7 +226,7 @@ export default function Settings() {
       });
     }
 
-    localStorage.setItem('theme-preference', theme);
+    localStorage.setItem("theme-preference", theme);
   };
 
   const applyLanguage = (language: string) => {
@@ -223,11 +234,11 @@ export default function Settings() {
       en: "English",
       es: "Spanish",
       fr: "French",
-      de: "German"
+      de: "German",
     };
 
     document.documentElement.lang = language;
-    localStorage.setItem('language-preference', language);
+    localStorage.setItem("language-preference", language);
 
     toast({
       title: "Language Changed",
@@ -238,27 +249,27 @@ export default function Settings() {
 
   // Load saved preferences on component mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme-preference');
-    const savedLanguage = localStorage.getItem('language-preference');
+    const savedTheme = localStorage.getItem("theme-preference");
+    const savedLanguage = localStorage.getItem("language-preference");
 
     if (savedTheme) {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         appearance: {
           ...prev.appearance,
-          theme: savedTheme
-        }
+          theme: savedTheme,
+        },
       }));
       applyTheme(savedTheme);
     }
 
     if (savedLanguage) {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         appearance: {
           ...prev.appearance,
-          language: savedLanguage
-        }
+          language: savedLanguage,
+        },
       }));
     }
   }, []);
@@ -536,7 +547,9 @@ export default function Settings() {
                 System Configuration
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Control data retention, backups, and system defaults. These settings affect how the system stores and manages your maintenance data.
+                Control data retention, backups, and system defaults. These
+                settings affect how the system stores and manages your
+                maintenance data.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -544,7 +557,8 @@ export default function Settings() {
                 <div>
                   <Label className="text-slate-300">Automatic Backup</Label>
                   <p className="text-sm text-slate-400">
-                    Enables daily automatic backup of all maintenance tasks, completion history, and settings
+                    Enables daily automatic backup of all maintenance tasks,
+                    completion history, and settings
                   </p>
                 </div>
                 <Switch
@@ -621,9 +635,13 @@ export default function Settings() {
                     </AlertDialogTrigger>
                     <AlertDialogContent className="bg-slate-800 border-slate-700">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Reset All Data</AlertDialogTitle>
+                        <AlertDialogTitle className="text-white">
+                          Reset All Data
+                        </AlertDialogTitle>
                         <AlertDialogDescription className="text-slate-400">
-                          This action cannot be undone. This will permanently delete all tasks, completion history, and progress data.
+                          This action cannot be undone. This will permanently
+                          delete all tasks, completion history, and progress
+                          data.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -641,8 +659,11 @@ export default function Settings() {
                   </AlertDialog>
                 </div>
                 <p className="text-xs text-slate-400">
-                  <strong>Download Backup:</strong> Exports all your task data to a JSON file for safekeeping.<br/>
-                  <strong>Reset Data:</strong> Permanently removes all task and completion data from the system.
+                  <strong>Download Backup:</strong> Exports all your task data
+                  to a JSON file for safekeeping.
+                  <br />
+                  <strong>Reset Data:</strong> Permanently removes all task and
+                  completion data from the system.
                 </p>
               </div>
             </CardContent>
@@ -662,7 +683,10 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 {/* Change Password Dialog */}
-                <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+                <Dialog
+                  open={isChangePasswordOpen}
+                  onOpenChange={setIsChangePasswordOpen}
+                >
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
@@ -674,45 +698,72 @@ export default function Settings() {
                   </DialogTrigger>
                   <DialogContent className="bg-slate-800 border-slate-700">
                     <DialogHeader>
-                      <DialogTitle className="text-white">Change Password</DialogTitle>
+                      <DialogTitle className="text-white">
+                        Change Password
+                      </DialogTitle>
                       <DialogDescription className="text-slate-400">
-                        Enter your current password and choose a new one. Password must be at least 8 characters long.
+                        Enter your current password and choose a new one.
+                        Password must be at least 8 characters long.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="current-password" className="text-slate-300">
+                        <Label
+                          htmlFor="current-password"
+                          className="text-slate-300"
+                        >
                           Current Password
                         </Label>
                         <Input
                           id="current-password"
                           type="password"
                           value={passwordForm.currentPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              currentPassword: e.target.value,
+                            }))
+                          }
                           className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="new-password" className="text-slate-300">
+                        <Label
+                          htmlFor="new-password"
+                          className="text-slate-300"
+                        >
                           New Password
                         </Label>
                         <Input
                           id="new-password"
                           type="password"
                           value={passwordForm.newPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              newPassword: e.target.value,
+                            }))
+                          }
                           className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="confirm-password" className="text-slate-300">
+                        <Label
+                          htmlFor="confirm-password"
+                          className="text-slate-300"
+                        >
                           Confirm New Password
                         </Label>
                         <Input
                           id="confirm-password"
                           type="password"
                           value={passwordForm.confirmPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              confirmPassword: e.target.value,
+                            }))
+                          }
                           className="mt-1 bg-slate-700/50 border-slate-600 text-white"
                         />
                       </div>
@@ -748,25 +799,31 @@ export default function Settings() {
                   </DialogTrigger>
                   <DialogContent className="bg-slate-800 border-slate-700">
                     <DialogHeader>
-                      <DialogTitle className="text-white">Setup Two-Factor Authentication</DialogTitle>
+                      <DialogTitle className="text-white">
+                        Setup Two-Factor Authentication
+                      </DialogTitle>
                       <DialogDescription className="text-slate-400">
-                        Add an extra layer of security to your account by enabling 2FA.
+                        Add an extra layer of security to your account by
+                        enabling 2FA.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                         <p className="text-sm text-blue-300">
-                          📱 <strong>Step 1:</strong> Download an authenticator app like Google Authenticator or Authy
+                          📱 <strong>Step 1:</strong> Download an authenticator
+                          app like Google Authenticator or Authy
                         </p>
                       </div>
                       <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                         <p className="text-sm text-blue-300">
-                          📷 <strong>Step 2:</strong> Scan the QR code with your authenticator app
+                          📷 <strong>Step 2:</strong> Scan the QR code with your
+                          authenticator app
                         </p>
                       </div>
                       <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                         <p className="text-sm text-blue-300">
-                          🔢 <strong>Step 3:</strong> Enter the 6-digit code from your app below
+                          🔢 <strong>Step 3:</strong> Enter the 6-digit code
+                          from your app below
                         </p>
                       </div>
                       <Input
@@ -787,7 +844,8 @@ export default function Settings() {
                         onClick={() => {
                           toast({
                             title: "2FA Enabled",
-                            description: "Two-factor authentication has been enabled for your account",
+                            description:
+                              "Two-factor authentication has been enabled for your account",
                             duration: 3000,
                           });
                           setIs2FAOpen(false);
@@ -801,7 +859,10 @@ export default function Settings() {
                 </Dialog>
 
                 {/* Security Log Dialog */}
-                <Dialog open={isSecurityLogOpen} onOpenChange={setIsSecurityLogOpen}>
+                <Dialog
+                  open={isSecurityLogOpen}
+                  onOpenChange={setIsSecurityLogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
@@ -813,26 +874,63 @@ export default function Settings() {
                   </DialogTrigger>
                   <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle className="text-white">Security Log</DialogTitle>
+                      <DialogTitle className="text-white">
+                        Security Log
+                      </DialogTitle>
                       <DialogDescription className="text-slate-400">
-                        Recent security events and login activity for your account.
+                        Recent security events and login activity for your
+                        account.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {[
-                        { date: "2024-01-15 14:30", event: "Password changed", ip: "192.168.1.100", status: "success" },
-                        { date: "2024-01-15 09:15", event: "Login attempt", ip: "192.168.1.100", status: "success" },
-                        { date: "2024-01-14 17:45", event: "Settings updated", ip: "192.168.1.100", status: "success" },
-                        { date: "2024-01-14 10:22", event: "Login attempt", ip: "192.168.1.100", status: "success" },
-                        { date: "2024-01-13 16:10", event: "Failed login", ip: "203.0.113.42", status: "failed" },
+                        {
+                          date: "2024-01-15 14:30",
+                          event: "Password changed",
+                          ip: "192.168.1.100",
+                          status: "success",
+                        },
+                        {
+                          date: "2024-01-15 09:15",
+                          event: "Login attempt",
+                          ip: "192.168.1.100",
+                          status: "success",
+                        },
+                        {
+                          date: "2024-01-14 17:45",
+                          event: "Settings updated",
+                          ip: "192.168.1.100",
+                          status: "success",
+                        },
+                        {
+                          date: "2024-01-14 10:22",
+                          event: "Login attempt",
+                          ip: "192.168.1.100",
+                          status: "success",
+                        },
+                        {
+                          date: "2024-01-13 16:10",
+                          event: "Failed login",
+                          ip: "203.0.113.42",
+                          status: "failed",
+                        },
                       ].map((log, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 border border-slate-600/50 rounded-lg">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-slate-700/30 border border-slate-600/50 rounded-lg"
+                        >
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <span className={`inline-block w-2 h-2 rounded-full ${
-                                log.status === 'success' ? 'bg-green-400' : 'bg-red-400'
-                              }`}></span>
-                              <span className="text-white font-medium">{log.event}</span>
+                              <span
+                                className={`inline-block w-2 h-2 rounded-full ${
+                                  log.status === "success"
+                                    ? "bg-green-400"
+                                    : "bg-red-400"
+                                }`}
+                              ></span>
+                              <span className="text-white font-medium">
+                                {log.event}
+                              </span>
                             </div>
                             <p className="text-sm text-slate-400 mt-1">
                               {log.date} • IP: {log.ip}
