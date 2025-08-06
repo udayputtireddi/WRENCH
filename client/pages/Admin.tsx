@@ -581,11 +581,11 @@ export default function Admin() {
                     {machines.map((machine) => (
                       <div
                         key={machine.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
+                        className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
                       >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-white font-semibold">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="text-white font-semibold truncate">
                               {machine.name}
                             </h3>
                             <Badge
@@ -595,15 +595,15 @@ export default function Admin() {
                                   : machine.status === "maintenance"
                                     ? "bg-orange-500/20 text-orange-300"
                                     : "bg-red-500/20 text-red-300"
-                              } border-0 capitalize`}
+                              } border-0 capitalize text-xs`}
                             >
                               {machine.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-6 text-sm text-slate-400">
-                            <span>ID: {machine.id}</span>
-                            <span>Type: {machine.type}</span>
-                            <span>Location: {machine.location}</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
+                            <span className="truncate">ID: {machine.id}</span>
+                            <span className="truncate">Type: {machine.type}</span>
+                            <span className="truncate">Location: {machine.location}</span>
                             <span>Tasks: {machine.tasks.length}</span>
                           </div>
                         </div>
