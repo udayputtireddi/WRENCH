@@ -161,7 +161,7 @@ export default function Tasks() {
   const overdueTasks = filteredTasks.filter((t) => t.status === "Overdue");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-800 shadow-2xl">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
