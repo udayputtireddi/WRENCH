@@ -92,16 +92,18 @@ export class TaskScheduler {
     checklistItems: { id: string; text: string; completed: boolean }[],
     notes?: string,
     photos?: string[],
+    customCompletionDate?: Date,
   ): boolean {
     const task = taskDatabase.find((t) => t.id === taskId);
     if (!task) return false;
 
+    const completionDate = customCompletionDate || new Date();
     const completion: TaskCompletion = {
       id: `completion-${Date.now()}`,
       taskId,
       userId,
       userName,
-      completedDate: new Date(),
+      completedDate: completionDate,
       notes,
       photos: photos || [],
       checklistItems,
