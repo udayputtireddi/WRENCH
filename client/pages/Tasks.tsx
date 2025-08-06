@@ -28,6 +28,7 @@ import {
   Wrench,
   AlertCircle,
   Upload,
+  Activity,
 } from "lucide-react";
 import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
