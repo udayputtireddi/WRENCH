@@ -109,6 +109,72 @@ export default function Settings() {
         [key]: value,
       },
     }));
+
+    // Apply theme changes immediately
+    if (category === "appearance" && key === "theme") {
+      applyTheme(value);
+    }
+
+    // Apply language changes immediately
+    if (category === "appearance" && key === "language") {
+      applyLanguage(value);
+    }
+  };
+
+  const applyTheme = (theme: string) => {
+    const root = document.documentElement;
+
+    if (theme === "light") {
+      root.classList.remove("dark");
+      root.classList.add("light");
+      toast({
+        title: "Theme Changed",
+        description: "Switched to light mode",
+        duration: 2000,
+      });
+    } else if (theme === "dark") {
+      root.classList.remove("light");
+      root.classList.add("dark");
+      toast({
+        title: "Theme Changed",
+        description: "Switched to dark mode",
+        duration: 2000,
+      });
+    } else {
+      const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (systemDarkMode) {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.add("light");
+        root.classList.remove("dark");
+      }
+      toast({
+        title: "Theme Changed",
+        description: "Following system preferences",
+        duration: 2000,
+      });
+    }
+
+    localStorage.setItem('theme-preference', theme);
+  };
+
+  const applyLanguage = (language: string) => {
+    const languageNames = {
+      en: "English",
+      es: "Spanish",
+      fr: "French",
+      de: "German"
+    };
+
+    document.documentElement.lang = language;
+    localStorage.setItem('language-preference', language);
+
+    toast({
+      title: "Language Changed",
+      description: `Switched to ${languageNames[language as keyof typeof languageNames]}`,
+      duration: 2000,
+    });
   };
 
   return (
