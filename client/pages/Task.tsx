@@ -103,7 +103,7 @@ export default function Task() {
   // If no data in system, show empty state
   if (!hasData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
