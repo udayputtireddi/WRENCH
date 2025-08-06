@@ -76,7 +76,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-violet-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
@@ -416,24 +416,55 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button
-                variant="outline"
-                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-              >
-                Change Password
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-              >
-                Enable Two-Factor Authentication
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-              >
-                View Security Log
-              </Button>
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  onClick={() => {
+                    toast({
+                      title: "Change Password",
+                      description: "Password change functionality would be implemented here.",
+                      duration: 3000,
+                    });
+                  }}
+                >
+                  Change Password
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  onClick={() => {
+                    toast({
+                      title: "Two-Factor Authentication",
+                      description: "2FA setup would be implemented here.",
+                      duration: 3000,
+                    });
+                  }}
+                >
+                  Enable Two-Factor Authentication
+                </Button>
+                <Link to="/admin" className="block">
+                  <Button
+                    variant="outline"
+                    className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  >
+                    View Admin Dashboard
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  onClick={() => {
+                    toast({
+                      title: "Security Log",
+                      description: "Security log viewer would be implemented here.",
+                      duration: 3000,
+                    });
+                  }}
+                >
+                  View Security Log
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
