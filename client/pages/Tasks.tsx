@@ -397,6 +397,83 @@ export default function Tasks() {
                   </div>
                 )}
 
+                {/* In Progress Tasks */}
+                {inProgressTasks.length > 0 && (
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-blue-400 mb-3 sm:mb-4 flex items-center">
+                      <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                      In Progress Tasks ({inProgressTasks.length})
+                    </h2>
+                    <div className="grid gap-3 sm:gap-4">
+                      {inProgressTasks.map((task) => (
+                        <Card
+                          key={task.id}
+                          className="bg-slate-800/50 backdrop-blur-sm border-blue-500/30 hover:border-blue-400/50 transition-colors"
+                        >
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
+                              <div className="flex-1">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                  <h3 className="font-semibold text-white text-base sm:text-lg break-words">
+                                    {task.name}
+                                  </h3>
+                                  <Badge
+                                    className={getTaskStatusColor(task.status)}
+                                  >
+                                    {task.status}
+                                  </Badge>
+                                  <Badge
+                                    className={getPriorityColor(task.priority)}
+                                  >
+                                    {task.priority}
+                                  </Badge>
+                                </div>
+                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
+                                  {task.description}
+                                </p>
+                                {task.progressInfo?.hasProgress && (
+                                  <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                    <div className="flex items-center text-blue-400 text-xs">
+                                      <CheckCircle className="h-3 w-3 mr-1" />
+                                      Progress Saved: {task.progressInfo.completedItems}/{task.progressInfo.totalItems} items
+                                    </div>
+                                    <div className="text-xs text-blue-300">
+                                      {new Date(task.progressInfo.savedDate).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
+                                  <span className="flex items-center">
+                                    <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                                    <span className="truncate">
+                                      {task.machine}
+                                    </span>
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                                    <span>
+                                      Due: {task.nextDue.toLocaleDateString()}
+                                    </span>
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                                    {task.estimatedTime} min
+                                  </span>
+                                </div>
+                              </div>
+                              <Link to={`/machine/${task.machine.replace(/\s+/g, '-')}/task/${task.id}`} className="self-start sm:self-auto">
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto">
+                                  Continue Task
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Pending Tasks */}
                 {pendingTasks.length > 0 && (
                   <div>
