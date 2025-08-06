@@ -401,7 +401,11 @@ export class Database {
 
     // Count tasks with saved progress
     const tasksWithProgress = tasks.filter((task) => {
-      return task.progressSaves && task.progressSaves.length > 0;
+      // Initialize progressSaves if it doesn't exist (for backward compatibility)
+      if (!task.progressSaves) {
+        task.progressSaves = [];
+      }
+      return task.progressSaves.length > 0;
     }).length;
 
     return {
