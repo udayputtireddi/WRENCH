@@ -44,7 +44,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="text-center mb-6 sm:mb-12">
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white mb-2 sm:mb-4 tracking-wider">
