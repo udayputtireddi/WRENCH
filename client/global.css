@@ -57,15 +57,28 @@ body {
   .app-container {
     min-height: 100vh;
     min-height: 100dvh; /* Use dynamic viewport height on mobile */
+    /* Fallback for older browsers */
+    min-height: calc(var(--vh, 1vh) * 100);
     width: 100%;
     position: relative;
     /* Ensure background extends beyond viewport */
     padding-bottom: env(safe-area-inset-bottom);
+    /* Prevent overscroll behavior */
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
   }
 
   /* Prevent overscroll on the main content areas */
   .app-container > * {
     overscroll-behavior: none;
+  }
+
+  /* Additional mobile optimizations */
+  @supports (-webkit-touch-callout: none) {
+    .app-container {
+      /* iOS Safari specific */
+      min-height: -webkit-fill-available;
+    }
   }
 }
 
