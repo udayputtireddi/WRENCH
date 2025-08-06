@@ -62,6 +62,64 @@ const App = () => {
     };
   }, []);
 
+  // Aggressive overscroll prevention for mobile
+  useEffect(() => {
+    let lastScrollTop = 0;
+
+    const preventOverscroll = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      const scrollableParent = target.closest('.app-container');
+
+      if (!scrollableParent) return;
+
+      const scrollTop = scrollableParent.scrollTop;
+      const scrollHeight = scrollableParent.scrollHeight;
+      const clientHeight = scrollableParent.clientHeight;
+
+      // Prevent scrolling past top
+      if (scrollTop <= 0 && lastScrollTop <= 0) {
+        e.preventDefault();
+      }
+
+      // Prevent scrolling past bottom
+      if (scrollTop >= scrollHeight - clientHeight && lastScrollTop >= scrollHeight - clientHeight) {
+        e.preventDefault();
+      }
+
+      lastScrollTop = scrollTop;
+    };
+
+    // Add touch event listeners
+    document.addEventListener('touchstart', preventOverscroll, { passive: false });
+    document.addEventListener('touchmove', preventOverscroll, { passive: false });
+
+    // Prevent pull-to-refresh
+    let startY = 0;
+    const preventPullToRefresh = (e: TouchEvent) => {
+      if (e.type === 'touchstart') {
+        startY = e.touches[0].clientY;
+      } else if (e.type === 'touchmove') {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const deltaY = e.touches[0].clientY - startY;
+
+        // If scrolled to top and trying to scroll up, prevent it
+        if (scrollY === 0 && deltaY > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('touchstart', preventPullToRefresh, { passive: false });
+    document.addEventListener('touchmove', preventPullToRefresh, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchstart', preventOverscroll);
+      document.removeEventListener('touchmove', preventOverscroll);
+      document.removeEventListener('touchstart', preventPullToRefresh);
+      document.removeEventListener('touchmove', preventPullToRefresh);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
