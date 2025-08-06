@@ -127,3 +127,18 @@ npm run build
 
 # Preview the production build locally
 npm run preview
+```
+### 🏗️ Project Structure
+```bash
+checkmate/
+├── client/                 # Frontend React application source
+│   ├── components/         # Reusable UI components (Buttons, Modals, etc.)
+│   ├── pages/              # Application pages/routes (Login, Dashboard, etc.)
+│   ├── lib/                # Utility functions, services, and constants
+│   └── hooks/              # Custom React hooks
+├── public/                 # Static assets (icons, images)
+├── dist/                   # Production build output
+├── .github/                # GitHub-specific files (e.g., CI/CD workflows)
+├── firebase.json           # Firebase hosting configuration
+├── package.json            # Project dependencies and scripts
+└── README.md               # You are here!
