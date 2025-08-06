@@ -2,13 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent horizontal overflow on mobile */
+/* Prevent horizontal overflow and overscroll on mobile */
 html {
   overflow-x: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
 }
 
 body {
   overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  overscroll-behavior: none;
+  /* Prevent pull-to-refresh and bounce scrolling */
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Mobile-first responsive improvements */
@@ -137,6 +147,19 @@ body {
 
   body {
     @apply bg-background text-foreground;
+    /* Ensure body background extends beyond content */
+    background-attachment: fixed;
+  }
+
+  /* Ensure main app container takes full height and handles scroll properly */
+  #root {
+    height: 100vh;
+    width: 100vw;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    /* Prevent elastic scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 }
 
