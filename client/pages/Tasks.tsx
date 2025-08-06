@@ -79,7 +79,7 @@ export default function Tasks() {
     };
 
     // Update status if there's saved progress but not completed
-    if (progressInfo.hasProgress && status === "Pending") {
+    if (progressInfo.hasProgress && status !== "Completed") {
       status = "In Progress";
     }
 
