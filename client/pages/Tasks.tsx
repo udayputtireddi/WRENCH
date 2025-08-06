@@ -430,6 +430,17 @@ export default function Tasks() {
                                 <p className="text-slate-400 mb-2 text-sm sm:text-base">
                                   {task.description}
                                 </p>
+                                {task.progressInfo?.hasProgress && (
+                                  <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                    <div className="flex items-center text-blue-400 text-xs">
+                                      <CheckCircle className="h-3 w-3 mr-1" />
+                                      Progress Saved: {task.progressInfo.completedItems}/{task.progressInfo.totalItems} items
+                                    </div>
+                                    <div className="text-xs text-blue-300">
+                                      {new Date(task.progressInfo.savedDate).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                )}
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
                                   <span className="flex items-center">
                                     <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
