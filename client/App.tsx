@@ -46,19 +46,19 @@ const App = () => {
   useEffect(() => {
     const setVH = () => {
       const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
     };
 
     // Set initial value
     setVH();
 
     // Update on resize (handles mobile address bar show/hide)
-    window.addEventListener('resize', setVH);
-    window.addEventListener('orientationchange', setVH);
+    window.addEventListener("resize", setVH);
+    window.addEventListener("orientationchange", setVH);
 
     return () => {
-      window.removeEventListener('resize', setVH);
-      window.removeEventListener('orientationchange', setVH);
+      window.removeEventListener("resize", setVH);
+      window.removeEventListener("orientationchange", setVH);
     };
   }, []);
 
