@@ -660,11 +660,11 @@ export default function Admin() {
                     {allUsers.map((user) => (
                       <div
                         key={user.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
+                        className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
                       >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="text-white font-medium">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="text-white font-medium truncate">
                               {user.name}
                             </h3>
                             <Badge
@@ -672,20 +672,20 @@ export default function Admin() {
                                 user.role === "admin"
                                   ? "bg-purple-500/20 text-purple-300"
                                   : "bg-blue-500/20 text-blue-300"
-                              } border-0 capitalize`}
+                              } border-0 capitalize text-xs`}
                             >
                               {user.role}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-slate-400">
-                            <span>{user.email}</span>
-                            <span>Dept: {user.department}</span>
-                            <span>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
+                            <span className="truncate break-all">{user.email}</span>
+                            <span className="text-xs">Dept: {user.department}</span>
+                            <span className="text-xs">
                               Joined:{" "}
                               {new Date(user.createdAt).toLocaleDateString()}
                             </span>
                             {user.lastLogin && (
-                              <span>
+                              <span className="text-xs">
                                 Last login:{" "}
                                 {new Date(user.lastLogin).toLocaleDateString()}
                               </span>
