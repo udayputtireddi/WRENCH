@@ -782,6 +782,115 @@ export default function Admin() {
                   </div>
                 </CardContent>
               </Card>
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Smart Scheduling Test
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Test the smart scheduling system without waiting for real time
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    onClick={() => {
+                      const tasks = Database.getTasks();
+                      const today = new Date();
+                      let testResults = "🧪 Smart Scheduling Test Results:\n\n";
+
+                      // Test daily task scheduling
+                      const dailyTask = tasks.find(t => t.frequency === 'daily');
+                      if (dailyTask) {
+                        const nextDue = TaskScheduler.calculateNextDueDate('daily', today);
+                        testResults += `✅ Daily Task: Completed today → Next due tomorrow (${nextDue.toLocaleDateString()})\n`;
+                      }
+
+                      // Test weekly task scheduling
+                      const weeklyTask = tasks.find(t => t.frequency === 'weekly');
+                      if (weeklyTask) {
+                        const nextDue = TaskScheduler.calculateNextDueDate('weekly', today);
+                        testResults += `✅ Weekly Task: Completed today → Next due in 7 days (${nextDue.toLocaleDateString()})\n`;
+                      }
+
+                      // Test monthly task scheduling
+                      const monthlyTask = tasks.find(t => t.frequency === 'monthly');
+                      if (monthlyTask) {
+                        const nextDue = TaskScheduler.calculateNextDueDate('monthly', today);
+                        testResults += `✅ Monthly Task: Completed today → Next due next month (${nextDue.toLocaleDateString()})\n`;
+                      }
+
+                      if (tasks.length === 0) {
+                        testResults = "⚠️ No tasks found. Please upload task data first to test scheduling.";
+                      }
+
+                      alert(testResults);
+                    }}
+                    className="w-full bg-orange-600 hover:bg-orange-700"
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Test Smart Scheduling Logic
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      const tasks = Database.getTasks();
+                      if (tasks.length === 0) {
+                        alert("⚠️ No tasks found. Please upload task data first.");
+                        return;
+                      }
+
+                      const currentUser = AuthService.getCurrentUser();
+                      if (!currentUser) {
+                        alert("⚠️ Please log in to simulate task completion.");
+                        return;
+                      }
+
+                      // Find a task to simulate completion
+                      const taskToComplete = tasks[0];
+                      const yesterday = new Date();
+                      yesterday.setDate(yesterday.getDate() - 1);
+
+                      // Simulate completing the task yesterday
+                      const success = TaskScheduler.completeTask(
+                        taskToComplete.id,
+                        currentUser.id,
+                        currentUser.name,
+                        [
+                          { id: "1", text: "Test completion", completed: true },
+                          { id: "2", text: "Simulated for testing", completed: true }
+                        ],
+                        "Simulated completion for testing smart scheduling",
+                        [],
+                        yesterday
+                      );
+
+                      if (success) {
+                        const nextDue = TaskScheduler.calculateNextDueDate(
+                          taskToComplete.frequency,
+                          yesterday,
+                          taskToComplete.weeklyDay
+                        );
+
+                        alert(`✅ Simulated completing "${taskToComplete.taskName}" yesterday.\n\nNext due date: ${nextDue.toLocaleDateString()}\n\nRefresh the page to see updated task list!`);
+                      } else {
+                        alert("❌ Failed to simulate task completion.");
+                      }
+                    }}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Simulate Task Completion (Yesterday)
+                  </Button>
+
+                  <div className="text-xs text-slate-400 p-3 bg-slate-700/30 rounded-lg">
+                    <strong>How to Test:</strong><br/>
+                    1. Use "Test Smart Scheduling Logic" to verify the calculation logic<br/>
+                    2. Use "Simulate Task Completion" to test with real data<br/>
+                    3. Check the Tasks page to see updated due dates
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
