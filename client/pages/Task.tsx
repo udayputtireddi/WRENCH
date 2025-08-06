@@ -302,7 +302,7 @@ export default function Task() {
 
   if (isCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-md mx-auto">
           <CardHeader className="text-center">
             <CheckCircle2 className="h-20 w-20 text-green-400 mx-auto mb-4" />
@@ -345,7 +345,7 @@ export default function Task() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 shadow-2xl">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
