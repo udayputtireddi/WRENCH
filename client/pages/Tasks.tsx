@@ -58,6 +58,29 @@ export default function Tasks() {
       status = "Overdue";
     }
 
+    // Check for saved progress
+    const currentUser = AuthService.getCurrentUser();
+    const savedProgress = currentUser
+      ? task.progressSaves?.find(p => p.userId === currentUser.id)
+      : null;
+
+    const progressInfo = savedProgress ? {
+      completedItems: savedProgress.checklistItems.filter(item => item.completed).length,
+      totalItems: savedProgress.checklistItems.length,
+      hasProgress: true,
+      savedDate: savedProgress.savedDate
+    } : {
+      completedItems: 0,
+      totalItems: 0,
+      hasProgress: false,
+      savedDate: null
+    };
+
+    // Update status if there's saved progress but not completed
+    if (progressInfo.hasProgress && status === "Pending") {
+      status = "In Progress";
+    }
+
     return {
       id: task.id,
       name: task.taskName,
@@ -77,6 +100,7 @@ export default function Tasks() {
       assignedTo: "Current User",
       category: task.category,
       frequency: task.frequency,
+      progressInfo,
     };
   });
 
