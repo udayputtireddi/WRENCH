@@ -247,7 +247,7 @@ export default function Tasks() {
             </div>
 
             {/* Task Overview Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card className="bg-gradient-to-br from-red-600/20 to-red-700/20 border-red-500/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-slate-300">
