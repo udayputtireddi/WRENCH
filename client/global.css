@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal overflow on mobile */
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
 /* Mobile-first responsive improvements */
 @layer utilities {
   .break-anywhere {
