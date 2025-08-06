@@ -422,7 +422,7 @@ export default function Admin() {
         {/* Admin Tabs */}
         <Tabs defaultValue="machines" className="space-y-6 sm:space-y-8">
           <div className="overflow-x-auto scrollbar-hide">
-            <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max w-full p-1">
+            <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max sm:w-full p-1 mx-auto">
               <TabsTrigger
                 value="machines"
                 className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30"
@@ -756,6 +756,12 @@ export default function Admin() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Tasks with Progress</span>
+                    <span className="text-white font-medium">
+                      {analytics.tasksWithProgress}
+                    </span>
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">Total Completions</span>
                     <span className="text-white font-medium">
