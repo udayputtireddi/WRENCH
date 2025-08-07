@@ -288,13 +288,21 @@ export default function Task() {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const taskStatus =
-    task.nextDueDate < new Date()
-      ? "Overdue"
-      : task.lastCompletedDate &&
-          task.lastCompletedDate.toDateString() === new Date().toDateString()
-        ? "Completed"
-        : "Pending";
+  const taskStatus = (() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(task.nextDueDate);
+    dueDate.setHours(0, 0, 0, 0);
+
+    if (task.lastCompletedDate &&
+        task.lastCompletedDate.toDateString() === new Date().toDateString()) {
+      return "Completed";
+    } else if (dueDate.getTime() < today.getTime()) {
+      return "Overdue";
+    } else {
+      return "Pending";
+    }
+  })();
 
   const elapsedTime = startTime
     ? Math.floor((new Date().getTime() - startTime.getTime()) / 60000)
