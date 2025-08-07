@@ -388,7 +388,13 @@ export class Database {
       (t) => t.lastCompletedDate && t.lastCompletedDate >= today,
     ).length;
 
-    const overdueTasks = tasks.filter((t) => t.nextDueDate < new Date()).length;
+    const overdueTasks = tasks.filter((t) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dueDate = new Date(t.nextDueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      return dueDate.getTime() < today.getTime();
+    }).length;
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
