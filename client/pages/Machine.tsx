@@ -19,16 +19,13 @@ import {
   AlertCircle,
   Upload,
 } from "lucide-react";
-import {
-  getTaskStatusColor,
-  getMachineStatusColor,
-} from "@/lib/mockData";
+import { getTaskStatusColor, getMachineStatusColor } from "@/lib/mockData";
 import Database from "@/lib/database";
 
 export default function Machine() {
   const { machineId } = useParams<{ machineId: string }>();
   const [searchParams] = useSearchParams();
-  
+
   const machine = machineId ? Database.getMachineById(machineId) : undefined;
   const allTasks = Database.getTasks();
   const hasData = allTasks.length > 0;
@@ -41,13 +38,19 @@ export default function Machine() {
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
               <Link to="/" className="mr-4">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-white">Machine Not Found</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  Machine Not Found
+                </h1>
                 <p className="text-blue-100">No machine data available</p>
               </div>
             </div>
@@ -64,7 +67,9 @@ export default function Machine() {
               </h2>
             </div>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
-              Machine information will be available once maintenance data is uploaded. Upload your equipment data to access machine details and tasks.
+              Machine information will be available once maintenance data is
+              uploaded. Upload your equipment data to access machine details and
+              tasks.
             </p>
             <Link to="/admin/database">
               <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg">
@@ -86,13 +91,19 @@ export default function Machine() {
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
               <Link to="/" className="mr-4">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-white">Machine Not Found</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  Machine Not Found
+                </h1>
                 <p className="text-blue-100">Machine ID: {machineId}</p>
               </div>
             </div>
@@ -103,18 +114,24 @@ export default function Machine() {
           <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 max-w-2xl mx-auto">
             <CardHeader className="text-center">
               <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-2xl">Machine Not Found</CardTitle>
+              <CardTitle className="text-white text-2xl">
+                Machine Not Found
+              </CardTitle>
               <CardDescription className="text-slate-400">
                 The machine with ID "{machineId}" was not found in the system.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-slate-300 mb-6">
-                This could mean the machine hasn't been registered yet or the QR code contains an incorrect ID.
+                This could mean the machine hasn't been registered yet or the QR
+                code contains an incorrect ID.
               </p>
               <div className="flex justify-center gap-4">
                 <Link to="/scan">
-                  <Button variant="outline" className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600">
+                  <Button
+                    variant="outline"
+                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                  >
                     Try Scanning Again
                   </Button>
                 </Link>
@@ -132,32 +149,38 @@ export default function Machine() {
   }
 
   // Convert database tasks to display format
-  const displayTasks = machine.tasks.map(task => ({
+  const displayTasks = machine.tasks.map((task) => ({
     id: task.id,
     name: task.taskName,
     description: task.description,
-    priority: task.category === 'inspection' ? 'Medium' : 
-              task.category === 'cleaning' ? 'Low' : 'High',
+    priority:
+      task.category === "inspection"
+        ? "Medium"
+        : task.category === "cleaning"
+          ? "Low"
+          : "High",
     status: (() => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const dueDate = new Date(task.nextDueDate);
       dueDate.setHours(0, 0, 0, 0);
 
-      if (task.lastCompletedDate &&
-          task.lastCompletedDate.toDateString() === new Date().toDateString()) {
-        return 'Completed';
+      if (
+        task.lastCompletedDate &&
+        task.lastCompletedDate.toDateString() === new Date().toDateString()
+      ) {
+        return "Completed";
       } else if (dueDate.getTime() < today.getTime()) {
-        return 'Overdue';
+        return "Overdue";
       } else {
-        return 'Pending';
+        return "Pending";
       }
     })(),
     nextDue: task.nextDueDate,
     lastCompleted: task.lastCompletedDate || new Date(0),
     estimatedTime: task.estimatedTimeMinutes,
     category: task.category,
-    frequency: task.frequency
+    frequency: task.frequency,
   }));
 
   const overdueTasks = displayTasks.filter((t) => t.status === "Overdue");
@@ -170,11 +193,15 @@ export default function Machine() {
       <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center">
-            <Link 
-              to={searchParams.get('from') === 'scan' ? '/scan' : '/'}
+            <Link
+              to={searchParams.get("from") === "scan" ? "/scan" : "/"}
               className="mr-4"
             >
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
@@ -224,7 +251,9 @@ export default function Machine() {
                 <Clock className="h-5 w-5 text-purple-400 mr-3" />
                 <div>
                   <p className="text-slate-400 text-sm">Active Tasks</p>
-                  <p className="text-white font-medium">{machine.tasks.length}</p>
+                  <p className="text-white font-medium">
+                    {machine.tasks.length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -295,16 +324,22 @@ export default function Machine() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-white">{task.name}</h3>
+                            <h3 className="font-semibold text-white">
+                              {task.name}
+                            </h3>
                             <Badge className={getTaskStatusColor(task.status)}>
                               {task.status}
                             </Badge>
                           </div>
-                          <p className="text-slate-400 mb-2">{task.description}</p>
+                          <p className="text-slate-400 mb-2">
+                            {task.description}
+                          </p>
                           <div className="flex items-center gap-4 text-sm text-slate-300">
                             <span className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
-                              <span className="text-red-400">Due: {task.nextDue.toLocaleDateString()}</span>
+                              <span className="text-red-400">
+                                Due: {task.nextDue.toLocaleDateString()}
+                              </span>
                             </span>
                             <span className="flex items-center">
                               <Clock className="h-4 w-4 mr-1" />
@@ -342,16 +377,22 @@ export default function Machine() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-white">{task.name}</h3>
+                            <h3 className="font-semibold text-white">
+                              {task.name}
+                            </h3>
                             <Badge className={getTaskStatusColor(task.status)}>
                               {task.status}
                             </Badge>
                           </div>
-                          <p className="text-slate-400 mb-2">{task.description}</p>
+                          <p className="text-slate-400 mb-2">
+                            {task.description}
+                          </p>
                           <div className="flex items-center gap-4 text-sm text-slate-300">
                             <span className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
-                              <span>Due: {task.nextDue.toLocaleDateString()}</span>
+                              <span>
+                                Due: {task.nextDue.toLocaleDateString()}
+                              </span>
                             </span>
                             <span className="flex items-center">
                               <Clock className="h-4 w-4 mr-1" />
@@ -361,7 +402,8 @@ export default function Machine() {
                               <span className="flex items-center">
                                 <CheckCircle className="h-4 w-4 mr-1 text-green-400" />
                                 <div>
-                                  Last: {task.lastCompleted.toLocaleDateString()}
+                                  Last:{" "}
+                                  {task.lastCompleted.toLocaleDateString()}
                                 </div>
                               </span>
                             )}
@@ -385,8 +427,12 @@ export default function Machine() {
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
               <CardContent className="text-center py-12">
                 <Settings className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">No tasks assigned</h3>
-                <p className="text-slate-400">This machine has no maintenance tasks configured yet.</p>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  No tasks assigned
+                </h3>
+                <p className="text-slate-400">
+                  This machine has no maintenance tasks configured yet.
+                </p>
               </CardContent>
             </Card>
           )}

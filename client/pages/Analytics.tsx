@@ -67,7 +67,9 @@ export default function Analytics() {
               </h2>
             </div>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
-              Analytics will be generated once maintenance tasks are uploaded and completed. Upload your maintenance data to start tracking performance.
+              Analytics will be generated once maintenance tasks are uploaded
+              and completed. Upload your maintenance data to start tracking
+              performance.
             </p>
             <Link to="/admin/database">
               <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-4 text-lg">
@@ -90,12 +92,17 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-white">
-                    {analytics.totalTasks > 0 
-                      ? Math.round((analytics.completedToday / analytics.totalTasks) * 100)
-                      : 0}%
+                    {analytics.totalTasks > 0
+                      ? Math.round(
+                          (analytics.completedToday / analytics.totalTasks) *
+                            100,
+                        )
+                      : 0}
+                    %
                   </div>
                   <p className="text-xs text-slate-400">
-                    {analytics.completedToday} of {analytics.totalTasks} tasks completed today
+                    {analytics.completedToday} of {analytics.totalTasks} tasks
+                    completed today
                   </p>
                 </CardContent>
               </Card>
@@ -145,9 +152,7 @@ export default function Analytics() {
                   <div className="text-2xl font-bold text-yellow-400">
                     {analytics.upcomingTasks}
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Tasks due tomorrow
-                  </p>
+                  <p className="text-xs text-slate-400">Tasks due tomorrow</p>
                 </CardContent>
               </Card>
             </div>
@@ -165,21 +170,35 @@ export default function Analytics() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-300">Completed</span>
-                      <span className="text-sm text-green-400">{analytics.completedToday}</span>
+                      <span className="text-sm text-green-400">
+                        {analytics.completedToday}
+                      </span>
                     </div>
-                    <Progress 
-                      value={analytics.totalTasks > 0 ? (analytics.completedToday / analytics.totalTasks) * 100 : 0} 
-                      className="h-2" 
+                    <Progress
+                      value={
+                        analytics.totalTasks > 0
+                          ? (analytics.completedToday / analytics.totalTasks) *
+                            100
+                          : 0
+                      }
+                      className="h-2"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-300">Overdue</span>
-                      <span className="text-sm text-red-400">{analytics.overdueTasks}</span>
+                      <span className="text-sm text-red-400">
+                        {analytics.overdueTasks}
+                      </span>
                     </div>
-                    <Progress 
-                      value={analytics.totalTasks > 0 ? (analytics.overdueTasks / analytics.totalTasks) * 100 : 0} 
-                      className="h-2" 
+                    <Progress
+                      value={
+                        analytics.totalTasks > 0
+                          ? (analytics.overdueTasks / analytics.totalTasks) *
+                            100
+                          : 0
+                      }
+                      className="h-2"
                     />
                   </div>
                 </CardContent>
@@ -194,21 +213,31 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-300">On-time Completion</span>
+                    <span className="text-sm text-slate-300">
+                      On-time Completion
+                    </span>
                     <span className="text-sm text-green-400">
-                      {analytics.totalTasks > analytics.overdueTasks ? 'Good' : 'Needs Improvement'}
+                      {analytics.totalTasks > analytics.overdueTasks
+                        ? "Good"
+                        : "Needs Improvement"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-300">Machine Coverage</span>
+                    <span className="text-sm text-slate-300">
+                      Machine Coverage
+                    </span>
                     <span className="text-sm text-blue-400">
-                      {analytics.totalMachines > 0 ? 'Active' : 'No Data'}
+                      {analytics.totalMachines > 0 ? "Active" : "No Data"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-300">Task Load</span>
                     <span className="text-sm text-yellow-400">
-                      {analytics.totalTasks > 10 ? 'High' : analytics.totalTasks > 5 ? 'Medium' : 'Light'}
+                      {analytics.totalTasks > 10
+                        ? "High"
+                        : analytics.totalTasks > 5
+                          ? "Medium"
+                          : "Light"}
                     </span>
                   </div>
                 </CardContent>
@@ -231,7 +260,9 @@ export default function Analytics() {
                       <span className="text-white">System Status</span>
                     </div>
                     <span className="text-green-400 font-medium">
-                      {analytics.overdueTasks === 0 ? 'All tasks current' : `${analytics.overdueTasks} overdue tasks`}
+                      {analytics.overdueTasks === 0
+                        ? "All tasks current"
+                        : `${analytics.overdueTasks} overdue tasks`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg">
@@ -240,7 +271,9 @@ export default function Analytics() {
                       <span className="text-white">Next Maintenance</span>
                     </div>
                     <span className="text-yellow-400 font-medium">
-                      {analytics.upcomingTasks > 0 ? `${analytics.upcomingTasks} tasks tomorrow` : 'No immediate tasks'}
+                      {analytics.upcomingTasks > 0
+                        ? `${analytics.upcomingTasks} tasks tomorrow`
+                        : "No immediate tasks"}
                     </span>
                   </div>
                 </div>

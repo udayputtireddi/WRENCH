@@ -196,7 +196,8 @@ export default function Admin() {
         today.setHours(0, 0, 0, 0);
         const dueDate = new Date(task.nextDueDate);
         dueDate.setHours(0, 0, 0, 0);
-        const status = dueDate.getTime() < today.getTime() ? "Overdue" : "Scheduled";
+        const status =
+          dueDate.getTime() < today.getTime() ? "Overdue" : "Scheduled";
         rows.push([
           task.nextDueDate.toLocaleDateString(),
           task.machineName,

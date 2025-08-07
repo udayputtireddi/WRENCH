@@ -294,8 +294,10 @@ export default function Task() {
     const dueDate = new Date(task.nextDueDate);
     dueDate.setHours(0, 0, 0, 0);
 
-    if (task.lastCompletedDate &&
-        task.lastCompletedDate.toDateString() === new Date().toDateString()) {
+    if (
+      task.lastCompletedDate &&
+      task.lastCompletedDate.toDateString() === new Date().toDateString()
+    ) {
       return "Completed";
     } else if (dueDate.getTime() < today.getTime()) {
       return "Overdue";
