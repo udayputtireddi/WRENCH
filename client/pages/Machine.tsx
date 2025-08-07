@@ -36,7 +36,7 @@ export default function Machine() {
   // If no data in system, show empty state
   if (!hasData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
@@ -81,7 +81,7 @@ export default function Machine() {
   // If machine not found, show not found message
   if (!machine) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center">
@@ -165,7 +165,7 @@ export default function Machine() {
   const completedTasks = displayTasks.filter((t) => t.status === "Completed");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
