@@ -428,13 +428,23 @@ export default function AdminDatabase() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge
-                            className={
-                              task.nextDueDate < new Date()
+                            className={(() => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              const dueDate = new Date(task.nextDueDate);
+                              dueDate.setHours(0, 0, 0, 0);
+                              return dueDate.getTime() < today.getTime()
                                 ? "bg-red-500/20 text-red-400 border-red-500/30"
-                                : "bg-green-500/20 text-green-400 border-green-500/30"
-                            }
+                                : "bg-green-500/20 text-green-400 border-green-500/30";
+                            })()}
                           >
-                            {task.nextDueDate < new Date() ? "Overdue" : "Current"}
+                            {(() => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              const dueDate = new Date(task.nextDueDate);
+                              dueDate.setHours(0, 0, 0, 0);
+                              return dueDate.getTime() < today.getTime() ? "Overdue" : "Current";
+                            })()}
                           </Badge>
                         </div>
                       </div>
