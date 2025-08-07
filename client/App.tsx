@@ -62,60 +62,31 @@ const App = () => {
     };
   }, []);
 
-  // Aggressive overscroll prevention for mobile
+  // Gentle overscroll prevention for mobile
   useEffect(() => {
-    let lastScrollTop = 0;
-
-    const preventOverscroll = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      const scrollableParent = target.closest(".app-container");
-
-      if (!scrollableParent) return;
-
-      const scrollTop = scrollableParent.scrollTop;
-      const scrollHeight = scrollableParent.scrollHeight;
-      const clientHeight = scrollableParent.clientHeight;
-
-      // Prevent scrolling past top
-      if (scrollTop <= 0 && lastScrollTop <= 0) {
-        e.preventDefault();
-      }
-
-      // Prevent scrolling past bottom
-      if (
-        scrollTop >= scrollHeight - clientHeight &&
-        lastScrollTop >= scrollHeight - clientHeight
-      ) {
-        e.preventDefault();
-      }
-
-      lastScrollTop = scrollTop;
-    };
-
-    // Add touch event listeners
-    document.addEventListener("touchstart", preventOverscroll, {
-      passive: false,
-    });
-    document.addEventListener("touchmove", preventOverscroll, {
-      passive: false,
-    });
-
-    // Prevent pull-to-refresh
+    // Only prevent pull-to-refresh, allow normal interactions
     let startY = 0;
     const preventPullToRefresh = (e: TouchEvent) => {
+      // Don't interfere with form elements and interactive elements
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || target.tagName === 'SELECT') {
+        return;
+      }
+
       if (e.type === "touchstart") {
         startY = e.touches[0].clientY;
       } else if (e.type === "touchmove") {
         const scrollY = window.scrollY || window.pageYOffset;
         const deltaY = e.touches[0].clientY - startY;
 
-        // If scrolled to top and trying to scroll up, prevent it
-        if (scrollY === 0 && deltaY > 0) {
+        // Only prevent pull-to-refresh when at the very top of page
+        if (scrollY === 0 && deltaY > 10) {
           e.preventDefault();
         }
       }
     };
 
+    // Use passive listeners for better performance, only prevent specific cases
     document.addEventListener("touchstart", preventPullToRefresh, {
       passive: false,
     });
@@ -124,8 +95,6 @@ const App = () => {
     });
 
     return () => {
-      document.removeEventListener("touchstart", preventOverscroll);
-      document.removeEventListener("touchmove", preventOverscroll);
       document.removeEventListener("touchstart", preventPullToRefresh);
       document.removeEventListener("touchmove", preventPullToRefresh);
     };
