@@ -129,7 +129,7 @@ export default function AdminDatabase() {
   const analytics = Database.getAnalytics();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
