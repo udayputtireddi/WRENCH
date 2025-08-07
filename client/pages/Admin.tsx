@@ -192,7 +192,11 @@ export default function Admin() {
 
     tasks.forEach((task) => {
       if (task.nextDueDate <= nextWeek) {
-        const status = task.nextDueDate < new Date() ? "Overdue" : "Scheduled";
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(task.nextDueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        const status = dueDate.getTime() < today.getTime() ? "Overdue" : "Scheduled";
         rows.push([
           task.nextDueDate.toLocaleDateString(),
           task.machineName,
