@@ -46,6 +46,10 @@ export default function Tasks() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Normalize due date to start of day for proper comparison
+    const dueDate = new Date(task.nextDueDate);
+    dueDate.setHours(0, 0, 0, 0);
+
     let status = "Pending";
     if (task.lastCompletedDate) {
       const completedDate = new Date(task.lastCompletedDate);
@@ -53,10 +57,10 @@ export default function Tasks() {
 
       if (completedDate.getTime() === today.getTime()) {
         status = "Completed";
-      } else if (task.nextDueDate < new Date()) {
+      } else if (dueDate.getTime() < today.getTime()) {
         status = "Overdue";
       }
-    } else if (task.nextDueDate < new Date()) {
+    } else if (dueDate.getTime() < today.getTime()) {
       status = "Overdue";
     }
 
