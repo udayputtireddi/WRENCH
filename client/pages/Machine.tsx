@@ -138,10 +138,21 @@ export default function Machine() {
     description: task.description,
     priority: task.category === 'inspection' ? 'Medium' : 
               task.category === 'cleaning' ? 'Low' : 'High',
-    status: task.nextDueDate < new Date() ? 'Overdue' :
-            task.lastCompletedDate && 
-            task.lastCompletedDate.toDateString() === new Date().toDateString() ? 'Completed' :
-            'Pending',
+    status: (() => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dueDate = new Date(task.nextDueDate);
+      dueDate.setHours(0, 0, 0, 0);
+
+      if (task.lastCompletedDate &&
+          task.lastCompletedDate.toDateString() === new Date().toDateString()) {
+        return 'Completed';
+      } else if (dueDate.getTime() < today.getTime()) {
+        return 'Overdue';
+      } else {
+        return 'Pending';
+      }
+    })(),
     nextDue: task.nextDueDate,
     lastCompleted: task.lastCompletedDate || new Date(0),
     estimatedTime: task.estimatedTimeMinutes,
