@@ -78,56 +78,7 @@ This project is built with a modern, scalable, and maintainable technology stack
 | **Deployment & CI/CD** | [Firebase Hosting](https://firebase.google.com/docs/hosting), [GitHub Actions](https://github.com/features/actions)                                                     |
 | **Development Tools** | [npm](https://www.npmjs.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/)                                                                           |
 
----
 
-## ⚙️ Getting Started
-
-Follow these instructions to get a local copy of the project up and running.
-
-### Prerequisites
-
--   Node.js v18.x or later
--   `npm` or `yarn` package manager
-
-### Installation & Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/udayputtireddi/checkmate.git](https://github.com/udayputtireddi/checkmate.git)
-    cd checkmate
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Configure environment variables:**
-    Create a `.env` file in the root directory and add the following:
-    ```env
-    # The name of your application
-    VITE_APP_NAME=CheckMate
-
-    # For local development, you may not need an API URL if fully client-side
-    # VITE_API_URL=http://localhost:3000
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The application will be available at `http://localhost:5173`.
-
-### Building for Production
-
-To create a production-ready build:
-```bash
-# Build the application
-npm run build
-
-# Preview the production build locally
-npm run preview
-```
 ### 🏗️ Project Structure
 ```bash
 checkmate/
