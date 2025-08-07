@@ -28,7 +28,7 @@ export default function Analytics() {
   const hasData = analytics.totalTasks > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-orange-600 via-orange-700 to-amber-800 shadow-2xl">
         <div className="container mx-auto px-4 py-6">
