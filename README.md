@@ -1,299 +1,144 @@
-# CheckMate - Smart Maintenance Management System
-
-<div align="center">
-  <h1>🔧 CheckMate</h1>
-  <p><strong>Smart Maintenance Management System</strong></p>
-  <p>A production-ready maintenance management application designed for manufacturing and industrial environments</p>
-  
-  ![CheckMate Demo](https://via.placeholder.com/800x400/1e293b/22c55e?text=CheckMate+Demo)
-  
-  [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-22c55e?style=for-the-badge)](https://256036beb769409f972f8c053566049e-65b17a73b50d4fceac0874450.fly.dev/login)
-  [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/udayputtireddi/checkmate)
-</div>
-
-## ✨ Features
-
-### 🏭 **Production-Ready Maintenance Management**
-
-- **Smart Task Scheduling** - Automated daily, weekly, and monthly maintenance schedules
-- **QR Code Machine Integration** - Instant machine identification and task access
-- **Photo Documentation** - Attach photos to completed maintenance tasks
-- **Real-time Progress Tracking** - Save and resume task progress
-- **Mobile-First Design** - Optimized for tablets and mobile devices
-
-### 👥 **Role-Based Access Control**
-
-- **Admin Dashboard** - Complete system oversight and management
-- **Operator Interface** - Simplified task-focused experience
-- **Dynamic User Registration** - Automatic account creation based on email patterns
-- **Department Management** - Organize users by production departments
-
-### 📊 **Advanced Reporting & Analytics**
-
-- **Task Performance Reports** - Completion rates and timing analysis
-- **Photo Log Reports** - Visual documentation tracking
-- **Maintenance Schedules** - Upcoming and overdue task reports
-- **Machine Efficiency** - Performance metrics by equipment
-- **CSV Export** - All reports exportable for external analysis
-
-### 📱 **Mobile-Optimized Experience**
-
-- **Responsive Design** - Works seamlessly on phones, tablets, and desktops
-- **Touch-Friendly Interface** - Optimized for industrial tablet use
-- **Offline-Ready** - Local storage for reliable operation
-- **Progressive Web App** - Install on mobile devices like a native app
-
-## ��� Tech Stack
-
-### **Frontend**
-
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **TailwindCSS** for responsive styling
-- **React Router** for navigation
-- **Lucide React** for icons
-
-### **Backend & Data**
-
-- **Node.js** server architecture
-- **LocalStorage** for client-side data persistence
-- **Base64 encoding** for photo storage
-- **CSV generation** for reports
-
-### **Deployment**
-
-- **Firebase Hosting** for production deployment
-- **GitHub Actions** for CI/CD
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn package manager
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/udayputtireddi/checkmate.git
-   cd checkmate
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
-
-### Production Build
-
-```bash
-npm run build
-npm run preview
-```
-
-## 🎯 Usage Guide
-
-### **For Operators**
-
-1. **Login** with your company email (e.g., `operator@company.com`)
-2. **Scan QR codes** on machines to access tasks
-3. **Complete maintenance checklists** with photo documentation
-4. **Save progress** for tasks that can't be completed immediately
-
-### **For Administrators**
-
-1. **Login** with admin credentials (e.g., `admin@company.com`)
-2. **Upload maintenance schedules** via Excel import
-3. **Monitor task completion** in real-time
-4. **View photos and documentation** from completed tasks
-5. **Generate reports** for performance analysis
-
-### **Demo Accounts**
-
-- **Admin**: `admin@company.com` (any password)
-- **Operator**: `operator@company.com` (any password)
-
-## 📋 Core Workflows
-
-### **Task Completion Process**
-
-```mermaid
-graph LR
-    A[Scan QR Code] --> B[Select Task]
-    B --> C[Complete Checklist]
-    C --> D[Add Photos]
-    D --> E[Add Notes]
-    E --> F[Mark Complete]
-    F --> G[Generate Next Due Date]
-```
-
-### **Admin Management**
-
-```mermaid
-graph TD
-    A[Admin Dashboard] --> B[Upload Task Data]
-    B --> C[Monitor Progress]
-    C --> D[View Photos]
-    D --> E[Generate Reports]
-    E --> F[Export CSV Data]
-```
-
-## 🎨 Screenshots
-
-<details>
-<summary>🖼️ View Application Screenshots</summary>
-
-### Login Screen
-
-![Login](https://via.placeholder.com/600x400/1e293b/22c55e?text=Login+Screen)
-
-### Operator Dashboard
-
-![Operator Dashboard](https://via.placeholder.com/600x400/1e293b/3b82f6?text=Operator+Dashboard)
-
-### Task Completion
-
-![Task Completion](https://via.placeholder.com/600x400/1e293b/f59e0b?text=Task+Completion)
-
-### Admin Dashboard
-
-![Admin Dashboard](https://via.placeholder.com/600x400/1e293b/ef4444?text=Admin+Dashboard)
-
-### Photo Gallery
-
-![Photo Gallery](https://via.placeholder.com/600x400/1e293b/8b5cf6?text=Photo+Gallery)
-
-### Mobile View
-
-![Mobile View](https://via.placeholder.com/300x500/1e293b/06b6d4?text=Mobile+Optimized)
-
-</details>
-
-## 🏗️ Project Structure
-
-```
-checkmate/
-├── client/                 # Frontend React application
-│   ├── components/         # Reusable UI components
-│   ├── pages/             # Application pages/routes
-│   ├── lib/               # Utilities and services
-│   └── hooks/             # Custom React hooks
-├── server/                # Backend server code
-├── public/                # Static assets
-├── dist/                  # Production build output
-└── README.md             # Project documentation
-```
-
-## 🔧 Configuration
-
-### **Environment Variables**
-
-Create a `.env` file in the root directory:
-
-```env
-# Development
-VITE_API_URL=http://localhost:3000
-VITE_APP_NAME=CheckMate
-
-# Production
-VITE_API_URL=https://your-api-domain.com
-```
-
-### **Firebase Deployment**
-
-1. Install Firebase CLI: `npm install -g firebase-tools`
-2. Login: `firebase login`
-3. Deploy: `firebase deploy`
-
-## 📈 Performance Features
-
-- **⚡ Lightning Fast** - Vite-powered development and building
-- **📱 Mobile Optimized** - 100% responsive design
-- **🔄 Real-time Updates** - Instant task status synchronization
-- **💾 Offline Ready** - LocalStorage for reliable data persistence
-- **📊 Smart Caching** - Optimized data loading and storage
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npm test
-
-# Build and test production bundle
-npm run build
-npm run preview
-```
-
-## 🚀 Deployment
-
-### **Firebase Hosting** (Current Deployment)
-
-```bash
-npm run build
-firebase deploy
-```
-
-The project is currently deployed and hosted on Firebase. For alternative hosting platforms, build the project and deploy the `dist/` folder to your preferred provider.
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### **Development Guidelines**
-
-- Follow TypeScript best practices
-- Use TailwindCSS for styling
-- Maintain mobile-first responsive design
-- Add proper error handling
-- Write meaningful commit messages
-
-## 🐛 Issue Reporting
-
-Found a bug or have a feature request? Please create an issue:
-
-1. **Check existing issues** to avoid duplicates
-2. **Use the issue template** when creating new issues
-3. **Provide detailed information** including steps to reproduce
-4. **Add screenshots** if applicable
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **React Team** for the amazing framework
-- **Tailwind CSS** for the utility-first CSS framework
-- **Lucide** for the beautiful icon set
-- **Vite** for the blazing fast build tool
-
-## 📞 Support
-
-- **Documentation**: [GitHub Wiki](https://github.com/udayputtireddi/checkmate/wiki)
-- **Issues**: [GitHub Issues](https://github.com/udayputtireddi/checkmate/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/udayputtireddi/checkmate/discussions)
+# 🔧 CheckMate - Smart Maintenance Management System
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/udayputtireddi/checkmate/main.yml?branch=main&style=for-the-badge)](https://github.com/udayputtireddi/checkmate/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![React Version](https://img.shields.io/badge/react-18-blue.svg?style=for-the-badge)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.2.2-3178C6.svg?style=for-the-badge)](https://www.typescriptlang.org/)
+
+CheckMate is a production-ready maintenance management application designed to streamline operations in manufacturing and industrial environments. It replaces manual, paper-based checklists with a smart, digital solution featuring QR code integration, real-time tracking, and comprehensive reporting.
+
+![CheckMate Application Screenshot Banner](https://user-images.githubusercontent.com/your-username/your-repo/screenshot_banner.png)  ---
+
+## ✨ Key Features
+
+CheckMate is packed with features designed to enhance efficiency, accountability, and oversight in your maintenance workflows.
+
+#### For Operations & Maintenance Teams
+-   **📅 Smart Task Scheduling**: Automatically generates daily, weekly, and monthly maintenance schedules.
+-   **📱 QR Code Integration**: Scan a machine's QR code to instantly access its maintenance tasks and history.
+-   **📷 Photo Documentation**: Attach photos to completed tasks as proof of work or to document issues.
+-   **🔄 Real-time Progress Sync**: Save task progress and resume later, with all data synced in real-time.
+-   **🌐 Mobile-First & Offline-Ready**: Optimized for industrial tablets and mobile devices, with local storage for reliable operation even without a constant internet connection.
+
+#### For Administrators & Management
+-   **👑 Admin Dashboard**: A central hub for complete system oversight, user management, and schedule configuration.
+-   **👥 Role-Based Access Control**: Simple, powerful roles (Admin, Operator) ensure users only see what they need.
+-   **🏢 Department Management**: Organize users and machines by production departments for streamlined reporting.
+-   **📊 Advanced Reporting & Analytics**: Generate detailed reports on task completion rates, performance timings, and machine efficiency.
+-   **📄 CSV Data Export**: All reports are exportable to CSV for external analysis or record-keeping.
+-   **⚙️ Dynamic User Registration**: New operator accounts are created automatically based on pre-configured email patterns (e.g., `*@yourcompany.com`).
 
 ---
 
-<div align="center">
-  <p>Made with ❤️ for modern manufacturing</p>
-  <p><strong>CheckMate - Smart Maintenance Management System</strong></p>
-</div>
+## 🚀 Live Demo & Usage
+
+Experience CheckMate in action.
+
+**Admin Login:**
+-   **Email:** `admin@company.com`
+-   **Password:** (any password)
+
+**Operator Login:**
+-   **Email:** `operator@company.com`
+-   **Password:** (any password)
+
+### Core Workflows
+
+**👤 For Operators:**
+1.  **Login** with your assigned company email.
+2.  **Scan a QR code** on a machine to view its maintenance checklist.
+3.  **Complete** tasks, attaching photos where required.
+4.  **Save progress** or mark the entire checklist as complete.
+
+**👑 For Administrators:**
+1.  **Login** with your admin credentials.
+2.  **Manage Users** and departments from the dashboard.
+3.  **Upload Schedules** via Excel/CSV import to define maintenance tasks.
+4.  **Monitor Progress** in real-time across the facility.
+5.  **Generate Reports** to analyze performance and ensure compliance.
+
+### 🖼️ Screenshots
+
+| Login Screen | Operator Task View | Admin Dashboard |
+| :----------: | :----------------: | :-------------: |
+| ![Login Screen](https://user-images.githubusercontent.com/your-username/your-repo/screenshot1.png) | ![Task View](https://user-images.githubusercontent.com/your-username/your-repo/screenshot2.png) | ![Admin Dashboard](https://user-images.githubusercontent.com/your-username/your-repo/screenshot3.png) |
+| Photo Documentation | Report Generation | Mobile Responsive |
+| ![Photo Upload](https://user-images.githubusercontent.com/your-username/your-repo/screenshot4.png) | ![Reports](https://user-images.githubusercontent.com/your-username/your-repo/screenshot5.png) | ![Mobile View](https://user-images.githubusercontent.com/your-username/your-repo/screenshot6.png) |
+
+---
+
+## 🛠️ Tech Stack
+
+This project is built with a modern, scalable, and maintainable technology stack.
+
+| Category                | Technology                                                                                                  |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Frontend** | [React 18](https://reactjs.org/) (with TypeScript), [Vite](https://vitejs.dev/), [TailwindCSS](https://tailwindcss.com/), [React Router](https://reactrouter.com/), [Lucide Icons](https://lucide.dev/) |
+| **Backend & Data** | [Node.js](https://nodejs.org/) (conceptual), Client-Side Logic, [LocalStorage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), Base64 Encoding      |
+| **Deployment & CI/CD** | [Firebase Hosting](https://firebase.google.com/docs/hosting), [GitHub Actions](https://github.com/features/actions)                                                     |
+| **Development Tools** | [npm](https://www.npmjs.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/)                                                                           |
+
+---
+
+## ⚙️ Getting Started
+
+Follow these instructions to get a local copy of the project up and running.
+
+### Prerequisites
+
+-   Node.js v18.x or later
+-   `npm` or `yarn` package manager
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/udayputtireddi/checkmate.git](https://github.com/udayputtireddi/checkmate.git)
+    cd checkmate
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure environment variables:**
+    Create a `.env` file in the root directory and add the following:
+    ```env
+    # The name of your application
+    VITE_APP_NAME=CheckMate
+
+    # For local development, you may not need an API URL if fully client-side
+    # VITE_API_URL=http://localhost:3000
+    ```
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173`.
+
+### Building for Production
+
+To create a production-ready build:
+```bash
+# Build the application
+npm run build
+
+# Preview the production build locally
+npm run preview
+```
+### 🏗️ Project Structure
+```bash
+checkmate/
+├── client/                 # Frontend React application source
+│   ├── components/         # Reusable UI components (Buttons, Modals, etc.)
+│   ├── pages/              # Application pages/routes (Login, Dashboard, etc.)
+│   ├── lib/                # Utility functions, services, and constants
+│   └── hooks/              # Custom React hooks
+├── public/                 # Static assets (icons, images)
+├── dist/                   # Production build output
+├── .github/                # GitHub-specific files (e.g., CI/CD workflows)
+├── firebase.json           # Firebase hosting configuration
+├── package.json            # Project dependencies and scripts
+└── README.md               # You are here!
