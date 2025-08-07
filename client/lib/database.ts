@@ -469,9 +469,14 @@ export class Database {
 
     this.getMachines().forEach((machine) => {
       const totalTasks = machine.tasks.length;
-      const onTimeTasks = machine.tasks.filter(
-        (task) => task.lastCompletedDate && task.nextDueDate > new Date(),
-      ).length;
+      const onTimeTasks = machine.tasks.filter((task) => {
+        if (!task.lastCompletedDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(task.nextDueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate.getTime() >= today.getTime();
+      }).length;
 
       efficiency[machine.id] =
         totalTasks > 0 ? Math.round((onTimeTasks / totalTasks) * 100) : 0;
@@ -489,8 +494,13 @@ export class Database {
       switch (status) {
         case "completed":
           return task.lastCompletedDate && task.lastCompletedDate >= today;
-        case "overdue":
-          return task.nextDueDate < new Date();
+        case "overdue": {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const dueDate = new Date(task.nextDueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          return dueDate.getTime() < today.getTime();
+        }
         case "pending":
           return !task.lastCompletedDate || task.lastCompletedDate < today;
         default:
