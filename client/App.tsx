@@ -69,7 +69,12 @@ const App = () => {
     const preventPullToRefresh = (e: TouchEvent) => {
       // Don't interfere with form elements and interactive elements
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || target.tagName === 'SELECT') {
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "BUTTON" ||
+        target.tagName === "SELECT"
+      ) {
         return;
       }
 
