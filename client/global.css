@@ -101,27 +101,23 @@ body {
     }
   }
 
-  /* Aggressive overscroll prevention for mobile */
+  /* Gentle overscroll prevention for mobile */
   @media (max-width: 768px) {
     html,
     body {
       overflow-x: hidden;
       overscroll-behavior-y: contain;
-      /* Prevent pull to refresh */
-      touch-action: pan-y;
+      /* Allow normal touch interactions */
+      touch-action: manipulation;
     }
 
     .app-container {
-      /* Force containment on mobile */
-      contain: layout style paint;
-      /* Prevent any overflow */
+      /* Prevent horizontal overflow only */
       overflow-x: hidden;
       overflow-y: auto;
-      /* Lock the height exactly */
-      height: 100vh;
-      height: 100dvh;
-      max-height: 100vh;
-      max-height: 100dvh;
+      /* Use standard height approach */
+      min-height: 100vh;
+      min-height: 100dvh;
     }
   }
 }
