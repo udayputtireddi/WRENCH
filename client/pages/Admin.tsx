@@ -233,9 +233,13 @@ export default function Admin() {
       const completedTasks = machine.tasks.filter(
         (t) => t.lastCompletedDate,
       ).length;
-      const overdueTasks = machine.tasks.filter(
-        (t) => t.nextDueDate < new Date(),
-      ).length;
+      const overdueTasks = machine.tasks.filter((t) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(t.nextDueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate.getTime() < today.getTime();
+      }).length;
       const efficiency =
         totalTasks > 0
           ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100)
