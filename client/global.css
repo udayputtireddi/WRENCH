@@ -21,7 +21,7 @@ body {
   overscroll-behavior-y: none;
   /* Improve mobile scrolling */
   -webkit-overflow-scrolling: touch;
-  /* Prevent zoom on double tap */
+  /* Allow normal interactions, prevent zoom */
   touch-action: manipulation;
   /* Prevent pull-to-refresh on mobile browsers */
   overscroll-behavior-y: contain;
