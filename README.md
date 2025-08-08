@@ -9,26 +9,7 @@ CheckMate is a production-ready maintenance management application designed to s
 
 ![CheckMate Application Screenshot Banner](https://user-images.githubusercontent.com/your-username/your-repo/screenshot_banner.png)  ---
 
-## ✨ Key Features
 
-CheckMate is packed with features designed to enhance efficiency, accountability, and oversight in your maintenance workflows.
-
-#### For Operations & Maintenance Teams
--   **📅 Smart Task Scheduling**: Automatically generates daily, weekly, and monthly maintenance schedules.
--   **📱 QR Code Integration**: Scan a machine's QR code to instantly access its maintenance tasks and history.
--   **📷 Photo Documentation**: Attach photos to completed tasks as proof of work or to document issues.
--   **🔄 Real-time Progress Sync**: Save task progress and resume later, with all data synced in real-time.
--   **🌐 Mobile-First & Offline-Ready**: Optimized for industrial tablets and mobile devices, with local storage for reliable operation even without a constant internet connection.
-
-#### For Administrators & Management
--   **👑 Admin Dashboard**: A central hub for complete system oversight, user management, and schedule configuration.
--   **👥 Role-Based Access Control**: Simple, powerful roles (Admin, Operator) ensure users only see what they need.
--   **🏢 Department Management**: Organize users and machines by production departments for streamlined reporting.
--   **📊 Advanced Reporting & Analytics**: Generate detailed reports on task completion rates, performance timings, and machine efficiency.
--   **📄 CSV Data Export**: All reports are exportable to CSV for external analysis or record-keeping.
--   **⚙️ Dynamic User Registration**: New operator accounts are created automatically based on pre-configured email patterns (e.g., `*@yourcompany.com`).
-
----
 
 ## 🚀 Live Demo & Usage
 
