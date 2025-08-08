@@ -57,7 +57,15 @@ Experience CheckMate in action.
 4.  **Monitor Progress** in real-time across the facility.
 5.  **Generate Reports** to analyze performance and ensure compliance.
 
+### 🖼️ Screenshots
 
+| Login Screen | Operator Task View | Admin Dashboard |
+| :----------: | :----------------: | :-------------: |
+| ![Login Screen](https://user-images.githubusercontent.com/your-username/your-repo/screenshot1.png) | ![Task View](https://user-images.githubusercontent.com/your-username/your-repo/screenshot2.png) | ![Admin Dashboard](https://user-images.githubusercontent.com/your-username/your-repo/screenshot3.png) |
+| Photo Documentation | Report Generation | Mobile Responsive |
+| ![Photo Upload](https://user-images.githubusercontent.com/your-username/your-repo/screenshot4.png) | ![Reports](https://user-images.githubusercontent.com/your-username/your-repo/screenshot5.png) | ![Mobile View](https://user-images.githubusercontent.com/your-username/your-repo/screenshot6.png) |
+
+---
 
 ## 🛠️ Tech Stack
 
