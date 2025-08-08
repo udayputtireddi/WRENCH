@@ -77,7 +77,6 @@ This project is built with a modern, scalable, and maintainable technology stack
 | **Backend & Data** | [Node.js](https://nodejs.org/) (conceptual), Client-Side Logic, [LocalStorage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), Base64 Encoding      |
 | **Deployment & CI/CD** | [Firebase Hosting](https://firebase.google.com/docs/hosting), [GitHub Actions](https://github.com/features/actions)                                                     |
 | **Development Tools** | [npm](https://www.npmjs.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/)                                                                           |
-
 ---
 
 ## ⚙️ Getting Started
@@ -128,6 +127,7 @@ npm run build
 # Preview the production build locally
 npm run preview
 ```
+
 ### 🏗️ Project Structure
 ```bash
 checkmate/
