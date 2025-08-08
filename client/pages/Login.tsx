@@ -47,11 +47,22 @@ export default function Login() {
     <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="text-center mb-6 sm:mb-12">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white mb-2 sm:mb-4 tracking-wider">
-            Check<span className="text-green-400">Mate</span>
+          {/* WRENCH Logo */}
+          <div className="flex items-center justify-center mb-4">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2Fc74d1f1dfcad4af19f49ea67139a7c6d%2F87c28fdfc7e74b0d9ffade230cc52ef6?format=webp&width=800"
+              alt="WRENCH Logo"
+              className="h-24 sm:h-32 lg:h-40 w-auto object-contain"
+            />
+          </div>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-3 sm:mb-4 tracking-tight">
+            WRENCH
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg lg:text-xl px-4">
-            Smart Maintenance Management System
+          <p className="text-xl sm:text-2xl lg:text-3xl text-blue-200 font-medium mb-2 tracking-wide">
+            We Repair Everything Now – Checklists Help
+          </p>
+          <p className="text-slate-400 text-base sm:text-lg lg:text-xl px-4 italic">
+            Because missed maintenance costs money.
           </p>
         </div>
 
