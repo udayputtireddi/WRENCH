@@ -129,25 +129,25 @@ body {
    * tailwind.config.ts expects the following color variables to be expressed as HSL values.
   */
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 220 25% 97%;
+    --foreground: 215 30% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 215 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 215 30% 15%;
 
-    --primary: 215 30% 25%;
+    --primary: 215 35% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 20% 85%;
-    --secondary-foreground: 215 30% 25%;
+    --secondary: 215 25% 85%;
+    --secondary-foreground: 215 35% 20%;
 
-    --muted: 215 20% 85%;
-    --muted-foreground: 215 25% 45%;
+    --muted: 215 25% 85%;
+    --muted-foreground: 215 30% 40%;
 
-    --accent: 215 85% 50%;
+    --accent: 215 75% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
@@ -170,25 +170,25 @@ body {
   }
 
   .dark {
-    --background: 215 25% 8%;
-    --foreground: 210 20% 92%;
+    --background: 215 30% 8%;
+    --foreground: 210 25% 95%;
 
-    --card: 215 20% 12%;
-    --card-foreground: 210 20% 92%;
+    --card: 215 25% 12%;
+    --card-foreground: 210 25% 95%;
 
-    --popover: 215 20% 12%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 215 25% 12%;
+    --popover-foreground: 210 25% 95%;
 
-    --primary: 215 30% 35%;
+    --primary: 215 35% 25%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 25% 15%;
-    --secondary-foreground: 210 20% 92%;
+    --secondary: 215 30% 15%;
+    --secondary-foreground: 210 25% 95%;
 
-    --muted: 215 25% 15%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 215 30% 15%;
+    --muted-foreground: 215 20% 70%;
 
-    --accent: 215 75% 55%;
+    --accent: 215 65% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 60%;
