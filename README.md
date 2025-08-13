@@ -5,7 +5,7 @@
 [![React Version](https://img.shields.io/badge/react-18-blue.svg?style=for-the-badge)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.2.2-3178C6.svg?style=for-the-badge)](https://www.typescriptlang.org/)
 
-
+CheckMate is a production-ready maintenance management application designed to streamline operations in manufacturing and industrial environments. It replaces manual, paper-based checklists with a smart, digital solution featuring QR code integration, real-time tracking, and comprehensive reporting.
 
 ![CheckMate Application Screenshot Banner](https://user-images.githubusercontent.com/your-username/your-repo/screenshot_banner.png)  ---
 
