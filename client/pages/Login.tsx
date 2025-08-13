@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Mail, AlertCircle } from "lucide-react";
+import { Wrench, Lock, Mail, AlertCircle, Settings, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import AuthService from "@/lib/auth";
 
@@ -44,77 +44,116 @@ export default function Login() {
   };
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="text-center mb-6 sm:mb-12">
-          {/* WRENCH Logo */}
-          <div className="flex items-center justify-center mb-4">
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2Fc74d1f1dfcad4af19f49ea67139a7c6d%2F87c28fdfc7e74b0d9ffade230cc52ef6?format=webp&width=800"
-              alt="WRENCH Logo"
-              className="h-24 sm:h-32 lg:h-40 w-auto object-contain"
-            />
+    <div className="app-container bg-gradient-to-br from-wrench-navy-900 via-wrench-navy-800 to-wrench-navy-900 flex items-center justify-center relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      
+      {/* Floating Elements */}
+      <div className="absolute top-10 left-10 text-wrench-navy-300 opacity-20">
+        <Settings className="h-12 w-12 animate-spin" style={{animationDuration: '20s'}} />
+      </div>
+      <div className="absolute bottom-20 right-20 text-wrench-navy-300 opacity-20">
+        <Wrench className="h-16 w-16 rotate-45" />
+      </div>
+      <div className="absolute top-32 right-16 text-wrench-navy-300 opacity-15">
+        <CheckCircle className="h-8 w-8" />
+      </div>
+
+      <div className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
+        {/* WRENCH Branding Section */}
+        <div className="text-center mb-8 sm:mb-12">
+          {/* Logo Section */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative">
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2Fda94b5400eec417db21cb7a4e8a60aa1%2F22e9e2bc7655407bac8f82eee5b44985?format=webp&width=800"
+                alt="WRENCH Logo"
+                className="h-32 sm:h-40 lg:h-48 w-auto object-contain filter drop-shadow-2xl"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-wrench-navy-900/20 to-transparent rounded-lg"></div>
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-3 sm:mb-4 tracking-tight">
-            WRENCH
-          </h1>
-          <p className="text-xl sm:text-2xl lg:text-3xl text-blue-200 font-medium mb-2 tracking-wide">
-            We Repair Everything Now – Checklists Help
-          </p>
-          <p className="text-slate-400 text-base sm:text-lg lg:text-xl px-4 italic">
-            Because missed maintenance costs money.
-          </p>
+
+          {/* Title */}
+          <div className="relative mb-6">
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white mb-4 tracking-tight animate-checkmate-title">
+              WRENCH
+            </h1>
+            <div className="absolute inset-0 text-5xl sm:text-7xl lg:text-8xl font-black text-wrench-accent/20 blur-sm animate-checkmate-title">
+              WRENCH
+            </div>
+          </div>
+
+          {/* Tagline */}
+          <div className="space-y-2 animate-fadeInUp" style={{animationDelay: '0.3s'}}>
+            <p className="text-xl sm:text-2xl lg:text-3xl text-wrench-navy-100 font-semibold tracking-wide">
+              We Repair Everything Now – Checklists Help
+            </p>
+            <div className="h-1 w-24 bg-gradient-to-r from-wrench-accent to-wrench-success mx-auto rounded-full"></div>
+            <p className="text-wrench-navy-300 text-base sm:text-lg lg:text-xl px-4 italic font-light">
+              Because missed maintenance costs money.
+            </p>
+          </div>
         </div>
 
-        <Card className="w-full max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm border-slate-700/50 overflow-hidden">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-white">Sign In</CardTitle>
-            <CardDescription className="text-slate-400">
-              Enter your credentials to access the system
+        {/* Login Card */}
+        <Card className="w-full max-w-md mx-auto bg-white/95 backdrop-blur-sm border-0 shadow-2xl shadow-wrench-navy-900/50 animate-slideInUp" style={{animationDelay: '0.5s'}}>
+          <CardHeader className="text-center pb-4">
+            <div className="flex items-center justify-center mb-2">
+              <div className="h-12 w-12 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                <Lock className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl text-wrench-navy-800 font-bold">
+              System Access
+            </CardTitle>
+            <CardDescription className="text-wrench-navy-600">
+              Enter your credentials to access the maintenance system
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          
+          <CardContent className="pt-2">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-300">
+                <Label htmlFor="email" className="text-wrench-navy-700 font-medium">
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-wrench-navy-400" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    className="pl-10 border-wrench-navy-200 bg-white text-wrench-navy-800 placeholder:text-wrench-navy-400 focus:border-wrench-accent focus:ring-wrench-accent/20"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">
+                <Label htmlFor="password" className="text-wrench-navy-700 font-medium">
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-wrench-navy-400" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    className="pl-10 border-wrench-navy-200 bg-white text-wrench-navy-800 placeholder:text-wrench-navy-400 focus:border-wrench-accent focus:ring-wrench-accent/20"
                     required
                   />
                 </div>
               </div>
 
               {error && (
-                <Alert className="bg-red-500/10 border-red-500/20">
-                  <AlertCircle className="h-4 w-4 text-red-400" />
-                  <AlertDescription className="text-red-300">
+                <Alert className="bg-wrench-error/10 border-wrench-error/20">
+                  <AlertCircle className="h-4 w-4 text-wrench-error" />
+                  <AlertDescription className="text-wrench-error">
                     {error}
                   </AlertDescription>
                 </Alert>
@@ -123,41 +162,60 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isLoading || !email || !password}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg"
+                className="w-full bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover-lift"
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span>Accessing System...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Wrench className="h-5 w-5" />
+                    <span>Access System</span>
+                  </div>
+                )}
               </Button>
             </form>
 
-            <div className="mt-4 sm:mt-6 text-center space-y-2">
-              <p className="text-slate-400 text-xs sm:text-sm px-2">
-                Contact your system administrator for access
-              </p>
-              <div className="p-2 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left mx-2 sm:mx-0">
-                <p className="text-blue-300 text-xs font-medium mb-1">
-                  Quick Login Examples:
+            {/* Demo Credentials */}
+            <div className="mt-6 space-y-3">
+              <div className="text-center">
+                <p className="text-wrench-navy-600 text-sm font-medium">
+                  Contact your system administrator for access
                 </p>
-                <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">admin@company.com</span>{" "}
-                  with any password
+              </div>
+              
+              <div className="p-4 bg-gradient-to-r from-wrench-accent/10 to-wrench-navy-700/10 border border-wrench-accent/20 rounded-lg">
+                <p className="text-wrench-navy-700 text-sm font-semibold mb-2 flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2 text-wrench-success" />
+                  Demo Access Available:
                 </p>
-                <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">
-                    operator@company.com
-                  </span>{" "}
-                  with any password
-                </p>
-                <p className="text-slate-400 text-xs mt-1">
-                  Note: Use strong passwords to avoid browser security warnings
-                </p>
+                <div className="space-y-1 text-sm">
+                  <p className="text-wrench-navy-600">
+                    <span className="font-mono bg-wrench-navy-50 px-2 py-1 rounded text-xs">admin@company.com</span>
+                    <span className="text-wrench-navy-500 ml-2">with any password</span>
+                  </p>
+                  <p className="text-wrench-navy-600">
+                    <span className="font-mono bg-wrench-navy-50 px-2 py-1 rounded text-xs">operator@company.com</span>
+                    <span className="text-wrench-navy-500 ml-2">with any password</span>
+                  </p>
+                  <p className="text-wrench-navy-500 text-xs mt-2 italic">
+                    Use strong passwords to avoid browser security warnings
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6 sm:mt-8 px-4">
-          <p className="text-slate-500 text-xs sm:text-sm">
-            © 2024 CheckMate. All rights reserved.
+        {/* Footer */}
+        <div className="text-center mt-8 px-4 animate-fadeInUp" style={{animationDelay: '0.7s'}}>
+          <p className="text-wrench-navy-400 text-sm">
+            © 2024 WRENCH Maintenance Systems. All rights reserved.
+          </p>
+          <p className="text-wrench-navy-500 text-xs mt-1">
+            Professional maintenance & repair solutions
           </p>
         </div>
       </div>
