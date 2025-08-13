@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
-  ArrowLeft,
   TrendingUp,
   TrendingDown,
   Activity,
@@ -20,92 +18,94 @@ import {
   BarChart3,
   Upload,
   AlertCircle,
-  Wrench,
   Target,
   Users,
   Zap,
   Settings,
+  Award,
+  Shield,
+  Wrench,
 } from "lucide-react";
+import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
+import { Link } from "react-router-dom";
 import Database from "@/lib/database";
 
 export default function Analytics() {
   const analytics = Database.getAnalytics();
   const hasData = analytics.totalTasks > 0;
 
-  return (
-    <div className="app-container bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-wrench-navy-800 via-wrench-navy-700 to-wrench-navy-800 shadow-2xl relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        
-        {/* Header Background Elements */}
-        <div className="absolute top-4 left-4 text-wrench-navy-300 opacity-20">
-          <BarChart3 className="h-6 w-6" />
-        </div>
-        <div className="absolute bottom-4 right-4 text-wrench-navy-300 opacity-20">
-          <Settings className="h-5 w-5 animate-spin" style={{animationDuration: '25s'}} />
-        </div>
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/" },
+    { label: "Analytics" }
+  ];
 
-        <div className="container mx-auto px-4 py-6 relative z-10">
-          <div className="flex items-center">
-            <Link to="/" className="mr-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 hover-lift"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 bg-gradient-to-br from-wrench-accent to-white/20 rounded-full flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white">
-                  Analytics Dashboard
-                </h1>
-                <p className="text-wrench-navy-200">
-                  Performance insights and maintenance trends
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader 
+        title="Analytics Dashboard"
+        subtitle="Performance insights and maintenance intelligence"
+        showStats={true}
+        variant="gradient"
+      />
 
       <main className="container mx-auto px-4 py-8">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <NavigationBreadcrumbs items={breadcrumbs} />
+        </div>
+
         {!hasData ? (
           // Empty State
           <div className="text-center py-20">
-            <div className="relative mb-8">
-              <div className="absolute inset-0 bg-gradient-to-r from-wrench-warning/20 to-wrench-error/20 blur-3xl rounded-full"></div>
-              <div className="relative flex items-center justify-center mb-6">
-                <AlertCircle className="h-20 w-20 text-wrench-warning mr-4" />
-                <div>
-                  <h2 className="text-3xl lg:text-4xl font-bold text-wrench-navy-800 mb-2">
-                    No Analytics Data Available
-                  </h2>
-                  <div className="h-1 w-64 bg-gradient-to-r from-wrench-warning to-wrench-error mx-auto rounded-full"></div>
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-wrench-warning/10 to-wrench-error/10 rounded-full border border-wrench-warning/20 mb-6">
+                  <AlertCircle className="h-6 w-6 text-wrench-warning" />
+                  <span className="text-wrench-navy-800 font-semibold">No Analytics Data Available</span>
                 </div>
+                
+                <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
+                  Waiting for
+                  <br />
+                  <span className="bg-gradient-to-r from-wrench-warning to-wrench-error bg-clip-text text-transparent">
+                    Maintenance Data
+                  </span>
+                </h1>
+                
+                <p className="text-xl text-wrench-navy-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Analytics will be generated once maintenance tasks are uploaded and completed. 
+                  Upload your maintenance data to start tracking performance metrics and insights.
+                </p>
+                
+                <Link to="/admin/database">
+                  <Button className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white px-8 py-4 text-lg hover-lift shadow-lg">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Upload Maintenance Data
+                  </Button>
+                </Link>
               </div>
             </div>
-            <p className="text-xl text-wrench-navy-600 max-w-2xl mx-auto leading-relaxed mb-8">
-              Analytics will be generated once maintenance tasks are uploaded
-              and completed. Upload your maintenance data to start tracking
-              performance.
-            </p>
-            <Link to="/admin/database">
-              <Button className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white px-8 py-4 text-lg hover-lift shadow-lg">
-                <Upload className="h-5 w-5 mr-2" />
-                Upload Maintenance Data
-              </Button>
-            </Link>
           </div>
         ) : (
           // Analytics Dashboard with Data
           <div className="space-y-8">
+            {/* Hero Section */}
+            <div className="text-center mb-8">
+              <WrenchBadge className="mb-4" />
+              <h1 className="text-3xl lg:text-4xl font-black text-wrench-navy-900 mb-4">
+                Professional Analytics
+                <br />
+                <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+                  Intelligence Dashboard
+                </span>
+              </h1>
+              <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
+                Advanced performance metrics and maintenance intelligence for optimal equipment management.
+              </p>
+            </div>
+
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -144,7 +144,7 @@ export default function Analytics() {
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                    Total Machines
+                    Equipment Units
                   </CardTitle>
                   <div className="h-8 w-8 bg-wrench-accent/10 rounded-full flex items-center justify-center">
                     <Users className="h-4 w-4 text-wrench-accent" />
@@ -167,7 +167,7 @@ export default function Analytics() {
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                    Overdue Tasks
+                    Critical Items
                   </CardTitle>
                   <div className="h-8 w-8 bg-wrench-error/10 rounded-full flex items-center justify-center">
                     <AlertTriangle className="h-4 w-4 text-wrench-error" />
@@ -192,7 +192,7 @@ export default function Analytics() {
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                    Upcoming Tasks
+                    Scheduled Tasks
                   </CardTitle>
                   <div className="h-8 w-8 bg-wrench-warning/10 rounded-full flex items-center justify-center">
                     <Clock className="h-4 w-4 text-wrench-warning" />
@@ -222,7 +222,7 @@ export default function Analytics() {
                     Maintenance Performance
                   </CardTitle>
                   <CardDescription className="text-wrench-navy-600">
-                    Overall system performance metrics
+                    Overall system performance metrics and efficiency indicators
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -284,32 +284,32 @@ export default function Analytics() {
                 <CardHeader>
                   <CardTitle className="text-wrench-navy-800 flex items-center">
                     <Target className="h-6 w-6 mr-2 text-wrench-accent" />
-                    Key Insights
+                    Intelligence Insights
                   </CardTitle>
                   <CardDescription className="text-wrench-navy-600">
-                    System optimization recommendations
+                    AI-powered recommendations and system optimization insights
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-start space-x-3 p-3 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
+                    <div className="flex items-start space-x-3 p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                       <CheckCircle className="h-5 w-5 text-wrench-success mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-wrench-navy-800">
                           Maintenance Coverage Complete
                         </p>
                         <p className="text-xs text-wrench-navy-600">
-                          All machines have scheduled maintenance tasks
+                          All equipment units have scheduled maintenance tasks
                         </p>
                       </div>
                     </div>
 
                     {analytics.overdueTasks > 0 && (
-                      <div className="flex items-start space-x-3 p-3 bg-wrench-error/10 rounded-lg border border-wrench-error/20">
+                      <div className="flex items-start space-x-3 p-4 bg-wrench-error/10 rounded-lg border border-wrench-error/20">
                         <AlertTriangle className="h-5 w-5 text-wrench-error mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-wrench-navy-800">
-                            Overdue Tasks Detected
+                            Critical Tasks Detected
                           </p>
                           <p className="text-xs text-wrench-navy-600">
                             {analytics.overdueTasks} tasks require immediate attention
@@ -318,20 +318,20 @@ export default function Analytics() {
                       </div>
                     )}
 
-                    <div className="flex items-start space-x-3 p-3 bg-wrench-accent/10 rounded-lg border border-wrench-accent/20">
+                    <div className="flex items-start space-x-3 p-4 bg-wrench-accent/10 rounded-lg border border-wrench-accent/20">
                       <Zap className="h-5 w-5 text-wrench-accent mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-wrench-navy-800">
                           System Operational
                         </p>
                         <p className="text-xs text-wrench-navy-600">
-                          WRENCH maintenance system is tracking {analytics.totalTasks} tasks
+                          WRENCH platform is tracking {analytics.totalTasks} maintenance tasks
                         </p>
                       </div>
                     </div>
 
                     {analytics.upcomingTasks > 0 && (
-                      <div className="flex items-start space-x-3 p-3 bg-wrench-warning/10 rounded-lg border border-wrench-warning/20">
+                      <div className="flex items-start space-x-3 p-4 bg-wrench-warning/10 rounded-lg border border-wrench-warning/20">
                         <Clock className="h-5 w-5 text-wrench-warning mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-wrench-navy-800">
@@ -348,56 +348,74 @@ export default function Analytics() {
               </Card>
             </div>
 
-            {/* Action Items */}
-            <Card className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 text-white">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Wrench className="h-6 w-6 mr-2" />
-                  Professional Maintenance Analytics
-                </CardTitle>
-                <CardDescription className="text-wrench-navy-200">
-                  Advanced insights for optimal equipment performance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {analytics.totalTasks}
+            {/* Professional Analytics Banner */}
+            <Card className="bg-gradient-to-r from-wrench-navy-900 via-wrench-navy-800 to-wrench-navy-900 text-white border-0 shadow-2xl">
+              <CardContent className="p-8">
+                <div className="grid md:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="h-12 w-12 bg-gradient-to-br from-wrench-accent to-wrench-success rounded-full flex items-center justify-center">
+                        <BarChart3 className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold">Professional Analytics</h3>
+                        <p className="text-white/80">Advanced maintenance intelligence</p>
+                      </div>
                     </div>
-                    <p className="text-wrench-navy-200 text-sm">Total Tasks Managed</p>
+                    
+                    <WrenchTagline variant="dark" size="md" className="text-left mb-6" />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Award className="h-5 w-5 text-wrench-success" />
+                        <span className="text-sm">Certified Metrics</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Shield className="h-5 w-5 text-wrench-accent" />
+                        <span className="text-sm">Secure Analytics</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Target className="h-5 w-5 text-wrench-warning" />
+                        <span className="text-sm">Precision Insights</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Wrench className="h-5 w-5 text-white" />
+                        <span className="text-sm">Professional Grade</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {analytics.totalMachines}
+                  
+                  <div className="text-center md:text-right">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-1">
+                          {analytics.totalTasks}
+                        </div>
+                        <p className="text-white/70 text-xs">Tasks Managed</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-1">
+                          {analytics.totalMachines}
+                        </div>
+                        <p className="text-white/70 text-xs">Equipment Units</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-1">
+                          {analytics.totalTasks > 0
+                            ? Math.round(
+                                ((analytics.totalTasks - analytics.overdueTasks) / analytics.totalTasks) * 100,
+                              )
+                            : 100}%
+                        </div>
+                        <p className="text-white/70 text-xs">Efficiency</p>
+                      </div>
                     </div>
-                    <p className="text-wrench-navy-200 text-sm">Equipment Units</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {analytics.totalTasks > 0
-                        ? Math.round(
-                            ((analytics.totalTasks - analytics.overdueTasks) / analytics.totalTasks) * 100,
-                          )
-                        : 100}%
-                    </div>
-                    <p className="text-wrench-navy-200 text-sm">System Efficiency</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         )}
-
-        {/* Footer tagline */}
-        <div className="text-center mt-12 pt-8 border-t border-wrench-navy-200">
-          <p className="text-wrench-navy-600 text-sm font-medium">
-            We Repair Everything Now – Checklists Help
-          </p>
-          <p className="text-wrench-navy-400 text-xs mt-1 italic">
-            Because missed maintenance costs money.
-          </p>
-        </div>
       </main>
     </div>
   );
