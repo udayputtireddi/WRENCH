@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Camera, Hash, Scan } from "lucide-react";
+import { ArrowLeft, Camera, Hash, Scan, Wrench, Target, Zap } from "lucide-react";
 
 export default function Scanner() {
   const [scanning, setScanning] = useState(false);
@@ -61,26 +61,36 @@ export default function Scanner() {
   }, []);
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="app-container bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
+      <header className="bg-gradient-to-r from-wrench-navy-800 via-wrench-navy-700 to-wrench-navy-800 shadow-2xl relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        
+        {/* Header Background Elements */}
+        <div className="absolute top-4 right-4 text-wrench-navy-300 opacity-20">
+          <Target className="h-6 w-6" />
+        </div>
+
+        <div className="container mx-auto px-4 py-6 relative z-10">
           <div className="flex items-center">
             <Link to="/" className="mr-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-white/20 hover-lift"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Scan Machine</h1>
-              <p className="text-blue-100">
-                Identify machines via QR code scanning
-              </p>
+            <div className="flex items-center space-x-3">
+              <Wrench className="h-8 w-8 text-white" />
+              <div>
+                <h1 className="text-3xl font-bold text-white">Machine Scanner</h1>
+                <p className="text-wrench-navy-200">
+                  Identify machines via QR code scanning
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -89,98 +99,157 @@ export default function Scanner() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Scanner Section */}
-          <Card className="mb-8 bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+          <Card className="mb-8 bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="text-center">
-              <CardTitle className="text-white flex items-center justify-center gap-2">
-                <Camera className="h-6 w-6" />
-                QR Code Scanner
-              </CardTitle>
-              <CardDescription className="text-slate-400">
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <div className="h-12 w-12 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                  <Camera className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-wrench-navy-800 text-xl">
+                  QR Code Scanner
+                </CardTitle>
+              </div>
+              <CardDescription className="text-wrench-navy-600">
                 Point your camera at the QR code attached to the machine
               </CardDescription>
             </CardHeader>
+            
             <CardContent>
-              <div className="relative">
-                {!scanning ? (
-                  <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
-                    <Scan className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-600 mb-4">Ready to scan QR code</p>
-                    <Button
-                      onClick={startScanner}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Camera className="h-4 w-4 mr-2" />
-                      Start Camera
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="relative">
+              <div className="space-y-6">
+                {/* Camera View */}
+                <div className="relative bg-wrench-navy-900 rounded-lg overflow-hidden">
+                  {!scanning ? (
+                    <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-wrench-navy-100 to-wrench-navy-200">
+                      <div className="text-center">
+                        <Scan className="h-16 w-16 text-wrench-navy-400 mx-auto mb-4" />
+                        <p className="text-wrench-navy-600 text-lg font-medium">
+                          Camera Ready
+                        </p>
+                        <p className="text-wrench-navy-500 text-sm">
+                          Press start to begin scanning
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
                     <video
                       ref={videoRef}
                       autoPlay
                       playsInline
-                      className="w-full h-64 bg-black rounded-lg object-cover"
+                      className="w-full aspect-video object-cover"
                     />
-                    <div className="absolute inset-0 border-4 border-blue-500 rounded-lg">
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-blue-400 w-32 h-32 rounded-lg"></div>
+                  )}
+                  
+                  {/* Scanning Overlay */}
+                  {scanning && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-48 h-48 border-4 border-wrench-accent rounded-lg">
+                        <div className="w-full h-full border-4 border-white border-dashed rounded-lg animate-pulse"></div>
+                      </div>
                     </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        onClick={stopScanner}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Stop Scanner
-                      </Button>
-                    </div>
+                  )}
+                </div>
+
+                {/* Controls */}
+                <div className="flex gap-4">
+                  {!scanning ? (
+                    <Button
+                      onClick={startScanner}
+                      className="flex-1 bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-3 hover-lift"
+                    >
+                      <Camera className="h-5 w-5 mr-2" />
+                      Start Scanner
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={stopScanner}
+                      variant="outline"
+                      className="flex-1 border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white py-3"
+                    >
+                      Stop Scanner
+                    </Button>
+                  )}
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="p-4 bg-wrench-error/10 border border-wrench-error/20 rounded-lg">
+                    <p className="text-wrench-error text-sm font-medium">{error}</p>
                   </div>
                 )}
               </div>
-
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-700">{error}</p>
-                </div>
-              )}
             </CardContent>
           </Card>
 
           {/* Manual Entry Section */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="text-center">
-              <CardTitle className="text-white flex items-center justify-center gap-2">
-                <Hash className="h-6 w-6" />
-                Manual Entry
-              </CardTitle>
-              <CardDescription className="text-slate-400">
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <div className="h-12 w-12 bg-gradient-to-br from-wrench-warning to-wrench-warning/80 rounded-full flex items-center justify-center">
+                  <Hash className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-wrench-navy-800 text-xl">
+                  Manual Entry
+                </CardTitle>
+              </div>
+              <CardDescription className="text-wrench-navy-600">
                 Enter machine ID manually if QR scanning is not available
               </CardDescription>
             </CardHeader>
+            
             <CardContent>
-              <form onSubmit={handleManualSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="machineId" className="text-slate-300">
+              <form onSubmit={handleManualSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="machineId" className="text-wrench-navy-700 font-medium">
                     Machine ID
                   </Label>
                   <Input
                     id="machineId"
                     type="text"
-                    placeholder="e.g., CAR-001, PUMP-05, etc."
+                    placeholder="Enter machine identifier (e.g., TRUMPF-5000-001)"
                     value={manualId}
                     onChange={(e) => setManualId(e.target.value)}
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    className="border-wrench-navy-200 focus:border-wrench-accent focus:ring-wrench-accent/20 text-wrench-navy-800"
                   />
                 </div>
+                
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={!manualId.trim()}
+                  className="w-full bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white py-3 hover-lift"
                 >
+                  <Zap className="h-5 w-5 mr-2" />
                   Access Machine
                 </Button>
               </form>
+
+              {/* Example IDs */}
+              <div className="mt-6 p-4 bg-wrench-navy-50 rounded-lg">
+                <p className="text-wrench-navy-700 text-sm font-medium mb-2">
+                  Example Machine IDs:
+                </p>
+                <div className="space-y-1 text-sm">
+                  <p className="text-wrench-navy-600">
+                    <span className="font-mono bg-white px-2 py-1 rounded">TRUMPF-5000-001</span>
+                    <span className="text-wrench-navy-500 ml-2">Trumpf TruPunch 5000</span>
+                  </p>
+                  <p className="text-wrench-navy-600">
+                    <span className="font-mono bg-white px-2 py-1 rounded">TRUMPF-5000-002</span>
+                    <span className="text-wrench-navy-500 ml-2">Trumpf TruPunch 5000 #2</span>
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
+
+          {/* Instructions */}
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-wrench-accent/10 rounded-full">
+              <Wrench className="h-4 w-4 text-wrench-accent" />
+              <p className="text-wrench-navy-700 text-sm font-medium">
+                Professional maintenance identification system
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
