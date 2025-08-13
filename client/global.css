@@ -124,88 +124,88 @@ body {
 
 @layer base {
   /**
-   * Industrial Machine Task Checklist Theme
-   * Tailwind CSS theme with industrial colors and improved contrast
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
-  */
+   * WRENCH Brand Theme
+   * Professional maintenance & repair service theme inspired by WRENCH logo
+   * Colors based on navy blue brand identity with modern contrast
+   */
   :root {
-    --background: 220 25% 97%;
-    --foreground: 215 30% 15%;
+    --background: 210 20% 98%;
+    --foreground: 210 40% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 30% 15%;
+    --card-foreground: 210 40% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 30% 15%;
+    --popover-foreground: 210 40% 15%;
 
-    --primary: 215 35% 20%;
+    --primary: 210 40% 23%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 25% 85%;
-    --secondary-foreground: 215 35% 20%;
+    --secondary: 210 20% 88%;
+    --secondary-foreground: 210 40% 23%;
 
-    --muted: 215 25% 85%;
-    --muted-foreground: 215 30% 40%;
+    --muted: 210 20% 90%;
+    --muted-foreground: 210 25% 45%;
 
-    --accent: 215 75% 45%;
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 85%;
-    --input: 215 15% 85%;
-    --ring: 210 100% 45%;
+    --border: 210 15% 85%;
+    --input: 210 15% 90%;
+    --ring: 217 91% 60%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 215 25% 95%;
-    --sidebar-foreground: 215 25% 15%;
-    --sidebar-primary: 210 100% 45%;
+    --sidebar-background: 210 25% 96%;
+    --sidebar-foreground: 210 40% 15%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 15% 88%;
-    --sidebar-accent-foreground: 215 25% 15%;
-    --sidebar-border: 215 15% 80%;
-    --sidebar-ring: 210 100% 45%;
+    --sidebar-accent: 210 20% 90%;
+    --sidebar-accent-foreground: 210 40% 15%;
+    --sidebar-border: 210 15% 82%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
-    --background: 215 30% 8%;
-    --foreground: 210 25% 95%;
+    --background: 210 50% 6%;
+    --foreground: 210 20% 92%;
 
-    --card: 215 25% 12%;
-    --card-foreground: 210 25% 95%;
+    --card: 210 40% 8%;
+    --card-foreground: 210 20% 92%;
 
-    --popover: 215 25% 12%;
-    --popover-foreground: 210 25% 95%;
+    --popover: 210 40% 8%;
+    --popover-foreground: 210 20% 92%;
 
-    --primary: 215 35% 25%;
+    --primary: 210 35% 28%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 30% 15%;
-    --secondary-foreground: 210 25% 95%;
+    --secondary: 210 40% 12%;
+    --secondary-foreground: 210 20% 92%;
 
-    --muted: 215 30% 15%;
-    --muted-foreground: 215 20% 70%;
+    --muted: 210 40% 12%;
+    --muted-foreground: 210 15% 65%;
 
-    --accent: 215 65% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 91% 65%;
+    --accent-foreground: 210 50% 6%;
 
     --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 20%;
-    --input: 215 15% 20%;
-    --ring: 210 100% 55%;
+    --border: 210 30% 18%;
+    --input: 210 30% 18%;
+    --ring: 217 91% 65%;
 
-    --sidebar-background: 215 25% 6%;
-    --sidebar-foreground: 210 20% 88%;
-    --sidebar-primary: 210 100% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 15% 15%;
-    --sidebar-accent-foreground: 210 20% 88%;
-    --sidebar-border: 215 15% 15%;
-    --sidebar-ring: 210 100% 55%;
+    --sidebar-background: 210 50% 4%;
+    --sidebar-foreground: 210 15% 85%;
+    --sidebar-primary: 217 91% 65%;
+    --sidebar-primary-foreground: 210 50% 6%;
+    --sidebar-accent: 210 40% 10%;
+    --sidebar-accent-foreground: 210 15% 85%;
+    --sidebar-border: 210 30% 15%;
+    --sidebar-ring: 217 91% 65%;
   }
 }
 
