@@ -11,7 +11,7 @@ CheckMate is a production-ready maintenance management application designed to s
 
 ## ✨ Key Features
 
-
+CheckMate is packed with features designed to enhance efficiency, accountability, and oversight in your maintenance workflows.
 
 #### For Operations & Maintenance Teams
 -   **📅 Smart Task Scheduling**: Automatically generates daily, weekly, and monthly maintenance schedules.
