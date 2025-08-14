@@ -21,6 +21,7 @@ import {
   Activity,
   Users,
   Zap,
+  FileText,
 } from "lucide-react";
 import { WrenchLogo, WrenchBadge } from "@/components/WrenchLogo";
 import AuthService from "@/lib/auth";
@@ -214,6 +215,13 @@ export function ProfessionalHeader({
                   <Link to="/analytics" className="cursor-pointer">
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Analytics Dashboard
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link to="/reports" className="cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Professional Reports
                   </Link>
                 </DropdownMenuItem>
 
