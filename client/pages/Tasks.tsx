@@ -18,18 +18,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowLeft,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Search,
   Filter,
   Clock,
   AlertTriangle,
   CheckCircle,
   Calendar,
-  Wrench,
   AlertCircle,
   Upload,
   Activity,
+  Target,
+  Users,
+  FileText,
+  Download,
+  DateRange,
+  Zap,
+  Settings,
 } from "lucide-react";
+import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
 
@@ -37,568 +53,524 @@ export default function Tasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [filterMachine, setFilterMachine] = useState("all");
+  const [exportDateRange, setExportDateRange] = useState({
+    start: "",
+    end: "",
+    type: "all"
+  });
 
   const allTasks = Database.getTasks();
+  const machines = Database.getMachines();
   const hasData = allTasks.length > 0;
+  const currentUser = AuthService.getCurrentUser();
 
   // Convert database tasks to display format
   const displayTasks = allTasks.map((task) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    // Normalize due date to start of day for proper comparison
     const dueDate = new Date(task.nextDueDate);
     dueDate.setHours(0, 0, 0, 0);
 
     let status = "Pending";
-    if (task.lastCompletedDate) {
-      const completedDate = new Date(task.lastCompletedDate);
-      completedDate.setHours(0, 0, 0, 0);
+    let priority = "Medium";
 
-      if (completedDate.getTime() === today.getTime()) {
-        status = "Completed";
-      } else if (dueDate.getTime() < today.getTime()) {
-        status = "Overdue";
-      }
+    if (task.lastCompletedDate && 
+        task.lastCompletedDate.toDateString() === new Date().toDateString()) {
+      status = "Completed";
     } else if (dueDate.getTime() < today.getTime()) {
       status = "Overdue";
+      priority = "High";
+    } else if (dueDate.getTime() === today.getTime()) {
+      status = "Due Today";
+      priority = "High";
     }
 
-    // Check for saved progress
-    const currentUser = AuthService.getCurrentUser();
-    const savedProgress = currentUser
-      ? task.progressSaves?.find((p) => p.userId === currentUser.id)
-      : null;
-
-    const progressInfo = savedProgress
-      ? {
-          completedItems: savedProgress.checklistItems.filter(
-            (item) => item.completed,
-          ).length,
-          totalItems: savedProgress.checklistItems.length,
-          hasProgress: true,
-          savedDate: savedProgress.savedDate,
-        }
-      : {
-          completedItems: 0,
-          totalItems: 0,
-          hasProgress: false,
-          savedDate: null,
-        };
-
-    // Update status if there's saved progress but not completed
-    if (progressInfo.hasProgress && status !== "Completed") {
-      status = "In Progress";
-    }
+    // Set priority based on category
+    if (task.category === "safety") priority = "Critical";
+    else if (task.category === "inspection") priority = "High";
+    else if (task.category === "cleaning") priority = "Low";
 
     return {
       id: task.id,
       name: task.taskName,
       description: task.description,
-      machine: task.machineName,
-      priority:
-        task.category === "inspection"
-          ? "Medium"
-          : task.category === "cleaning"
-            ? "Low"
-            : "High",
+      machineId: task.machineId,
+      machineName: Database.getMachineById(task.machineId)?.name || "Unknown Machine",
       status,
+      priority,
       dueDate: task.nextDueDate,
-      nextDue: task.nextDueDate,
-      lastCompleted: task.lastCompletedDate || new Date(0),
-      estimatedTime: task.estimatedTimeMinutes,
-      assignedTo: "Current User",
-      category: task.category,
+      lastCompleted: task.lastCompletedDate,
+      estimatedTime: task.estimatedTimeMinutes || 30,
       frequency: task.frequency,
-      progressInfo,
+      category: task.category,
+      assignedTo: task.assignedTo || "Unassigned",
+      completedBy: task.completedBy || null,
+      actualTimeSpent: task.actualTimeSpent || null,
+      completionNotes: task.completionNotes || null,
+      photos: task.photos || []
     };
   });
 
-  // Filter tasks
+  // Apply filters
   const filteredTasks = displayTasks.filter((task) => {
-    const matchesSearch =
-      task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.machine.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" ||
-      (filterStatus === "in progress" && task.status === "In Progress") ||
-      task.status.toLowerCase() === filterStatus.toLowerCase();
-    const matchesPriority =
-      filterPriority === "all" ||
-      task.priority.toLowerCase() === filterPriority.toLowerCase();
-    return matchesSearch && matchesStatus && matchesPriority;
+    const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         task.machineName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "all" || task.status.toLowerCase().includes(filterStatus.toLowerCase());
+    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority.toLowerCase();
+    const matchesMachine = filterMachine === "all" || task.machineId === filterMachine;
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesMachine;
   });
 
-  const getTaskStatusColor = (status: string) => {
+  // Task statistics
+  const stats = {
+    total: displayTasks.length,
+    completed: displayTasks.filter(t => t.status === "Completed").length,
+    overdue: displayTasks.filter(t => t.status === "Overdue").length,
+    dueToday: displayTasks.filter(t => t.status === "Due Today").length,
+    pending: displayTasks.filter(t => t.status === "Pending").length
+  };
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case "Completed":
-        return "text-green-600 bg-green-100";
-      case "In Progress":
-        return "text-blue-600 bg-blue-100";
-      case "Overdue":
-        return "text-red-600 bg-red-100";
-      default:
-        return "text-yellow-600 bg-yellow-100";
+      case "Completed": return "bg-wrench-success text-white";
+      case "Overdue": return "bg-wrench-error text-white";
+      case "Due Today": return "bg-wrench-warning text-white";
+      default: return "bg-wrench-navy-100 text-wrench-navy-800";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "Critical":
-        return "text-red-600 bg-red-100";
-      case "High":
-        return "text-orange-600 bg-orange-100";
-      case "Medium":
-        return "text-yellow-600 bg-yellow-100";
-      case "Low":
-        return "text-green-600 bg-green-100";
-      default:
-        return "text-gray-600 bg-gray-100";
+      case "Critical": return "bg-wrench-error text-white";
+      case "High": return "bg-wrench-warning text-white";
+      case "Medium": return "bg-wrench-accent text-white";
+      case "Low": return "bg-wrench-navy-100 text-wrench-navy-800";
+      default: return "bg-wrench-navy-100 text-wrench-navy-800";
     }
   };
 
-  // Group tasks by status
-  const pendingTasks = filteredTasks.filter((t) => t.status === "Pending");
-  const inProgressTasks = filteredTasks.filter(
-    (t) => t.status === "In Progress",
-  );
-  const overdueTasks = filteredTasks.filter((t) => t.status === "Overdue");
+  const handleExportTasks = () => {
+    let tasksToExport = filteredTasks;
+    
+    // Apply date filtering for export
+    if (exportDateRange.start && exportDateRange.end) {
+      const startDate = new Date(exportDateRange.start);
+      const endDate = new Date(exportDateRange.end);
+      
+      tasksToExport = filteredTasks.filter(task => {
+        const taskDate = task.lastCompleted || task.dueDate;
+        return taskDate >= startDate && taskDate <= endDate;
+      });
+    }
+
+    const headers = [
+      "Task Name",
+      "Machine Name", 
+      "Machine ID",
+      "Frequency",
+      "Due Date",
+      "Status",
+      "Priority",
+      "Assigned To",
+      "Completed By",
+      "Completion Date",
+      "Time Taken (min)",
+      "Notes",
+      "Photos Count"
+    ];
+
+    const rows = tasksToExport.map(task => [
+      task.name,
+      task.machineName,
+      task.machineId,
+      task.frequency,
+      task.dueDate.toLocaleDateString(),
+      task.status,
+      task.priority,
+      task.assignedTo,
+      task.completedBy || "",
+      task.lastCompleted?.toLocaleDateString() || "",
+      task.actualTimeSpent?.toString() || "",
+      task.completionNotes || "",
+      task.photos.length.toString()
+    ]);
+
+    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `tasks_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/" },
+    { label: "Task Management" }
+  ];
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-800 shadow-2xl">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-          <div className="flex items-center">
-            <Link to="/" className="mr-2 sm:mr-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20 px-2 sm:px-3"
-              >
-                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Back</span>
-              </Button>
-            </Link>
-            <div className="flex-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
-                Task Management
-              </h1>
-              <p className="text-green-100 text-sm sm:text-base">
-                {hasData
-                  ? `${allTasks.length} tasks across all machines`
-                  : "No tasks available"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader 
+        title="Task Management"
+        subtitle="Professional maintenance task tracking and coordination"
+        showStats={true}
+        variant="gradient"
+      />
 
-      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+      <main className="container mx-auto px-4 py-8">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <NavigationBreadcrumbs items={breadcrumbs} />
+        </div>
+
         {!hasData ? (
           // Empty State
           <div className="text-center py-20">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
-              <AlertCircle className="h-24 w-24 text-green-400 mx-auto mb-6" />
-              <h2 className="relative text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent mb-4 sm:mb-6">
-                No Tasks Available
-              </h2>
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-wrench-warning/10 to-wrench-error/10 rounded-full border border-wrench-warning/20 mb-6">
+                  <AlertCircle className="h-6 w-6 text-wrench-warning" />
+                  <span className="text-wrench-navy-800 font-semibold">No Tasks Available</span>
+                </div>
+                
+                <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
+                  Awaiting Task
+                  <br />
+                  <span className="bg-gradient-to-r from-wrench-warning to-wrench-error bg-clip-text text-transparent">
+                    Assignment
+                  </span>
+                </h1>
+                
+                <p className="text-xl text-wrench-navy-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  No maintenance tasks found. Upload your equipment maintenance schedules to 
+                  begin professional task management and tracking.
+                </p>
+                
+                <Link to="/admin/database">
+                  <Button className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white px-8 py-4 text-lg hover-lift shadow-lg">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Upload Task Data
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
-              Your maintenance tasks will appear here once they're uploaded.
-              Contact your administrator to set up your maintenance schedule.
-            </p>
           </div>
         ) : (
-          // Tasks Dashboard with Data
           <div className="space-y-8">
-            {/* Search and Filter Controls */}
-            <div className="flex flex-col gap-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-4 sm:p-6">
-              <div className="w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    placeholder="Search tasks or machines..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white"
-                  />
+            {/* Hero Section */}
+            <div className="text-center">
+              <WrenchBadge className="mb-4" />
+              <h1 className="text-3xl lg:text-4xl font-black text-wrench-navy-900 mb-4">
+                Professional Task
+                <br />
+                <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+                  Management Center
+                </span>
+              </h1>
+              <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
+                Advanced task tracking, completion monitoring, and professional reporting system.
+              </p>
+            </div>
+
+            {/* Task Statistics */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-navy-800">{stats.total}</div>
+                  <p className="text-sm text-wrench-navy-600">Total Tasks</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-success">{stats.completed}</div>
+                  <p className="text-sm text-wrench-navy-600">Completed</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-error">{stats.overdue}</div>
+                  <p className="text-sm text-wrench-navy-600">Overdue</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-warning">{stats.dueToday}</div>
+                  <p className="text-sm text-wrench-navy-600">Due Today</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-accent">{stats.pending}</div>
+                  <p className="text-sm text-wrench-navy-600">Pending</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Filters and Export */}
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Filter className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Task Filters & Export
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Filter tasks and export professional reports with date range selection
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Search and Basic Filters */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-wrench-navy-400" />
+                      <Input
+                        placeholder="Search tasks or machines..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 border-wrench-navy-200 focus:border-wrench-accent"
+                      />
+                    </div>
+
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="overdue">Overdue</SelectItem>
+                        <SelectItem value="due today">Due Today</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={filterPriority} onValueChange={setFilterPriority}>
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue placeholder="Filter by priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priority</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={filterMachine} onValueChange={setFilterMachine}>
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue placeholder="Filter by machine" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Machines</SelectItem>
+                        {machines.map((machine) => (
+                          <SelectItem key={machine.id} value={machine.id}>
+                            {machine.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Export Controls */}
+                  <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
+                          Export Type
+                        </label>
+                        <Select value={exportDateRange.type} onValueChange={(value) => setExportDateRange({...exportDateRange, type: value})}>
+                          <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Tasks</SelectItem>
+                            <SelectItem value="daily">Daily Report</SelectItem>
+                            <SelectItem value="weekly">Weekly Report</SelectItem>
+                            <SelectItem value="monthly">Monthly Report</SelectItem>
+                            <SelectItem value="custom">Custom Range</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {exportDateRange.type === "custom" && (
+                        <>
+                          <div>
+                            <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
+                              Start Date
+                            </label>
+                            <Input
+                              type="date"
+                              value={exportDateRange.start}
+                              onChange={(e) => setExportDateRange({...exportDateRange, start: e.target.value})}
+                              className="border-wrench-navy-200 focus:border-wrench-accent"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
+                              End Date
+                            </label>
+                            <Input
+                              type="date"
+                              value={exportDateRange.end}
+                              onChange={(e) => setExportDateRange({...exportDateRange, end: e.target.value})}
+                              className="border-wrench-navy-200 focus:border-wrench-accent"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <Button
+                      onClick={handleExportTasks}
+                      className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white px-6 py-2"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Report
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-full sm:w-40 bg-slate-700/50 border-slate-600 text-white">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={filterPriority}
-                  onValueChange={setFilterPriority}
-                >
-                  <SelectTrigger className="w-full sm:w-40 bg-slate-700/50 border-slate-600 text-white">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Tasks Grid */}
+            <div className="grid gap-4">
+              {filteredTasks.length === 0 ? (
+                <Card className="bg-white border-wrench-navy-200 p-12 text-center">
+                  <Target className="h-16 w-16 text-wrench-navy-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-wrench-navy-800 mb-2">No tasks found</h3>
+                  <p className="text-wrench-navy-600">Try adjusting your search criteria or filters.</p>
+                </Card>
+              ) : (
+                filteredTasks.map((task) => (
+                  <Card key={task.id} className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold text-wrench-navy-800 mb-1">
+                                {task.name}
+                              </h3>
+                              <p className="text-sm text-wrench-navy-600 mb-2">
+                                {task.description}
+                              </p>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <Badge className={getStatusColor(task.status)}>
+                                {task.status}
+                              </Badge>
+                              <Badge className={getPriorityColor(task.priority)}>
+                                {task.priority}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Settings className="h-4 w-4 text-wrench-navy-400" />
+                              <span className="text-wrench-navy-600">{task.machineName}</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4 text-wrench-navy-400" />
+                              <span className="text-wrench-navy-600">
+                                Due: {task.dueDate.toLocaleDateString()}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Clock className="h-4 w-4 text-wrench-navy-400" />
+                              <span className="text-wrench-navy-600">
+                                {task.estimatedTime} min
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Users className="h-4 w-4 text-wrench-navy-400" />
+                              <span className="text-wrench-navy-600">
+                                {task.assignedTo}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Completion Details */}
+                          {task.status === "Completed" && task.completedBy && (
+                            <div className="p-3 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                                <div>
+                                  <span className="font-medium text-wrench-navy-700">Completed by:</span>
+                                  <span className="ml-2 text-wrench-navy-600">{task.completedBy}</span>
+                                </div>
+                                {task.actualTimeSpent && (
+                                  <div>
+                                    <span className="font-medium text-wrench-navy-700">Time taken:</span>
+                                    <span className="ml-2 text-wrench-navy-600">{task.actualTimeSpent} min</span>
+                                  </div>
+                                )}
+                                {task.photos.length > 0 && (
+                                  <div>
+                                    <span className="font-medium text-wrench-navy-700">Photos:</span>
+                                    <span className="ml-2 text-wrench-navy-600">{task.photos.length} uploaded</span>
+                                  </div>
+                                )}
+                              </div>
+                              {task.completionNotes && (
+                                <div className="mt-2">
+                                  <span className="font-medium text-wrench-navy-700">Notes:</span>
+                                  <p className="text-wrench-navy-600 text-sm mt-1">{task.completionNotes}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[120px]">
+                          <Link to={`/machine/${task.machineId}/task/${task.id}`}>
+                            <Button 
+                              className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift"
+                              size="sm"
+                            >
+                              <Zap className="h-4 w-4 mr-2" />
+                              {task.status === "Completed" ? "View" : "Start"}
+                            </Button>
+                          </Link>
+                          
+                          <Link to={`/machine/${task.machineId}`}>
+                            <Button 
+                              variant="outline" 
+                              className="w-full border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
+                              size="sm"
+                            >
+                              <Settings className="h-4 w-4 mr-2" />
+                              Machine
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
-
-            {/* Task Overview Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Card className="bg-gradient-to-br from-red-600/20 to-red-700/20 border-red-500/30">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-300">
-                    Overdue Tasks
-                  </CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-red-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-400">
-                    {overdueTasks.length}
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Require immediate attention
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 border-blue-500/30">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-300">
-                    In Progress
-                  </CardTitle>
-                  <Activity className="h-4 w-4 text-blue-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-400">
-                    {inProgressTasks.length}
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Tasks with saved progress
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-yellow-600/20 to-yellow-700/20 border-yellow-500/30">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-300">
-                    Pending Tasks
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-yellow-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-yellow-400">
-                    {pendingTasks.length}
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Scheduled for completion
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-green-600/20 to-green-700/20 border-green-500/30">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-300">
-                    Completed Today
-                  </CardTitle>
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-400">
-                    {
-                      filteredTasks.filter((t) => t.status === "Completed")
-                        .length
-                    }
-                  </div>
-                  <p className="text-xs text-slate-400">Tasks finished today</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Tasks List */}
-            {filteredTasks.length === 0 ? (
-              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-                <CardContent className="text-center py-12">
-                  <Search className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    No matching tasks
-                  </h3>
-                  <p className="text-slate-400">
-                    Try adjusting your search or filter criteria
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {/* Overdue Tasks */}
-                {overdueTasks.length > 0 && (
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-red-400 mb-3 sm:mb-4 flex items-center">
-                      <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Overdue Tasks ({overdueTasks.length})
-                    </h2>
-                    <div className="grid gap-3 sm:gap-4">
-                      {overdueTasks.map((task) => (
-                        <Card
-                          key={task.id}
-                          className="bg-slate-800/50 backdrop-blur-sm border-red-500/30 hover:border-red-400/50 transition-colors"
-                        >
-                          <CardContent className="p-4 sm:p-6">
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
-                              <div className="flex-1">
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-white text-base sm:text-lg break-words">
-                                    {task.name}
-                                  </h3>
-                                  <Badge
-                                    className={getTaskStatusColor(task.status)}
-                                  >
-                                    {task.status}
-                                  </Badge>
-                                  <Badge
-                                    className={getPriorityColor(task.priority)}
-                                  >
-                                    {task.priority}
-                                  </Badge>
-                                </div>
-                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
-                                  {task.description}
-                                </p>
-                                {task.progressInfo?.hasProgress && (
-                                  <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                    <div className="flex items-center text-blue-400 text-xs">
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved:{" "}
-                                      {task.progressInfo.completedItems}/
-                                      {task.progressInfo.totalItems} items
-                                    </div>
-                                    <div className="text-xs text-blue-300">
-                                      {new Date(
-                                        task.progressInfo.savedDate,
-                                      ).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                )}
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
-                                  <span className="flex items-center">
-                                    <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="truncate">
-                                      {task.machine}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="text-red-400">
-                                      Overdue:{" "}
-                                      {task.nextDue.toLocaleDateString()}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    {task.estimatedTime} min
-                                  </span>
-                                </div>
-                              </div>
-                              <Link
-                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
-                                className="self-start sm:self-auto"
-                              >
-                                <Button className="bg-red-600 hover:bg-red-700 text-white text-sm w-full sm:w-auto">
-                                  Start Task
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* In Progress Tasks */}
-                {inProgressTasks.length > 0 && (
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-blue-400 mb-3 sm:mb-4 flex items-center">
-                      <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      In Progress Tasks ({inProgressTasks.length})
-                    </h2>
-                    <div className="grid gap-3 sm:gap-4">
-                      {inProgressTasks.map((task) => (
-                        <Card
-                          key={task.id}
-                          className="bg-slate-800/50 backdrop-blur-sm border-blue-500/30 hover:border-blue-400/50 transition-colors"
-                        >
-                          <CardContent className="p-4 sm:p-6">
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
-                              <div className="flex-1">
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-white text-base sm:text-lg break-words">
-                                    {task.name}
-                                  </h3>
-                                  <Badge
-                                    className={getTaskStatusColor(task.status)}
-                                  >
-                                    {task.status}
-                                  </Badge>
-                                  <Badge
-                                    className={getPriorityColor(task.priority)}
-                                  >
-                                    {task.priority}
-                                  </Badge>
-                                </div>
-                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
-                                  {task.description}
-                                </p>
-                                {task.progressInfo?.hasProgress && (
-                                  <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                    <div className="flex items-center text-blue-400 text-xs">
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved:{" "}
-                                      {task.progressInfo.completedItems}/
-                                      {task.progressInfo.totalItems} items
-                                    </div>
-                                    <div className="text-xs text-blue-300">
-                                      {new Date(
-                                        task.progressInfo.savedDate,
-                                      ).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                )}
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
-                                  <span className="flex items-center">
-                                    <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="truncate">
-                                      {task.machine}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span>
-                                      Due: {task.nextDue.toLocaleDateString()}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    {task.estimatedTime} min
-                                  </span>
-                                </div>
-                              </div>
-                              <Link
-                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
-                                className="self-start sm:self-auto"
-                              >
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto">
-                                  Continue Task
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Pending Tasks */}
-                {pendingTasks.length > 0 && (
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-yellow-400 mb-3 sm:mb-4 flex items-center">
-                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Pending Tasks ({pendingTasks.length})
-                    </h2>
-                    <div className="grid gap-3 sm:gap-4">
-                      {pendingTasks.map((task) => (
-                        <Card
-                          key={task.id}
-                          className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-colors"
-                        >
-                          <CardContent className="p-4 sm:p-6">
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
-                              <div className="flex-1">
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-white text-base sm:text-lg break-words">
-                                    {task.name}
-                                  </h3>
-                                  <Badge
-                                    className={getTaskStatusColor(task.status)}
-                                  >
-                                    {task.status}
-                                  </Badge>
-                                  <Badge
-                                    className={getPriorityColor(task.priority)}
-                                  >
-                                    {task.priority}
-                                  </Badge>
-                                </div>
-                                <p className="text-slate-400 mb-2 text-sm sm:text-base">
-                                  {task.description}
-                                </p>
-                                {task.progressInfo?.hasProgress && (
-                                  <div className="flex items-center gap-2 mb-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                    <div className="flex items-center text-blue-400 text-xs">
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                      Progress Saved:{" "}
-                                      {task.progressInfo.completedItems}/
-                                      {task.progressInfo.totalItems} items
-                                    </div>
-                                    <div className="text-xs text-blue-300">
-                                      {new Date(
-                                        task.progressInfo.savedDate,
-                                      ).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                )}
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-300">
-                                  <span className="flex items-center">
-                                    <Wrench className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span className="truncate">
-                                      {task.machine}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    <span>
-                                      Due: {task.nextDue.toLocaleDateString()}
-                                    </span>
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                    {task.estimatedTime} min
-                                  </span>
-                                </div>
-                              </div>
-                              <Link
-                                to={`/machine/${task.machine.replace(/\s+/g, "-")}/task/${task.id}`}
-                                className="self-start sm:self-auto"
-                              >
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto">
-                                  Start Task
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
+
+        {/* Professional Footer */}
+        <div className="mt-12 pt-8 border-t border-wrench-navy-200 text-center">
+          <WrenchTagline variant="default" size="md" />
+        </div>
       </main>
     </div>
   );
