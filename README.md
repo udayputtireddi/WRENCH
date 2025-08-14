@@ -1,4 +1,4 @@
-
+# 🔧 CheckMate - Smart Maintenance Management System
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/udayputtireddi/checkmate/main.yml?branch=main&style=for-the-badge)](https://github.com/udayputtireddi/checkmate/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
