@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,8 +38,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  ArrowLeft,
   Settings,
   Bell,
   Shield,
@@ -48,931 +47,531 @@ import {
   Smartphone,
   Save,
   User,
-  Eye,
-  Key,
+  Trash2,
   Download,
   Upload,
-  Trash2,
+  Eye,
+  EyeOff,
+  Clock,
+  Globe,
+  Lock,
+  Mail,
+  Key,
+  Zap,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
+import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import { useToast } from "@/hooks/use-toast";
-import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
 
 export default function Settings() {
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-  const [is2FAOpen, setIs2FAOpen] = useState(false);
-  const [isSecurityLogOpen, setIsSecurityLogOpen] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+  const currentUser = AuthService.getCurrentUser();
+  
+  // Settings states
+  const [generalSettings, setGeneralSettings] = useState({
+    companyName: "WRENCH Professional Services",
+    timezone: "UTC-05:00",
+    dateFormat: "MM/DD/YYYY",
+    language: "en",
   });
-  const [settings, setSettings] = useState({
-    notifications: {
-      email: true,
-      push: false,
-      sms: false,
-      overdueReminders: true,
-      completionNotifications: true,
-    },
-    appearance: {
-      theme: "dark",
-      language: "en",
-    },
-    system: {
-      autoBackup: true,
-      dataRetention: "90",
-      defaultTaskDuration: "30",
-    },
-    profile: {
-      name: "System Administrator",
-      email: "admin@taskflow.com",
-      role: "admin",
-    },
+  
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    pushNotifications: true,
+    taskReminders: true,
+    overdueAlerts: true,
+    weeklyReports: false,
+    systemMaintenance: true,
   });
+  
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactorAuth: false,
+    sessionTimeout: "30",
+    passwordExpiry: "90",
+    loginAttempts: "5",
+  });
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSave = () => {
+  const handleSaveSettings = (settingType: string) => {
     toast({
-      title: "Settings Saved",
-      description: "Your preferences have been updated successfully.",
+      title: "Settings Updated",
+      description: `${settingType} settings have been saved successfully.`,
       duration: 3000,
     });
   };
 
   const handlePasswordChange = () => {
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    if (newPassword !== confirmPassword) {
       toast({
-        title: "Error",
-        description: "New passwords don't match",
+        title: "Password Mismatch",
+        description: "New password and confirmation do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 8 characters long.",
         variant: "destructive",
       });
       return;
     }
 
-    if (passwordForm.newPassword.length < 8) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
-      return;
-    }
-
     toast({
-      title: "Password Changed",
-      description: "Your password has been updated successfully",
-      duration: 3000,
+      title: "Password Updated",
+      description: "Your password has been changed successfully.",
     });
-
-    setPasswordForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setIsChangePasswordOpen(false);
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
-  const handleSystemBackup = () => {
-    const dataStr = JSON.stringify(
-      {
-        tasks: Database.getTasks(),
-        timestamp: new Date().toISOString(),
-        version: "1.0",
-      },
-      null,
-      2,
-    );
-
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download =
-      "checkmate-backup-" + new Date().toISOString().split("T")[0] + ".json";
-    link.click();
-
-    toast({
-      title: "Backup Downloaded",
-      description: "System backup has been saved to your downloads",
-      duration: 3000,
-    });
-  };
-
-  const handleDataReset = () => {
-    Database.clearDatabase();
-    toast({
-      title: "Data Reset",
-      description: "All task data has been cleared",
-      variant: "destructive",
-    });
-  };
-
-  const updateSetting = (category: string, key: string, value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
-        [key]: value,
-      },
-    }));
-
-    // Apply theme changes immediately
-    if (category === "appearance" && key === "theme") {
-      applyTheme(value);
-    }
-
-    // Apply language changes immediately
-    if (category === "appearance" && key === "language") {
-      applyLanguage(value);
-    }
-  };
-
-  const applyTheme = (theme: string) => {
-    const root = document.documentElement;
-
-    if (theme === "light") {
-      root.classList.remove("dark");
-      root.classList.add("light");
-      toast({
-        title: "Theme Changed",
-        description: "Switched to light mode",
-        duration: 2000,
-      });
-    } else if (theme === "dark") {
-      root.classList.remove("light");
-      root.classList.add("dark");
-      toast({
-        title: "Theme Changed",
-        description: "Switched to dark mode",
-        duration: 2000,
-      });
-    } else {
-      const systemDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      if (systemDarkMode) {
-        root.classList.add("dark");
-        root.classList.remove("light");
-      } else {
-        root.classList.add("light");
-        root.classList.remove("dark");
-      }
-      toast({
-        title: "Theme Changed",
-        description: "Following system preferences",
-        duration: 2000,
-      });
-    }
-
-    localStorage.setItem("theme-preference", theme);
-  };
-
-  const applyLanguage = (language: string) => {
-    const languageNames = {
-      en: "English",
-      es: "Spanish",
-      fr: "French",
-      de: "German",
-    };
-
-    document.documentElement.lang = language;
-    localStorage.setItem("language-preference", language);
-
-    toast({
-      title: "Language Changed",
-      description: `Switched to ${languageNames[language as keyof typeof languageNames]}`,
-      duration: 2000,
-    });
-  };
-
-  // Load saved preferences on component mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme-preference");
-    const savedLanguage = localStorage.getItem("language-preference");
-
-    if (savedTheme) {
-      setSettings((prev) => ({
-        ...prev,
-        appearance: {
-          ...prev.appearance,
-          theme: savedTheme,
-        },
-      }));
-      applyTheme(savedTheme);
-    }
-
-    if (savedLanguage) {
-      setSettings((prev) => ({
-        ...prev,
-        appearance: {
-          ...prev.appearance,
-          language: savedLanguage,
-        },
-      }));
-    }
-  }, []);
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/" },
+    { label: "System Settings" }
+  ];
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-violet-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center">
-            <Link to="/" className="mr-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Settings</h1>
-              <p className="text-purple-100">
-                System configuration and preferences
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader 
+        title="System Settings"
+        subtitle="Configure platform preferences and security"
+        variant="gradient"
+      />
+
+      <main className="container mx-auto px-4 py-8">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <NavigationBreadcrumbs items={breadcrumbs} />
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-8">
-          {/* Profile Settings */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Profile Settings
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Manage your account information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name" className="text-slate-300">
-                    Full Name
-                  </Label>
-                  <Input
-                    id="name"
-                    value={settings.profile.name}
-                    onChange={(e) =>
-                      updateSetting("profile", "name", e.target.value)
-                    }
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                  />
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <WrenchBadge className="mb-4" />
+          <h1 className="text-3xl lg:text-4xl font-black text-wrench-navy-900 mb-4">
+            Professional Platform
+            <br />
+            <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+              Configuration
+            </span>
+          </h1>
+          <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
+            Enterprise-grade settings and security configuration for optimal system performance.
+          </p>
+        </div>
+
+        {/* Settings Tabs */}
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 bg-white border border-wrench-navy-200 p-1">
+            <TabsTrigger value="general" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Settings className="h-4 w-4 mr-2" />
+              General
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Bell className="h-4 w-4 mr-2" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Shield className="h-4 w-4 mr-2" />
+              Security
+            </TabsTrigger>
+            <TabsTrigger value="account" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <User className="h-4 w-4 mr-2" />
+              Account
+            </TabsTrigger>
+          </TabsList>
+
+          {/* General Settings */}
+          <TabsContent value="general" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Globe className="h-6 w-6 mr-2 text-wrench-accent" />
+                  General Configuration
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Basic system settings and regional preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName" className="text-wrench-navy-700 font-medium">
+                      Company Name
+                    </Label>
+                    <Input
+                      id="companyName"
+                      value={generalSettings.companyName}
+                      onChange={(e) => setGeneralSettings({...generalSettings, companyName: e.target.value})}
+                      className="border-wrench-navy-200 focus:border-wrench-accent"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="timezone" className="text-wrench-navy-700 font-medium">
+                      Timezone
+                    </Label>
+                    <Select
+                      value={generalSettings.timezone}
+                      onValueChange={(value) => setGeneralSettings({...generalSettings, timezone: value})}
+                    >
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="UTC-05:00">Eastern Time (UTC-05:00)</SelectItem>
+                        <SelectItem value="UTC-06:00">Central Time (UTC-06:00)</SelectItem>
+                        <SelectItem value="UTC-07:00">Mountain Time (UTC-07:00)</SelectItem>
+                        <SelectItem value="UTC-08:00">Pacific Time (UTC-08:00)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dateFormat" className="text-wrench-navy-700 font-medium">
+                      Date Format
+                    </Label>
+                    <Select
+                      value={generalSettings.dateFormat}
+                      onValueChange={(value) => setGeneralSettings({...generalSettings, dateFormat: value})}
+                    >
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="language" className="text-wrench-navy-700 font-medium">
+                      Language
+                    </Label>
+                    <Select
+                      value={generalSettings.language}
+                      onValueChange={(value) => setGeneralSettings({...generalSettings, language: value})}
+                    >
+                      <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Spanish</SelectItem>
+                        <SelectItem value="fr">French</SelectItem>
+                        <SelectItem value="de">German</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="email" className="text-slate-300">
-                    Email Address
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={settings.profile.email}
-                    onChange={(e) =>
-                      updateSetting("profile", "email", e.target.value)
-                    }
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="role" className="text-slate-300">
-                  Role
-                </Label>
-                <Select
-                  value={settings.profile.role}
-                  onValueChange={(value) =>
-                    updateSetting("profile", "role", value)
-                  }
+
+                <Button
+                  onClick={() => handleSaveSettings("General")}
+                  className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
                 >
-                  <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                    <SelectItem value="user">Operator</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save General Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Notification Settings */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Notifications
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Configure how you receive alerts and updates
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h4 className="text-white font-medium">
-                  Notification Channels
-                </h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-300">
-                        Email Notifications
-                      </Label>
-                      <p className="text-sm text-slate-400">
-                        Receive notifications via email
-                      </p>
+          {/* Notifications Settings */}
+          <TabsContent value="notifications" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Bell className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Notification Preferences
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Configure how and when you receive system notifications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {[
+                  { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive notifications via email' },
+                  { key: 'pushNotifications', label: 'Push Notifications', description: 'Browser and mobile push notifications' },
+                  { key: 'taskReminders', label: 'Task Reminders', description: 'Reminders for upcoming tasks' },
+                  { key: 'overdueAlerts', label: 'Overdue Alerts', description: 'Alerts for overdue maintenance tasks' },
+                  { key: 'weeklyReports', label: 'Weekly Reports', description: 'Automated weekly performance reports' },
+                  { key: 'systemMaintenance', label: 'System Maintenance', description: 'Notifications about system updates' },
+                ].map((setting) => (
+                  <div key={setting.key} className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100">
+                    <div className="space-y-1">
+                      <div className="font-medium text-wrench-navy-800">{setting.label}</div>
+                      <div className="text-sm text-wrench-navy-600">{setting.description}</div>
                     </div>
                     <Switch
-                      checked={settings.notifications.email}
-                      onCheckedChange={(checked) =>
-                        updateSetting("notifications", "email", checked)
+                      checked={notificationSettings[setting.key as keyof typeof notificationSettings]}
+                      onCheckedChange={(checked) => 
+                        setNotificationSettings(prev => ({...prev, [setting.key]: checked}))
                       }
                     />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-300">
-                        Push Notifications
-                      </Label>
-                      <p className="text-sm text-slate-400">
-                        Browser push notifications
-                      </p>
-                    </div>
-                    <Switch
-                      checked={settings.notifications.push}
-                      onCheckedChange={(checked) =>
-                        updateSetting("notifications", "push", checked)
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-300">SMS Alerts</Label>
-                      <p className="text-sm text-slate-400">
-                        Critical alerts via SMS
-                      </p>
-                    </div>
-                    <Switch
-                      checked={settings.notifications.sms}
-                      onCheckedChange={(checked) =>
-                        updateSetting("notifications", "sms", checked)
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
+                ))}
 
-              <Separator className="bg-slate-700" />
-
-              <div className="space-y-4">
-                <h4 className="text-white font-medium">Alert Types</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-300">
-                        Overdue Task Reminders
-                      </Label>
-                      <p className="text-sm text-slate-400">
-                        Alerts for overdue maintenance tasks
-                      </p>
-                    </div>
-                    <Switch
-                      checked={settings.notifications.overdueReminders}
-                      onCheckedChange={(checked) =>
-                        updateSetting(
-                          "notifications",
-                          "overdueReminders",
-                          checked,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-300">
-                        Task Completion Notifications
-                      </Label>
-                      <p className="text-sm text-slate-400">
-                        Notifications when tasks are completed
-                      </p>
-                    </div>
-                    <Switch
-                      checked={settings.notifications.completionNotifications}
-                      onCheckedChange={(checked) =>
-                        updateSetting(
-                          "notifications",
-                          "completionNotifications",
-                          checked,
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Appearance Settings */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Smartphone className="h-5 w-5" />
-                Appearance
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Customize the look and feel of the application
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="theme" className="text-slate-300">
-                    Theme
-                  </Label>
-                  <Select
-                    value={settings.appearance.theme}
-                    onValueChange={(value) =>
-                      updateSetting("appearance", "theme", value)
-                    }
-                  >
-                    <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dark">Dark Mode</SelectItem>
-                      <SelectItem value="light">Light Mode</SelectItem>
-                      <SelectItem value="auto">System Default</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="language" className="text-slate-300">
-                    Language
-                  </Label>
-                  <Select
-                    value={settings.appearance.language}
-                    onValueChange={(value) =>
-                      updateSetting("appearance", "language", value)
-                    }
-                  >
-                    <SelectTrigger className="mt-1 bg-slate-700/50 border-slate-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es">Spanish</SelectItem>
-                      <SelectItem value="fr">French</SelectItem>
-                      <SelectItem value="de">German</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* System Settings */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <DatabaseIcon className="h-5 w-5" />
-                System Configuration
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Control data retention, backups, and system defaults. These
-                settings affect how the system stores and manages your
-                maintenance data.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-slate-300">Automatic Backup</Label>
-                  <p className="text-sm text-slate-400">
-                    Enables daily automatic backup of all maintenance tasks,
-                    completion history, and settings
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.system.autoBackup}
-                  onCheckedChange={(checked) =>
-                    updateSetting("system", "autoBackup", checked)
-                  }
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="retention" className="text-slate-300">
-                    Data Retention Period
-                  </Label>
-                  <p className="text-xs text-slate-400 mb-1">
-                    How long to keep completed task history (days)
-                  </p>
-                  <Input
-                    id="retention"
-                    type="number"
-                    value={settings.system.dataRetention}
-                    onChange={(e) =>
-                      updateSetting("system", "dataRetention", e.target.value)
-                    }
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="duration" className="text-slate-300">
-                    Default Task Duration
-                  </Label>
-                  <p className="text-xs text-slate-400 mb-1">
-                    Default estimated time for new tasks (minutes)
-                  </p>
-                  <Input
-                    id="duration"
-                    type="number"
-                    value={settings.system.defaultTaskDuration}
-                    onChange={(e) =>
-                      updateSetting(
-                        "system",
-                        "defaultTaskDuration",
-                        e.target.value,
-                      )
-                    }
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                </div>
-              </div>
-
-              <Separator className="bg-slate-700" />
-
-              <div className="space-y-4">
-                <h4 className="text-white font-medium">Data Management</h4>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <Button
-                    onClick={handleSystemBackup}
-                    variant="outline"
-                    className="bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Backup
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Reset All Data
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">
-                          Reset All Data
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                          This action cannot be undone. This will permanently
-                          delete all tasks, completion history, and progress
-                          data.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDataReset}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Reset Data
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-                <p className="text-xs text-slate-400">
-                  <strong>Download Backup:</strong> Exports all your task data
-                  to a JSON file for safekeeping.
-                  <br />
-                  <strong>Reset Data:</strong> Permanently removes all task and
-                  completion data from the system.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                <Button
+                  onClick={() => handleSaveSettings("Notification")}
+                  className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Notification Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Security Settings */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Security
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Manage security and authentication settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                {/* Change Password Dialog */}
-                <Dialog
-                  open={isChangePasswordOpen}
-                  onOpenChange={setIsChangePasswordOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                    >
-                      <Key className="h-4 w-4 mr-2" />
-                      Change Password
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-800 border-slate-700">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">
-                        Change Password
-                      </DialogTitle>
-                      <DialogDescription className="text-slate-400">
-                        Enter your current password and choose a new one.
-                        Password must be at least 8 characters long.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
+          <TabsContent value="security" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Shield className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Security Configuration
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Advanced security settings and access controls
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100">
                       <div>
-                        <Label
-                          htmlFor="current-password"
-                          className="text-slate-300"
-                        >
-                          Current Password
-                        </Label>
-                        <Input
-                          id="current-password"
-                          type="password"
-                          value={passwordForm.currentPassword}
-                          onChange={(e) =>
-                            setPasswordForm((prev) => ({
-                              ...prev,
-                              currentPassword: e.target.value,
-                            }))
-                          }
-                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                        />
+                        <div className="font-medium text-wrench-navy-800">Two-Factor Authentication</div>
+                        <div className="text-sm text-wrench-navy-600">Add extra layer of security</div>
                       </div>
-                      <div>
-                        <Label
-                          htmlFor="new-password"
-                          className="text-slate-300"
-                        >
-                          New Password
-                        </Label>
-                        <Input
-                          id="new-password"
-                          type="password"
-                          value={passwordForm.newPassword}
-                          onChange={(e) =>
-                            setPasswordForm((prev) => ({
-                              ...prev,
-                              newPassword: e.target.value,
-                            }))
-                          }
-                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label
-                          htmlFor="confirm-password"
-                          className="text-slate-300"
-                        >
-                          Confirm New Password
-                        </Label>
-                        <Input
-                          id="confirm-password"
-                          type="password"
-                          value={passwordForm.confirmPassword}
-                          onChange={(e) =>
-                            setPasswordForm((prev) => ({
-                              ...prev,
-                              confirmPassword: e.target.value,
-                            }))
-                          }
-                          className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsChangePasswordOpen(false)}
-                        className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handlePasswordChange}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        Update Password
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-
-                {/* 2FA Setup Dialog */}
-                <Dialog open={is2FAOpen} onOpenChange={setIs2FAOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                    >
-                      <Shield className="h-4 w-4 mr-2" />
-                      Enable Two-Factor Authentication
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-800 border-slate-700">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">
-                        Setup Two-Factor Authentication
-                      </DialogTitle>
-                      <DialogDescription className="text-slate-400">
-                        Add an extra layer of security to your account by
-                        enabling 2FA.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                        <p className="text-sm text-blue-300">
-                          📱 <strong>Step 1:</strong> Download an authenticator
-                          app like Google Authenticator or Authy
-                        </p>
-                      </div>
-                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                        <p className="text-sm text-blue-300">
-                          📷 <strong>Step 2:</strong> Scan the QR code with your
-                          authenticator app
-                        </p>
-                      </div>
-                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                        <p className="text-sm text-blue-300">
-                          🔢 <strong>Step 3:</strong> Enter the 6-digit code
-                          from your app below
-                        </p>
-                      </div>
-                      <Input
-                        placeholder="Enter 6-digit code"
-                        className="text-center text-lg tracking-widest bg-slate-700/50 border-slate-600 text-white"
-                        maxLength={6}
+                      <Switch
+                        checked={securitySettings.twoFactorAuth}
+                        onCheckedChange={(checked) => 
+                          setSecuritySettings(prev => ({...prev, twoFactorAuth: checked}))
+                        }
                       />
                     </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIs2FAOpen(false)}
-                        className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          toast({
-                            title: "2FA Enabled",
-                            description:
-                              "Two-factor authentication has been enabled for your account",
-                            duration: 3000,
-                          });
-                          setIs2FAOpen(false);
-                        }}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        Enable 2FA
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
 
-                {/* Security Log Dialog */}
-                <Dialog
-                  open={isSecurityLogOpen}
-                  onOpenChange={setIsSecurityLogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Security Log
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">
-                        Security Log
-                      </DialogTitle>
-                      <DialogDescription className="text-slate-400">
-                        Recent security events and login activity for your
-                        account.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {[
-                        {
-                          date: "2024-01-15 14:30",
-                          event: "Password changed",
-                          ip: "192.168.1.100",
-                          status: "success",
-                        },
-                        {
-                          date: "2024-01-15 09:15",
-                          event: "Login attempt",
-                          ip: "192.168.1.100",
-                          status: "success",
-                        },
-                        {
-                          date: "2024-01-14 17:45",
-                          event: "Settings updated",
-                          ip: "192.168.1.100",
-                          status: "success",
-                        },
-                        {
-                          date: "2024-01-14 10:22",
-                          event: "Login attempt",
-                          ip: "192.168.1.100",
-                          status: "success",
-                        },
-                        {
-                          date: "2024-01-13 16:10",
-                          event: "Failed login",
-                          ip: "203.0.113.42",
-                          status: "failed",
-                        },
-                      ].map((log, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 bg-slate-700/30 border border-slate-600/50 rounded-lg"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`inline-block w-2 h-2 rounded-full ${
-                                  log.status === "success"
-                                    ? "bg-green-400"
-                                    : "bg-red-400"
-                                }`}
-                              ></span>
-                              <span className="text-white font-medium">
-                                {log.event}
-                              </span>
-                            </div>
-                            <p className="text-sm text-slate-400 mt-1">
-                              {log.date} • IP: {log.ip}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="space-y-2">
+                      <Label className="text-wrench-navy-700 font-medium">
+                        Session Timeout (minutes)
+                      </Label>
+                      <Select
+                        value={securitySettings.sessionTimeout}
+                        onValueChange={(value) => setSecuritySettings({...securitySettings, sessionTimeout: value})}
+                      >
+                        <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="15">15 minutes</SelectItem>
+                          <SelectItem value="30">30 minutes</SelectItem>
+                          <SelectItem value="60">1 hour</SelectItem>
+                          <SelectItem value="120">2 hours</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <DialogFooter>
-                      <Button
-                        onClick={() => setIsSecurityLogOpen(false)}
-                        className="bg-slate-700 text-white hover:bg-slate-600"
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-wrench-navy-700 font-medium">
+                        Password Expiry (days)
+                      </Label>
+                      <Select
+                        value={securitySettings.passwordExpiry}
+                        onValueChange={(value) => setSecuritySettings({...securitySettings, passwordExpiry: value})}
                       >
-                        Close
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                        <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 days</SelectItem>
+                          <SelectItem value="60">60 days</SelectItem>
+                          <SelectItem value="90">90 days</SelectItem>
+                          <SelectItem value="never">Never</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <Link to="/admin" className="block">
+                    <div className="space-y-2">
+                      <Label className="text-wrench-navy-700 font-medium">
+                        Max Login Attempts
+                      </Label>
+                      <Select
+                        value={securitySettings.loginAttempts}
+                        onValueChange={(value) => setSecuritySettings({...securitySettings, loginAttempts: value})}
+                      >
+                        <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="3">3 attempts</SelectItem>
+                          <SelectItem value="5">5 attempts</SelectItem>
+                          <SelectItem value="10">10 attempts</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => handleSaveSettings("Security")}
+                  className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Security Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Account Settings */}
+          <TabsContent value="account" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <User className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Account Management
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Manage your personal account settings and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* User Info */}
+                <div className="flex items-center space-x-4 p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100">
+                  <div className="h-16 w-16 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">
+                      {currentUser?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-wrench-navy-800 text-lg">{currentUser?.name}</h3>
+                    <p className="text-wrench-navy-600">{currentUser?.email}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="px-2 py-1 bg-wrench-accent text-white text-xs rounded-full font-medium">
+                        {currentUser?.role?.toUpperCase()}
+                      </span>
+                      <span className="text-sm text-wrench-navy-500">
+                        {currentUser?.department}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Password Change */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-wrench-navy-800">Change Password</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword" className="text-wrench-navy-700 font-medium">
+                        New Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="border-wrench-navy-200 focus:border-wrench-accent pr-10"
+                          placeholder="Enter new password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-wrench-navy-400" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-wrench-navy-400" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-wrench-navy-700 font-medium">
+                        Confirm Password
+                      </Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="border-wrench-navy-200 focus:border-wrench-accent"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+                  
                   <Button
-                    variant="outline"
-                    className="w-full bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600"
+                    onClick={handlePasswordChange}
+                    disabled={!newPassword || !confirmPassword}
+                    className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
                   >
-                    <DatabaseIcon className="h-4 w-4 mr-2" />
-                    View Admin Dashboard
+                    <Key className="h-4 w-4 mr-2" />
+                    Update Password
                   </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSave}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Settings
-            </Button>
-          </div>
+                {/* Danger Zone */}
+                <Separator />
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-wrench-error">Danger Zone</h3>
+                  <div className="p-4 border border-wrench-error/20 bg-wrench-error/5 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-wrench-navy-800">Delete Account</p>
+                        <p className="text-sm text-wrench-navy-600">
+                          Permanently delete your account and all associated data
+                        </p>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" className="border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white">
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Account
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your account
+                              and remove your data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction className="bg-wrench-error hover:bg-wrench-error/90">
+                              Delete Account
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Professional Footer */}
+        <div className="mt-12 pt-8 border-t border-wrench-navy-200 text-center">
+          <WrenchTagline variant="default" size="md" />
         </div>
       </main>
     </div>
