@@ -144,6 +144,17 @@ const App = () => {
                 </RoleBasedRoute>
               }
             />
+            <Route
+              path="/reports"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <Reports />
+                </RoleBasedRoute>
+              }
+            />
 
             {/* Admin only routes */}
             <Route
