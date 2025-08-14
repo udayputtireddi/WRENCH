@@ -1,4 +1,5 @@
 // Task management database system
+import { TaskCompletionTracker, type TaskCompletionData } from "./taskCompletionTracking";
 export interface Task {
   id: string;
   machineId: string;
