@@ -34,7 +34,10 @@ import {
   Target,
   Zap,
 } from "lucide-react";
-import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import {
+  ProfessionalHeader,
+  NavigationBreadcrumbs,
+} from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
@@ -142,13 +145,13 @@ export default function Admin() {
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/" },
-    { label: "Administration" }
+    { label: "Administration" },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Professional Header */}
-      <ProfessionalHeader 
+      <ProfessionalHeader
         title="System Administration"
         subtitle="Professional maintenance platform management"
         variant="gradient"
@@ -171,30 +174,46 @@ export default function Admin() {
             </span>
           </h1>
           <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
-            Enterprise-grade administration tools for managing users, equipment, and system operations.
+            Enterprise-grade administration tools for managing users, equipment,
+            and system operations.
           </p>
         </div>
 
         {/* Admin Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5 bg-white border border-wrench-navy-200 p-1">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="overview"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <BarChart3 className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="users"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Users className="h-4 w-4 mr-2" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="machines" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="machines"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Settings className="h-4 w-4 mr-2" />
               Equipment
             </TabsTrigger>
-            <TabsTrigger value="reports" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="reports"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <FileText className="h-4 w-4 mr-2" />
               Reports
             </TabsTrigger>
-            <TabsTrigger value="system" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="system"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Server className="h-4 w-4 mr-2" />
               System
             </TabsTrigger>
@@ -206,59 +225,81 @@ export default function Admin() {
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Total Users</CardTitle>
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">
+                      Total Users
+                    </CardTitle>
                     <div className="h-8 w-8 bg-wrench-accent/10 rounded-full flex items-center justify-center">
                       <Users className="h-4 w-4 text-wrench-accent" />
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-wrench-navy-800">{allUsers.length}</div>
-                  <p className="text-xs text-wrench-navy-500">Active system users</p>
+                  <div className="text-2xl font-bold text-wrench-navy-800">
+                    {allUsers.length}
+                  </div>
+                  <p className="text-xs text-wrench-navy-500">
+                    Active system users
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Equipment</CardTitle>
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">
+                      Equipment
+                    </CardTitle>
                     <div className="h-8 w-8 bg-wrench-success/10 rounded-full flex items-center justify-center">
                       <Settings className="h-4 w-4 text-wrench-success" />
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalMachines}</div>
-                  <p className="text-xs text-wrench-navy-500">Managed machines</p>
+                  <div className="text-2xl font-bold text-wrench-navy-800">
+                    {analytics.totalMachines}
+                  </div>
+                  <p className="text-xs text-wrench-navy-500">
+                    Managed machines
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Active Tasks</CardTitle>
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">
+                      Active Tasks
+                    </CardTitle>
                     <div className="h-8 w-8 bg-wrench-warning/10 rounded-full flex items-center justify-center">
                       <Activity className="h-4 w-4 text-wrench-warning" />
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalTasks}</div>
-                  <p className="text-xs text-wrench-navy-500">Maintenance tasks</p>
+                  <div className="text-2xl font-bold text-wrench-navy-800">
+                    {analytics.totalTasks}
+                  </div>
+                  <p className="text-xs text-wrench-navy-500">
+                    Maintenance tasks
+                  </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-wrench-navy-700">System Health</CardTitle>
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">
+                      System Health
+                    </CardTitle>
                     <div className="h-8 w-8 bg-wrench-success/10 rounded-full flex items-center justify-center">
                       <CheckCircle className="h-4 w-4 text-wrench-success" />
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-wrench-success">100%</div>
+                  <div className="text-2xl font-bold text-wrench-success">
+                    100%
+                  </div>
                   <p className="text-xs text-wrench-navy-500">Operational</p>
                 </CardContent>
               </Card>
@@ -345,8 +386,12 @@ export default function Admin() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-wrench-navy-800">{user.name}</p>
-                          <p className="text-sm text-wrench-navy-600">{user.email}</p>
+                          <p className="font-medium text-wrench-navy-800">
+                            {user.name}
+                          </p>
+                          <p className="text-sm text-wrench-navy-600">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -390,45 +435,84 @@ export default function Admin() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-wrench-navy-800">Add New Equipment</h3>
+                    <h3 className="text-lg font-semibold text-wrench-navy-800">
+                      Add New Equipment
+                    </h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="machineId" className="text-wrench-navy-700 font-medium">Equipment ID</Label>
+                        <Label
+                          htmlFor="machineId"
+                          className="text-wrench-navy-700 font-medium"
+                        >
+                          Equipment ID
+                        </Label>
                         <Input
                           id="machineId"
                           placeholder="e.g., TRUMPF-5000-001"
                           value={newMachine.id}
-                          onChange={(e) => setNewMachine({ ...newMachine, id: e.target.value })}
+                          onChange={(e) =>
+                            setNewMachine({ ...newMachine, id: e.target.value })
+                          }
                           className="border-wrench-navy-200 focus:border-wrench-accent"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="machineName" className="text-wrench-navy-700 font-medium">Equipment Name</Label>
+                        <Label
+                          htmlFor="machineName"
+                          className="text-wrench-navy-700 font-medium"
+                        >
+                          Equipment Name
+                        </Label>
                         <Input
                           id="machineName"
                           placeholder="e.g., Trumpf TruPunch 5000"
                           value={newMachine.name}
-                          onChange={(e) => setNewMachine({ ...newMachine, name: e.target.value })}
+                          onChange={(e) =>
+                            setNewMachine({
+                              ...newMachine,
+                              name: e.target.value,
+                            })
+                          }
                           className="border-wrench-navy-200 focus:border-wrench-accent"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="machineType" className="text-wrench-navy-700 font-medium">Type</Label>
+                        <Label
+                          htmlFor="machineType"
+                          className="text-wrench-navy-700 font-medium"
+                        >
+                          Type
+                        </Label>
                         <Input
                           id="machineType"
                           placeholder="e.g., Punch Press"
                           value={newMachine.type}
-                          onChange={(e) => setNewMachine({ ...newMachine, type: e.target.value })}
+                          onChange={(e) =>
+                            setNewMachine({
+                              ...newMachine,
+                              type: e.target.value,
+                            })
+                          }
                           className="border-wrench-navy-200 focus:border-wrench-accent"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="machineLocation" className="text-wrench-navy-700 font-medium">Location</Label>
+                        <Label
+                          htmlFor="machineLocation"
+                          className="text-wrench-navy-700 font-medium"
+                        >
+                          Location
+                        </Label>
                         <Input
                           id="machineLocation"
                           placeholder="e.g., Production Floor A"
                           value={newMachine.location}
-                          onChange={(e) => setNewMachine({ ...newMachine, location: e.target.value })}
+                          onChange={(e) =>
+                            setNewMachine({
+                              ...newMachine,
+                              location: e.target.value,
+                            })
+                          }
                           className="border-wrench-navy-200 focus:border-wrench-accent"
                         />
                       </div>
@@ -443,7 +527,9 @@ export default function Admin() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-wrench-navy-800">Current Equipment</h3>
+                    <h3 className="text-lg font-semibold text-wrench-navy-800">
+                      Current Equipment
+                    </h3>
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {machines.map((machine) => (
                         <div
@@ -452,8 +538,12 @@ export default function Admin() {
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium text-wrench-navy-800">{machine.name}</p>
-                              <p className="text-sm text-wrench-navy-600">{machine.id} • {machine.location}</p>
+                              <p className="font-medium text-wrench-navy-800">
+                                {machine.name}
+                              </p>
+                              <p className="text-sm text-wrench-navy-600">
+                                {machine.id} • {machine.location}
+                              </p>
                             </div>
                             <Badge className="bg-wrench-success text-white">
                               {machine.status}
@@ -485,44 +575,52 @@ export default function Admin() {
                   {[
                     {
                       title: "Task Performance",
-                      description: "Task completion rates and efficiency metrics",
+                      description:
+                        "Task completion rates and efficiency metrics",
                       type: "task-performance",
                       icon: Target,
-                      color: "wrench-accent"
+                      color: "wrench-accent",
                     },
                     {
                       title: "Maintenance Schedule",
                       description: "Upcoming and overdue maintenance tasks",
                       type: "maintenance-schedule",
                       icon: Calendar,
-                      color: "wrench-warning"
+                      color: "wrench-warning",
                     },
                     {
                       title: "Equipment Efficiency",
                       description: "Machine performance and utilization",
                       type: "machine-efficiency",
                       icon: Settings,
-                      color: "wrench-success"
+                      color: "wrench-success",
                     },
                     {
                       title: "Issues & Alerts",
                       description: "System alerts and maintenance issues",
                       type: "issues-alerts",
                       icon: AlertTriangle,
-                      color: "wrench-error"
+                      color: "wrench-error",
                     },
                     {
                       title: "Completion History",
                       description: "Historical task completion data",
                       type: "completion-history",
                       icon: Clock,
-                      color: "wrench-navy-600"
-                    }
+                      color: "wrench-navy-600",
+                    },
                   ].map((report) => (
-                    <Card key={report.type} className="border-wrench-navy-200 hover:shadow-md transition-shadow">
+                    <Card
+                      key={report.type}
+                      className="border-wrench-navy-200 hover:shadow-md transition-shadow"
+                    >
                       <CardHeader className="pb-3">
-                        <div className={`h-10 w-10 bg-${report.color}/10 rounded-full flex items-center justify-center mb-2`}>
-                          <report.icon className={`h-5 w-5 text-${report.color}`} />
+                        <div
+                          className={`h-10 w-10 bg-${report.color}/10 rounded-full flex items-center justify-center mb-2`}
+                        >
+                          <report.icon
+                            className={`h-5 w-5 text-${report.color}`}
+                          />
                         </div>
                         <CardTitle className="text-sm font-semibold text-wrench-navy-800">
                           {report.title}
@@ -565,17 +663,23 @@ export default function Admin() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                     <CheckCircle className="h-8 w-8 text-wrench-success mx-auto mb-2" />
-                    <p className="font-semibold text-wrench-navy-800">Database</p>
+                    <p className="font-semibold text-wrench-navy-800">
+                      Database
+                    </p>
                     <p className="text-sm text-wrench-navy-600">Operational</p>
                   </div>
                   <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                     <Shield className="h-8 w-8 text-wrench-success mx-auto mb-2" />
-                    <p className="font-semibold text-wrench-navy-800">Security</p>
+                    <p className="font-semibold text-wrench-navy-800">
+                      Security
+                    </p>
                     <p className="text-sm text-wrench-navy-600">Secure</p>
                   </div>
                   <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                     <Zap className="h-8 w-8 text-wrench-success mx-auto mb-2" />
-                    <p className="font-semibold text-wrench-navy-800">Performance</p>
+                    <p className="font-semibold text-wrench-navy-800">
+                      Performance
+                    </p>
                     <p className="text-sm text-wrench-navy-600">Optimal</p>
                   </div>
                 </div>
@@ -592,7 +696,9 @@ export default function Admin() {
                   {showTestResults && (
                     <Card className="bg-wrench-navy-50 border-wrench-navy-200">
                       <CardHeader>
-                        <CardTitle className="text-sm text-wrench-navy-800">Test Results</CardTitle>
+                        <CardTitle className="text-sm text-wrench-navy-800">
+                          Test Results
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <pre className="text-xs text-wrench-navy-700 whitespace-pre-wrap">
@@ -626,20 +732,20 @@ function generateTaskPerformanceReport(): string {
     "Status",
     "Due Date",
     "Completion Rate",
-    "Priority"
+    "Priority",
   ];
 
-  const rows = tasks.map(task => [
+  const rows = tasks.map((task) => [
     task.id,
     task.taskName,
     task.machineId,
     task.status || "Pending",
     task.nextDueDate.toLocaleDateString(),
     task.lastCompletedDate ? "100%" : "0%",
-    task.category || "Medium"
+    task.category || "Medium",
   ]);
 
-  return [headers, ...rows].map(row => row.join(",")).join("\n");
+  return [headers, ...rows].map((row) => row.join(",")).join("\n");
 }
 
 function generateMaintenanceScheduleReport(): string {
@@ -651,10 +757,10 @@ function generateMaintenanceScheduleReport(): string {
     "Frequency",
     "Next Due",
     "Status",
-    "Location"
+    "Location",
   ];
 
-  const rows = tasks.map(task => {
+  const rows = tasks.map((task) => {
     const machine = Database.getMachineById(task.machineId);
     return [
       task.machineId,
@@ -663,11 +769,11 @@ function generateMaintenanceScheduleReport(): string {
       task.frequency,
       task.nextDueDate.toLocaleDateString(),
       task.lastCompletedDate ? "Completed" : "Pending",
-      machine?.location || "Unknown"
+      machine?.location || "Unknown",
     ];
   });
 
-  return [headers, ...rows].map(row => row.join(",")).join("\n");
+  return [headers, ...rows].map((row) => row.join(",")).join("\n");
 }
 
 function generateMachineEfficiencyReport(): string {
@@ -679,37 +785,49 @@ function generateMachineEfficiencyReport(): string {
     "Location",
     "Status",
     "Task Count",
-    "Efficiency"
+    "Efficiency",
   ];
 
-  const rows = machines.map(machine => [
+  const rows = machines.map((machine) => [
     machine.id,
     machine.name,
     machine.type,
     machine.location,
     machine.status,
     machine.tasks.length.toString(),
-    "95%" // Placeholder efficiency calculation
+    "95%", // Placeholder efficiency calculation
   ]);
 
-  return [headers, ...rows].map(row => row.join(",")).join("\n");
+  return [headers, ...rows].map((row) => row.join(",")).join("\n");
 }
 
 function generateIssuesAlertsReport(): string {
   const analytics = Database.getAnalytics();
-  const headers = [
-    "Alert Type",
-    "Count",
-    "Priority",
-    "Date",
-    "Status"
-  ];
+  const headers = ["Alert Type", "Count", "Priority", "Date", "Status"];
 
   const rows = [
-    ["Overdue Tasks", analytics.overdueTasks.toString(), "High", new Date().toLocaleDateString(), "Active"],
-    ["Upcoming Tasks", analytics.upcomingTasks.toString(), "Medium", new Date().toLocaleDateString(), "Scheduled"],
-    ["System Health", "1", "Low", new Date().toLocaleDateString(), "Operational"]
+    [
+      "Overdue Tasks",
+      analytics.overdueTasks.toString(),
+      "High",
+      new Date().toLocaleDateString(),
+      "Active",
+    ],
+    [
+      "Upcoming Tasks",
+      analytics.upcomingTasks.toString(),
+      "Medium",
+      new Date().toLocaleDateString(),
+      "Scheduled",
+    ],
+    [
+      "System Health",
+      "1",
+      "Low",
+      new Date().toLocaleDateString(),
+      "Operational",
+    ],
   ];
 
-  return [headers, ...rows].map(row => row.join(",")).join("\n");
+  return [headers, ...rows].map((row) => row.join(",")).join("\n");
 }

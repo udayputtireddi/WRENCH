@@ -44,7 +44,10 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
-import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import {
+  ProfessionalHeader,
+  NavigationBreadcrumbs,
+} from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
@@ -57,7 +60,7 @@ export default function Tasks() {
   const [exportDateRange, setExportDateRange] = useState({
     start: "",
     end: "",
-    type: "all"
+    type: "all",
   });
 
   const allTasks = Database.getTasks();
@@ -75,8 +78,10 @@ export default function Tasks() {
     let status = "Pending";
     let priority = "Medium";
 
-    if (task.lastCompletedDate && 
-        task.lastCompletedDate.toDateString() === new Date().toDateString()) {
+    if (
+      task.lastCompletedDate &&
+      task.lastCompletedDate.toDateString() === new Date().toDateString()
+    ) {
       status = "Completed";
     } else if (dueDate.getTime() < today.getTime()) {
       status = "Overdue";
@@ -96,7 +101,8 @@ export default function Tasks() {
       name: task.taskName,
       description: task.description,
       machineId: task.machineId,
-      machineName: Database.getMachineById(task.machineId)?.name || "Unknown Machine",
+      machineName:
+        Database.getMachineById(task.machineId)?.name || "Unknown Machine",
       status,
       priority,
       dueDate: task.nextDueDate,
@@ -108,17 +114,23 @@ export default function Tasks() {
       completedBy: task.completedBy || null,
       actualTimeSpent: task.actualTimeSpent || null,
       completionNotes: task.completionNotes || null,
-      photos: task.photos || []
+      photos: task.photos || [],
     };
   });
 
   // Apply filters
   const filteredTasks = displayTasks.filter((task) => {
-    const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.machineName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || task.status.toLowerCase().includes(filterStatus.toLowerCase());
-    const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority.toLowerCase();
-    const matchesMachine = filterMachine === "all" || task.machineId === filterMachine;
+    const matchesSearch =
+      task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.machineName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" ||
+      task.status.toLowerCase().includes(filterStatus.toLowerCase());
+    const matchesPriority =
+      filterPriority === "all" ||
+      task.priority.toLowerCase() === filterPriority.toLowerCase();
+    const matchesMachine =
+      filterMachine === "all" || task.machineId === filterMachine;
 
     return matchesSearch && matchesStatus && matchesPriority && matchesMachine;
   });
@@ -126,40 +138,49 @@ export default function Tasks() {
   // Task statistics
   const stats = {
     total: displayTasks.length,
-    completed: displayTasks.filter(t => t.status === "Completed").length,
-    overdue: displayTasks.filter(t => t.status === "Overdue").length,
-    dueToday: displayTasks.filter(t => t.status === "Due Today").length,
-    pending: displayTasks.filter(t => t.status === "Pending").length
+    completed: displayTasks.filter((t) => t.status === "Completed").length,
+    overdue: displayTasks.filter((t) => t.status === "Overdue").length,
+    dueToday: displayTasks.filter((t) => t.status === "Due Today").length,
+    pending: displayTasks.filter((t) => t.status === "Pending").length,
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Completed": return "bg-wrench-success text-white";
-      case "Overdue": return "bg-wrench-error text-white";
-      case "Due Today": return "bg-wrench-warning text-white";
-      default: return "bg-wrench-navy-100 text-wrench-navy-800";
+      case "Completed":
+        return "bg-wrench-success text-white";
+      case "Overdue":
+        return "bg-wrench-error text-white";
+      case "Due Today":
+        return "bg-wrench-warning text-white";
+      default:
+        return "bg-wrench-navy-100 text-wrench-navy-800";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "Critical": return "bg-wrench-error text-white";
-      case "High": return "bg-wrench-warning text-white";
-      case "Medium": return "bg-wrench-accent text-white";
-      case "Low": return "bg-wrench-navy-100 text-wrench-navy-800";
-      default: return "bg-wrench-navy-100 text-wrench-navy-800";
+      case "Critical":
+        return "bg-wrench-error text-white";
+      case "High":
+        return "bg-wrench-warning text-white";
+      case "Medium":
+        return "bg-wrench-accent text-white";
+      case "Low":
+        return "bg-wrench-navy-100 text-wrench-navy-800";
+      default:
+        return "bg-wrench-navy-100 text-wrench-navy-800";
     }
   };
 
   const handleExportTasks = () => {
     let tasksToExport = filteredTasks;
-    
+
     // Apply date filtering for export
     if (exportDateRange.start && exportDateRange.end) {
       const startDate = new Date(exportDateRange.start);
       const endDate = new Date(exportDateRange.end);
-      
-      tasksToExport = filteredTasks.filter(task => {
+
+      tasksToExport = filteredTasks.filter((task) => {
         const taskDate = task.lastCompleted || task.dueDate;
         return taskDate >= startDate && taskDate <= endDate;
       });
@@ -167,7 +188,7 @@ export default function Tasks() {
 
     const headers = [
       "Task Name",
-      "Machine Name", 
+      "Machine Name",
       "Machine ID",
       "Frequency",
       "Due Date",
@@ -178,10 +199,10 @@ export default function Tasks() {
       "Completion Date",
       "Time Taken (min)",
       "Notes",
-      "Photos Count"
+      "Photos Count",
     ];
 
-    const rows = tasksToExport.map(task => [
+    const rows = tasksToExport.map((task) => [
       task.name,
       task.machineName,
       task.machineId,
@@ -194,15 +215,20 @@ export default function Tasks() {
       task.lastCompleted?.toLocaleDateString() || "",
       task.actualTimeSpent?.toString() || "",
       task.completionNotes || "",
-      task.photos.length.toString()
+      task.photos.length.toString(),
     ]);
 
-    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `tasks_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `tasks_report_${new Date().toISOString().split("T")[0]}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -210,13 +236,13 @@ export default function Tasks() {
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/" },
-    { label: "Task Management" }
+    { label: "Task Management" },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Professional Header */}
-      <ProfessionalHeader 
+      <ProfessionalHeader
         title="Task Management"
         subtitle="Professional maintenance task tracking and coordination"
         showStats={true}
@@ -236,9 +262,11 @@ export default function Tasks() {
               <div className="mb-8">
                 <div className="inline-flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-wrench-warning/10 to-wrench-error/10 rounded-full border border-wrench-warning/20 mb-6">
                   <AlertCircle className="h-6 w-6 text-wrench-warning" />
-                  <span className="text-wrench-navy-800 font-semibold">No Tasks Available</span>
+                  <span className="text-wrench-navy-800 font-semibold">
+                    No Tasks Available
+                  </span>
                 </div>
-                
+
                 <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
                   Awaiting Task
                   <br />
@@ -246,12 +274,12 @@ export default function Tasks() {
                     Assignment
                   </span>
                 </h1>
-                
+
                 <p className="text-xl text-wrench-navy-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  No maintenance tasks found. Upload your equipment maintenance schedules to 
-                  begin professional task management and tracking.
+                  No maintenance tasks found. Upload your equipment maintenance
+                  schedules to begin professional task management and tracking.
                 </p>
-                
+
                 <Link to="/admin/database">
                   <Button className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white px-8 py-4 text-lg hover-lift shadow-lg">
                     <Upload className="h-5 w-5 mr-2" />
@@ -274,7 +302,8 @@ export default function Tasks() {
                 </span>
               </h1>
               <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
-                Advanced task tracking, completion monitoring, and professional reporting system.
+                Advanced task tracking, completion monitoring, and professional
+                reporting system.
               </p>
             </div>
 
@@ -282,35 +311,45 @@ export default function Tasks() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-wrench-navy-800">{stats.total}</div>
+                  <div className="text-2xl font-bold text-wrench-navy-800">
+                    {stats.total}
+                  </div>
                   <p className="text-sm text-wrench-navy-600">Total Tasks</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-wrench-success">{stats.completed}</div>
+                  <div className="text-2xl font-bold text-wrench-success">
+                    {stats.completed}
+                  </div>
                   <p className="text-sm text-wrench-navy-600">Completed</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-wrench-error">{stats.overdue}</div>
+                  <div className="text-2xl font-bold text-wrench-error">
+                    {stats.overdue}
+                  </div>
                   <p className="text-sm text-wrench-navy-600">Overdue</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-wrench-warning">{stats.dueToday}</div>
+                  <div className="text-2xl font-bold text-wrench-warning">
+                    {stats.dueToday}
+                  </div>
                   <p className="text-sm text-wrench-navy-600">Due Today</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-wrench-accent">{stats.pending}</div>
+                  <div className="text-2xl font-bold text-wrench-accent">
+                    {stats.pending}
+                  </div>
                   <p className="text-sm text-wrench-navy-600">Pending</p>
                 </CardContent>
               </Card>
@@ -324,7 +363,8 @@ export default function Tasks() {
                   Task Filters & Export
                 </CardTitle>
                 <CardDescription className="text-wrench-navy-600">
-                  Filter tasks and export professional reports with date range selection
+                  Filter tasks and export professional reports with date range
+                  selection
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -341,7 +381,10 @@ export default function Tasks() {
                       />
                     </div>
 
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <Select
+                      value={filterStatus}
+                      onValueChange={setFilterStatus}
+                    >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue placeholder="Filter by status" />
                       </SelectTrigger>
@@ -354,7 +397,10 @@ export default function Tasks() {
                       </SelectContent>
                     </Select>
 
-                    <Select value={filterPriority} onValueChange={setFilterPriority}>
+                    <Select
+                      value={filterPriority}
+                      onValueChange={setFilterPriority}
+                    >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue placeholder="Filter by priority" />
                       </SelectTrigger>
@@ -367,7 +413,10 @@ export default function Tasks() {
                       </SelectContent>
                     </Select>
 
-                    <Select value={filterMachine} onValueChange={setFilterMachine}>
+                    <Select
+                      value={filterMachine}
+                      onValueChange={setFilterMachine}
+                    >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue placeholder="Filter by machine" />
                       </SelectTrigger>
@@ -389,15 +438,27 @@ export default function Tasks() {
                         <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
                           Export Type
                         </label>
-                        <Select value={exportDateRange.type} onValueChange={(value) => setExportDateRange({...exportDateRange, type: value})}>
+                        <Select
+                          value={exportDateRange.type}
+                          onValueChange={(value) =>
+                            setExportDateRange({
+                              ...exportDateRange,
+                              type: value,
+                            })
+                          }
+                        >
                           <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Tasks</SelectItem>
                             <SelectItem value="daily">Daily Report</SelectItem>
-                            <SelectItem value="weekly">Weekly Report</SelectItem>
-                            <SelectItem value="monthly">Monthly Report</SelectItem>
+                            <SelectItem value="weekly">
+                              Weekly Report
+                            </SelectItem>
+                            <SelectItem value="monthly">
+                              Monthly Report
+                            </SelectItem>
                             <SelectItem value="custom">Custom Range</SelectItem>
                           </SelectContent>
                         </Select>
@@ -412,11 +473,16 @@ export default function Tasks() {
                             <Input
                               type="date"
                               value={exportDateRange.start}
-                              onChange={(e) => setExportDateRange({...exportDateRange, start: e.target.value})}
+                              onChange={(e) =>
+                                setExportDateRange({
+                                  ...exportDateRange,
+                                  start: e.target.value,
+                                })
+                              }
                               className="border-wrench-navy-200 focus:border-wrench-accent"
                             />
                           </div>
-                          
+
                           <div>
                             <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
                               End Date
@@ -424,7 +490,12 @@ export default function Tasks() {
                             <Input
                               type="date"
                               value={exportDateRange.end}
-                              onChange={(e) => setExportDateRange({...exportDateRange, end: e.target.value})}
+                              onChange={(e) =>
+                                setExportDateRange({
+                                  ...exportDateRange,
+                                  end: e.target.value,
+                                })
+                              }
                               className="border-wrench-navy-200 focus:border-wrench-accent"
                             />
                           </div>
@@ -449,12 +520,19 @@ export default function Tasks() {
               {filteredTasks.length === 0 ? (
                 <Card className="bg-white border-wrench-navy-200 p-12 text-center">
                   <Target className="h-16 w-16 text-wrench-navy-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-wrench-navy-800 mb-2">No tasks found</h3>
-                  <p className="text-wrench-navy-600">Try adjusting your search criteria or filters.</p>
+                  <h3 className="text-lg font-semibold text-wrench-navy-800 mb-2">
+                    No tasks found
+                  </h3>
+                  <p className="text-wrench-navy-600">
+                    Try adjusting your search criteria or filters.
+                  </p>
                 </Card>
               ) : (
                 filteredTasks.map((task) => (
-                  <Card key={task.id} className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <Card
+                    key={task.id}
+                    className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
                     <CardContent className="p-6">
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div className="flex-1 space-y-3">
@@ -471,7 +549,9 @@ export default function Tasks() {
                               <Badge className={getStatusColor(task.status)}>
                                 {task.status}
                               </Badge>
-                              <Badge className={getPriorityColor(task.priority)}>
+                              <Badge
+                                className={getPriorityColor(task.priority)}
+                              >
                                 {task.priority}
                               </Badge>
                             </div>
@@ -480,23 +560,25 @@ export default function Tasks() {
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div className="flex items-center space-x-2">
                               <Settings className="h-4 w-4 text-wrench-navy-400" />
-                              <span className="text-wrench-navy-600">{task.machineName}</span>
+                              <span className="text-wrench-navy-600">
+                                {task.machineName}
+                              </span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                               <Calendar className="h-4 w-4 text-wrench-navy-400" />
                               <span className="text-wrench-navy-600">
                                 Due: {task.dueDate.toLocaleDateString()}
                               </span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                               <Clock className="h-4 w-4 text-wrench-navy-400" />
                               <span className="text-wrench-navy-600">
                                 {task.estimatedTime} min
                               </span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                               <Users className="h-4 w-4 text-wrench-navy-400" />
                               <span className="text-wrench-navy-600">
@@ -510,26 +592,42 @@ export default function Tasks() {
                             <div className="p-3 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
                                 <div>
-                                  <span className="font-medium text-wrench-navy-700">Completed by:</span>
-                                  <span className="ml-2 text-wrench-navy-600">{task.completedBy}</span>
+                                  <span className="font-medium text-wrench-navy-700">
+                                    Completed by:
+                                  </span>
+                                  <span className="ml-2 text-wrench-navy-600">
+                                    {task.completedBy}
+                                  </span>
                                 </div>
                                 {task.actualTimeSpent && (
                                   <div>
-                                    <span className="font-medium text-wrench-navy-700">Time taken:</span>
-                                    <span className="ml-2 text-wrench-navy-600">{task.actualTimeSpent} min</span>
+                                    <span className="font-medium text-wrench-navy-700">
+                                      Time taken:
+                                    </span>
+                                    <span className="ml-2 text-wrench-navy-600">
+                                      {task.actualTimeSpent} min
+                                    </span>
                                   </div>
                                 )}
                                 {task.photos.length > 0 && (
                                   <div>
-                                    <span className="font-medium text-wrench-navy-700">Photos:</span>
-                                    <span className="ml-2 text-wrench-navy-600">{task.photos.length} uploaded</span>
+                                    <span className="font-medium text-wrench-navy-700">
+                                      Photos:
+                                    </span>
+                                    <span className="ml-2 text-wrench-navy-600">
+                                      {task.photos.length} uploaded
+                                    </span>
                                   </div>
                                 )}
                               </div>
                               {task.completionNotes && (
                                 <div className="mt-2">
-                                  <span className="font-medium text-wrench-navy-700">Notes:</span>
-                                  <p className="text-wrench-navy-600 text-sm mt-1">{task.completionNotes}</p>
+                                  <span className="font-medium text-wrench-navy-700">
+                                    Notes:
+                                  </span>
+                                  <p className="text-wrench-navy-600 text-sm mt-1">
+                                    {task.completionNotes}
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -537,8 +635,10 @@ export default function Tasks() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[120px]">
-                          <Link to={`/machine/${task.machineId}/task/${task.id}`}>
-                            <Button 
+                          <Link
+                            to={`/machine/${task.machineId}/task/${task.id}`}
+                          >
+                            <Button
                               className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift"
                               size="sm"
                             >
@@ -546,10 +646,10 @@ export default function Tasks() {
                               {task.status === "Completed" ? "View" : "Start"}
                             </Button>
                           </Link>
-                          
+
                           <Link to={`/machine/${task.machineId}`}>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               className="w-full border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
                               size="sm"
                             >

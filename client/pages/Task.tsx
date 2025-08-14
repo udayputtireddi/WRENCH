@@ -45,7 +45,10 @@ import {
   Target,
   Zap,
 } from "lucide-react";
-import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import {
+  ProfessionalHeader,
+  NavigationBreadcrumbs,
+} from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import { getTaskStatusColor } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
@@ -112,14 +115,38 @@ export default function Task() {
       } else {
         // Generate professional checklist based on task type
         const taskChecklist = [
-          { id: "1", text: "Review safety protocols and requirements", completed: false },
-          { id: "2", text: "Gather and inspect required tools/equipment", completed: false },
-          { id: "3", text: "Verify machine is in safe shutdown state", completed: false },
+          {
+            id: "1",
+            text: "Review safety protocols and requirements",
+            completed: false,
+          },
+          {
+            id: "2",
+            text: "Gather and inspect required tools/equipment",
+            completed: false,
+          },
+          {
+            id: "3",
+            text: "Verify machine is in safe shutdown state",
+            completed: false,
+          },
           { id: "4", text: task.description, completed: false },
-          { id: "5", text: "Perform quality inspection of completed work", completed: false },
-          { id: "6", text: "Update maintenance logs and documentation", completed: false },
+          {
+            id: "5",
+            text: "Perform quality inspection of completed work",
+            completed: false,
+          },
+          {
+            id: "6",
+            text: "Update maintenance logs and documentation",
+            completed: false,
+          },
           { id: "7", text: "Clean and organize work area", completed: false },
-          { id: "8", text: "Return tools to designated storage", completed: false },
+          {
+            id: "8",
+            text: "Return tools to designated storage",
+            completed: false,
+          },
         ];
 
         // Add safety-specific items
@@ -143,7 +170,7 @@ export default function Task() {
     setStartTime(now);
     setIsTimerRunning(true);
     setElapsedTime(0);
-    
+
     toast({
       title: "Task Timer Started",
       description: "Time tracking has begun for this maintenance task.",
@@ -152,7 +179,7 @@ export default function Task() {
 
   const handlePauseTimer = () => {
     setIsTimerRunning(!isTimerRunning);
-    
+
     toast({
       title: isTimerRunning ? "Timer Paused" : "Timer Resumed",
       description: `Task timer has been ${isTimerRunning ? "paused" : "resumed"}.`,
@@ -163,7 +190,7 @@ export default function Task() {
     setIsTimerRunning(false);
     setEndTime(new Date());
     setActualTimeSpent(Math.floor(elapsedTime / 60)); // Convert to minutes
-    
+
     toast({
       title: "Timer Stopped",
       description: `Total time: ${Math.floor(elapsedTime / 60)} minutes`,
@@ -171,12 +198,16 @@ export default function Task() {
   };
 
   const handleChecklistChange = (id: string, completed: boolean) => {
-    setChecklist(prev => 
-      prev.map(item => 
-        item.id === id 
-          ? { ...item, completed, timestamp: completed ? new Date() : undefined }
-          : item
-      )
+    setChecklist((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              completed,
+              timestamp: completed ? new Date() : undefined,
+            }
+          : item,
+      ),
     );
   };
 
@@ -187,7 +218,7 @@ export default function Task() {
         const reader = new FileReader();
         reader.onload = (e) => {
           const result = e.target?.result as string;
-          setPhotos(prev => [...prev, result]);
+          setPhotos((prev) => [...prev, result]);
         };
         reader.readAsDataURL(file);
       });
@@ -195,7 +226,7 @@ export default function Task() {
   };
 
   const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const saveProgress = () => {
@@ -216,7 +247,7 @@ export default function Task() {
 
     TaskScheduler.saveTaskProgress(progressData);
     setProgressSaved(true);
-    
+
     toast({
       title: "Progress Saved",
       description: "Task progress has been saved successfully.",
@@ -260,28 +291,33 @@ export default function Task() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const completionPercentage = checklist.length > 0 
-    ? Math.round((checklist.filter(item => item.completed).length / checklist.length) * 100)
-    : 0;
+  const completionPercentage =
+    checklist.length > 0
+      ? Math.round(
+          (checklist.filter((item) => item.completed).length /
+            checklist.length) *
+            100,
+        )
+      : 0;
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/" },
     { label: "Tasks", href: "/tasks" },
     { label: machine?.name || "Machine", href: `/machine/${machineId}` },
-    { label: task?.taskName || "Task" }
+    { label: task?.taskName || "Task" },
   ];
 
   if (!hasData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
-        <ProfessionalHeader 
+        <ProfessionalHeader
           title="Task Not Found"
           subtitle="No maintenance data available"
           variant="gradient"
@@ -293,7 +329,8 @@ export default function Task() {
               No Task Data Available
             </h2>
             <p className="text-xl text-wrench-navy-600 max-w-2xl mx-auto leading-relaxed mb-8">
-              Task information will be available once maintenance data is uploaded.
+              Task information will be available once maintenance data is
+              uploaded.
             </p>
             <Link to="/admin/database">
               <Button className="bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white px-8 py-4 text-lg">
@@ -310,7 +347,7 @@ export default function Task() {
   if (!task || !machine) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
-        <ProfessionalHeader 
+        <ProfessionalHeader
           title="Task Not Found"
           subtitle="The specified task could not be found"
           variant="gradient"
@@ -339,7 +376,7 @@ export default function Task() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Professional Header */}
-      <ProfessionalHeader 
+      <ProfessionalHeader
         title={task.taskName}
         subtitle={`${machine.name} • Professional maintenance task execution`}
         variant="gradient"
@@ -360,7 +397,9 @@ export default function Task() {
                   <Target className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">{task.taskName}</h2>
+                  <h2 className="text-2xl font-bold text-white mb-1">
+                    {task.taskName}
+                  </h2>
                   <p className="text-white/80">{task.description}</p>
                   <div className="flex items-center space-x-4 mt-2 text-sm">
                     <span className="flex items-center">
@@ -378,9 +417,11 @@ export default function Task() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-center lg:text-right">
-                <div className="text-3xl font-bold mb-1">{completionPercentage}%</div>
+                <div className="text-3xl font-bold mb-1">
+                  {completionPercentage}%
+                </div>
                 <p className="text-white/80 mb-2">Complete</p>
                 <Progress value={completionPercentage} className="w-32 h-3" />
               </div>
@@ -412,7 +453,7 @@ export default function Task() {
                       {isTimerRunning ? "Active Time" : "Elapsed Time"}
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     {!startTime ? (
                       <Button
@@ -429,10 +470,14 @@ export default function Task() {
                           variant="outline"
                           className="border-wrench-warning text-wrench-warning hover:bg-wrench-warning hover:text-white"
                         >
-                          {isTimerRunning ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+                          {isTimerRunning ? (
+                            <Pause className="h-4 w-4 mr-2" />
+                          ) : (
+                            <Play className="h-4 w-4 mr-2" />
+                          )}
                           {isTimerRunning ? "Pause" : "Resume"}
                         </Button>
-                        
+
                         <Button
                           onClick={handleStopTimer}
                           variant="outline"
@@ -449,7 +494,8 @@ export default function Task() {
                 {actualTimeSpent && (
                   <div className="p-3 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                     <p className="text-sm text-wrench-navy-700">
-                      <span className="font-medium">Total Time:</span> {actualTimeSpent} minutes
+                      <span className="font-medium">Total Time:</span>{" "}
+                      {actualTimeSpent} minutes
                       {task.estimatedTimeMinutes && (
                         <span className="ml-2 text-wrench-navy-500">
                           (Est: {task.estimatedTimeMinutes} min)
@@ -469,7 +515,8 @@ export default function Task() {
                   Professional Task Checklist
                 </CardTitle>
                 <CardDescription className="text-wrench-navy-600">
-                  Complete each step to ensure professional maintenance standards
+                  Complete each step to ensure professional maintenance
+                  standards
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -486,7 +533,7 @@ export default function Task() {
                       <Checkbox
                         id={item.id}
                         checked={item.completed}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           handleChecklistChange(item.id, checked as boolean)
                         }
                         className="mt-1"
@@ -549,26 +596,36 @@ export default function Task() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-wrench-navy-700 font-medium">Priority</Label>
+                  <Label className="text-wrench-navy-700 font-medium">
+                    Priority
+                  </Label>
                   <Badge className="ml-2 bg-wrench-warning text-white">
                     {task.category === "safety" ? "Critical" : "High"}
                   </Badge>
                 </div>
-                
+
                 <div>
-                  <Label className="text-wrench-navy-700 font-medium">Frequency</Label>
-                  <p className="text-wrench-navy-800 font-medium">{task.frequency}</p>
+                  <Label className="text-wrench-navy-700 font-medium">
+                    Frequency
+                  </Label>
+                  <p className="text-wrench-navy-800 font-medium">
+                    {task.frequency}
+                  </p>
                 </div>
-                
+
                 <div>
-                  <Label className="text-wrench-navy-700 font-medium">Estimated Time</Label>
+                  <Label className="text-wrench-navy-700 font-medium">
+                    Estimated Time
+                  </Label>
                   <p className="text-wrench-navy-800 font-medium">
                     {task.estimatedTimeMinutes || 30} minutes
                   </p>
                 </div>
-                
+
                 <div>
-                  <Label className="text-wrench-navy-700 font-medium">Assigned To</Label>
+                  <Label className="text-wrench-navy-700 font-medium">
+                    Assigned To
+                  </Label>
                   <p className="text-wrench-navy-800 font-medium">
                     {currentUser?.name || "Current User"}
                   </p>
@@ -576,10 +633,15 @@ export default function Task() {
 
                 {task.safetyNotes && task.safetyNotes.length > 0 && (
                   <div>
-                    <Label className="text-wrench-navy-700 font-medium">Safety Requirements</Label>
+                    <Label className="text-wrench-navy-700 font-medium">
+                      Safety Requirements
+                    </Label>
                     <div className="mt-2 space-y-2">
                       {task.safetyNotes.map((note, index) => (
-                        <div key={index} className="flex items-start space-x-2 p-2 bg-wrench-error/10 rounded border border-wrench-error/20">
+                        <div
+                          key={index}
+                          className="flex items-start space-x-2 p-2 bg-wrench-error/10 rounded border border-wrench-error/20"
+                        >
                           <Shield className="h-4 w-4 text-wrench-error mt-0.5 flex-shrink-0" />
                           <p className="text-sm text-wrench-navy-700">{note}</p>
                         </div>
@@ -612,7 +674,7 @@ export default function Task() {
                     className="hidden"
                     disabled={isCompleted}
                   />
-                  
+
                   <Button
                     onClick={() => fileInputRef.current?.click()}
                     variant="outline"
@@ -692,7 +754,9 @@ export default function Task() {
                 ) : (
                   <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
                     <CheckCircle className="h-12 w-12 text-wrench-success mx-auto mb-2" />
-                    <p className="font-semibold text-wrench-success">Task Completed</p>
+                    <p className="font-semibold text-wrench-success">
+                      Task Completed
+                    </p>
                     <p className="text-sm text-wrench-navy-600">
                       Completed by {currentUser?.name}
                     </p>
@@ -709,7 +773,11 @@ export default function Task() {
                   variant="outline"
                   className="w-full border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
                 >
-                  <Link to={searchParams.get("from") === "scan" ? "/scan" : "/tasks"}>
+                  <Link
+                    to={
+                      searchParams.get("from") === "scan" ? "/scan" : "/tasks"
+                    }
+                  >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Tasks
                   </Link>

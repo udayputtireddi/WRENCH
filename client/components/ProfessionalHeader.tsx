@@ -34,11 +34,11 @@ interface ProfessionalHeaderProps {
   variant?: "default" | "dark" | "gradient";
 }
 
-export function ProfessionalHeader({ 
-  title, 
-  subtitle, 
+export function ProfessionalHeader({
+  title,
+  subtitle,
   showStats = false,
-  variant = "gradient" 
+  variant = "gradient",
 }: ProfessionalHeaderProps) {
   const navigate = useNavigate();
   const currentUser = AuthService.getCurrentUser();
@@ -52,19 +52,20 @@ export function ProfessionalHeader({
   const headerClasses = {
     default: "bg-white border-b border-wrench-navy-200 shadow-sm",
     dark: "bg-wrench-navy-900 border-b border-wrench-navy-700",
-    gradient: "bg-gradient-to-r from-wrench-navy-800 via-wrench-navy-700 to-wrench-navy-800 shadow-xl"
+    gradient:
+      "bg-gradient-to-r from-wrench-navy-800 via-wrench-navy-700 to-wrench-navy-800 shadow-xl",
   };
 
   const textClasses = {
     default: "text-wrench-navy-800",
     dark: "text-white",
-    gradient: "text-white"
+    gradient: "text-white",
   };
 
   const subtextClasses = {
     default: "text-wrench-navy-600",
     dark: "text-white/80",
-    gradient: "text-white/90"
+    gradient: "text-white/90",
   };
 
   return (
@@ -74,7 +75,10 @@ export function ProfessionalHeader({
         <>
           <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
           <div className="absolute top-4 left-4 text-wrench-navy-300 opacity-20">
-            <Settings className="h-6 w-6 animate-spin" style={{animationDuration: '20s'}} />
+            <Settings
+              className="h-6 w-6 animate-spin"
+              style={{ animationDuration: "20s" }}
+            />
           </div>
           <div className="absolute bottom-4 right-4 text-wrench-navy-300 opacity-20">
             <Activity className="h-5 w-5" />
@@ -87,8 +91,8 @@ export function ProfessionalHeader({
           {/* Left Side - Logo and Navigation */}
           <div className="flex items-center space-x-6">
             <Link to="/" className="hover-lift">
-              <WrenchLogo 
-                size="md" 
+              <WrenchLogo
+                size="md"
                 variant={variant === "default" ? "default" : "dark"}
                 showText={true}
               />
@@ -97,7 +101,9 @@ export function ProfessionalHeader({
             {/* Page Title */}
             {title && (
               <div className="hidden md:block">
-                <h1 className={`text-2xl lg:text-3xl font-bold ${textClasses[variant]}`}>
+                <h1
+                  className={`text-2xl lg:text-3xl font-bold ${textClasses[variant]}`}
+                >
                   {title}
                 </h1>
                 {subtitle && (
@@ -117,7 +123,9 @@ export function ProfessionalHeader({
                   <Activity className="h-4 w-4 text-wrench-success" />
                 </div>
                 <div>
-                  <p className={`text-sm font-semibold ${textClasses[variant]}`}>
+                  <p
+                    className={`text-sm font-semibold ${textClasses[variant]}`}
+                  >
                     {analytics.completedToday}
                   </p>
                   <p className={`text-xs ${subtextClasses[variant]}`}>
@@ -131,7 +139,9 @@ export function ProfessionalHeader({
                   <Users className="h-4 w-4 text-wrench-warning" />
                 </div>
                 <div>
-                  <p className={`text-sm font-semibold ${textClasses[variant]}`}>
+                  <p
+                    className={`text-sm font-semibold ${textClasses[variant]}`}
+                  >
                     {analytics.totalMachines}
                   </p>
                   <p className={`text-xs ${subtextClasses[variant]}`}>
@@ -161,8 +171,8 @@ export function ProfessionalHeader({
           {/* Right Side - User Menu */}
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               className={`relative ${variant !== "default" ? "text-white hover:bg-white/10" : "text-wrench-navy-700 hover:bg-wrench-navy-50"}`}
             >
@@ -175,8 +185,8 @@ export function ProfessionalHeader({
             </Button>
 
             {/* Quick Search */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               className={`hidden sm:flex ${variant !== "default" ? "text-white hover:bg-white/10" : "text-wrench-navy-700 hover:bg-wrench-navy-50"}`}
             >
@@ -186,8 +196,8 @@ export function ProfessionalHeader({
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className={`flex items-center space-x-2 hover-lift ${variant !== "default" ? "text-white hover:bg-white/10" : "text-wrench-navy-700 hover:bg-wrench-navy-50"}`}
                 >
                   <div className="h-8 w-8 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
@@ -202,10 +212,15 @@ export function ProfessionalHeader({
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              
-              <DropdownMenuContent align="end" className="w-56 bg-white border-wrench-navy-200 shadow-lg">
+
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-white border-wrench-navy-200 shadow-lg"
+              >
                 <div className="px-3 py-2 border-b border-wrench-navy-100">
-                  <p className="font-medium text-wrench-navy-800">{currentUser?.name}</p>
+                  <p className="font-medium text-wrench-navy-800">
+                    {currentUser?.name}
+                  </p>
                   <p className="text-sm text-wrench-navy-600 capitalize">
                     {currentUser?.role} • {currentUser?.department}
                   </p>
@@ -233,7 +248,7 @@ export function ProfessionalHeader({
                         Admin Panel
                       </Link>
                     </DropdownMenuItem>
-                    
+
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="cursor-pointer">
                         <Settings className="h-4 w-4 mr-2" />
@@ -245,7 +260,10 @@ export function ProfessionalHeader({
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={handleLogout} className="text-wrench-error cursor-pointer">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-wrench-error cursor-pointer"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </DropdownMenuItem>
@@ -253,9 +271,9 @@ export function ProfessionalHeader({
             </DropdownMenu>
 
             {/* Mobile Menu */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className={`md:hidden ${variant !== "default" ? "text-white hover:bg-white/10" : "text-wrench-navy-700 hover:bg-wrench-navy-50"}`}
             >
               <Menu className="h-5 w-5" />
@@ -270,9 +288,7 @@ export function ProfessionalHeader({
               {title}
             </h1>
             {subtitle && (
-              <p className={`text-sm ${subtextClasses[variant]}`}>
-                {subtitle}
-              </p>
+              <p className={`text-sm ${subtextClasses[variant]}`}>{subtitle}</p>
             )}
           </div>
         )}
@@ -282,15 +298,19 @@ export function ProfessionalHeader({
 }
 
 // Navigation Breadcrumbs Component
-export function NavigationBreadcrumbs({ 
+export function NavigationBreadcrumbs({
   items,
-  variant = "default" 
-}: { 
+  variant = "default",
+}: {
   items: { label: string; href?: string }[];
   variant?: "default" | "dark";
 }) {
-  const textClasses = variant === "dark" ? "text-white/80" : "text-wrench-navy-600";
-  const linkClasses = variant === "dark" ? "text-white hover:text-white/80" : "text-wrench-accent hover:text-wrench-accent/80";
+  const textClasses =
+    variant === "dark" ? "text-white/80" : "text-wrench-navy-600";
+  const linkClasses =
+    variant === "dark"
+      ? "text-white hover:text-white/80"
+      : "text-wrench-accent hover:text-wrench-accent/80";
 
   return (
     <nav className="flex items-center space-x-2 text-sm">
@@ -301,13 +321,15 @@ export function NavigationBreadcrumbs({
               {item.label}
             </Link>
           ) : (
-            <span className={index === items.length - 1 ? "font-medium" : textClasses}>
+            <span
+              className={
+                index === items.length - 1 ? "font-medium" : textClasses
+              }
+            >
               {item.label}
             </span>
           )}
-          {index < items.length - 1 && (
-            <span className={textClasses}>/</span>
-          )}
+          {index < items.length - 1 && <span className={textClasses}>/</span>}
         </div>
       ))}
     </nav>

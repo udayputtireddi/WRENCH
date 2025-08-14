@@ -61,7 +61,10 @@ import {
   AlertTriangle,
   CheckCircle,
 } from "lucide-react";
-import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import {
+  ProfessionalHeader,
+  NavigationBreadcrumbs,
+} from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import { useToast } from "@/hooks/use-toast";
 import AuthService from "@/lib/auth";
@@ -69,7 +72,7 @@ import AuthService from "@/lib/auth";
 export default function Settings() {
   const { toast } = useToast();
   const currentUser = AuthService.getCurrentUser();
-  
+
   // Settings states
   const [generalSettings, setGeneralSettings] = useState({
     companyName: "WRENCH Professional Services",
@@ -77,7 +80,7 @@ export default function Settings() {
     dateFormat: "MM/DD/YYYY",
     language: "en",
   });
-  
+
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -86,14 +89,14 @@ export default function Settings() {
     weeklyReports: false,
     systemMaintenance: true,
   });
-  
+
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     sessionTimeout: "30",
     passwordExpiry: "90",
     loginAttempts: "5",
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -115,7 +118,7 @@ export default function Settings() {
       });
       return;
     }
-    
+
     if (newPassword.length < 8) {
       toast({
         title: "Password Too Short",
@@ -135,13 +138,13 @@ export default function Settings() {
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/" },
-    { label: "System Settings" }
+    { label: "System Settings" },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Professional Header */}
-      <ProfessionalHeader 
+      <ProfessionalHeader
         title="System Settings"
         subtitle="Configure platform preferences and security"
         variant="gradient"
@@ -164,26 +167,39 @@ export default function Settings() {
             </span>
           </h1>
           <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
-            Enterprise-grade settings and security configuration for optimal system performance.
+            Enterprise-grade settings and security configuration for optimal
+            system performance.
           </p>
         </div>
 
         {/* Settings Tabs */}
         <Tabs defaultValue="general" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 bg-white border border-wrench-navy-200 p-1">
-            <TabsTrigger value="general" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="general"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Settings className="h-4 w-4 mr-2" />
               General
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="notifications"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="security"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <Shield className="h-4 w-4 mr-2" />
               Security
             </TabsTrigger>
-            <TabsTrigger value="account" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+            <TabsTrigger
+              value="account"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+            >
               <User className="h-4 w-4 mr-2" />
               Account
             </TabsTrigger>
@@ -204,44 +220,76 @@ export default function Settings() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="companyName" className="text-wrench-navy-700 font-medium">
+                    <Label
+                      htmlFor="companyName"
+                      className="text-wrench-navy-700 font-medium"
+                    >
                       Company Name
                     </Label>
                     <Input
                       id="companyName"
                       value={generalSettings.companyName}
-                      onChange={(e) => setGeneralSettings({...generalSettings, companyName: e.target.value})}
+                      onChange={(e) =>
+                        setGeneralSettings({
+                          ...generalSettings,
+                          companyName: e.target.value,
+                        })
+                      }
                       className="border-wrench-navy-200 focus:border-wrench-accent"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="timezone" className="text-wrench-navy-700 font-medium">
+                    <Label
+                      htmlFor="timezone"
+                      className="text-wrench-navy-700 font-medium"
+                    >
                       Timezone
                     </Label>
                     <Select
                       value={generalSettings.timezone}
-                      onValueChange={(value) => setGeneralSettings({...generalSettings, timezone: value})}
+                      onValueChange={(value) =>
+                        setGeneralSettings({
+                          ...generalSettings,
+                          timezone: value,
+                        })
+                      }
                     >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="UTC-05:00">Eastern Time (UTC-05:00)</SelectItem>
-                        <SelectItem value="UTC-06:00">Central Time (UTC-06:00)</SelectItem>
-                        <SelectItem value="UTC-07:00">Mountain Time (UTC-07:00)</SelectItem>
-                        <SelectItem value="UTC-08:00">Pacific Time (UTC-08:00)</SelectItem>
+                        <SelectItem value="UTC-05:00">
+                          Eastern Time (UTC-05:00)
+                        </SelectItem>
+                        <SelectItem value="UTC-06:00">
+                          Central Time (UTC-06:00)
+                        </SelectItem>
+                        <SelectItem value="UTC-07:00">
+                          Mountain Time (UTC-07:00)
+                        </SelectItem>
+                        <SelectItem value="UTC-08:00">
+                          Pacific Time (UTC-08:00)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dateFormat" className="text-wrench-navy-700 font-medium">
+                    <Label
+                      htmlFor="dateFormat"
+                      className="text-wrench-navy-700 font-medium"
+                    >
                       Date Format
                     </Label>
                     <Select
                       value={generalSettings.dateFormat}
-                      onValueChange={(value) => setGeneralSettings({...generalSettings, dateFormat: value})}
+                      onValueChange={(value) =>
+                        setGeneralSettings({
+                          ...generalSettings,
+                          dateFormat: value,
+                        })
+                      }
                     >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue />
@@ -255,12 +303,20 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="language" className="text-wrench-navy-700 font-medium">
+                    <Label
+                      htmlFor="language"
+                      className="text-wrench-navy-700 font-medium"
+                    >
                       Language
                     </Label>
                     <Select
                       value={generalSettings.language}
-                      onValueChange={(value) => setGeneralSettings({...generalSettings, language: value})}
+                      onValueChange={(value) =>
+                        setGeneralSettings({
+                          ...generalSettings,
+                          language: value,
+                        })
+                      }
                     >
                       <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                         <SelectValue />
@@ -300,22 +356,60 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {[
-                  { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive notifications via email' },
-                  { key: 'pushNotifications', label: 'Push Notifications', description: 'Browser and mobile push notifications' },
-                  { key: 'taskReminders', label: 'Task Reminders', description: 'Reminders for upcoming tasks' },
-                  { key: 'overdueAlerts', label: 'Overdue Alerts', description: 'Alerts for overdue maintenance tasks' },
-                  { key: 'weeklyReports', label: 'Weekly Reports', description: 'Automated weekly performance reports' },
-                  { key: 'systemMaintenance', label: 'System Maintenance', description: 'Notifications about system updates' },
+                  {
+                    key: "emailNotifications",
+                    label: "Email Notifications",
+                    description: "Receive notifications via email",
+                  },
+                  {
+                    key: "pushNotifications",
+                    label: "Push Notifications",
+                    description: "Browser and mobile push notifications",
+                  },
+                  {
+                    key: "taskReminders",
+                    label: "Task Reminders",
+                    description: "Reminders for upcoming tasks",
+                  },
+                  {
+                    key: "overdueAlerts",
+                    label: "Overdue Alerts",
+                    description: "Alerts for overdue maintenance tasks",
+                  },
+                  {
+                    key: "weeklyReports",
+                    label: "Weekly Reports",
+                    description: "Automated weekly performance reports",
+                  },
+                  {
+                    key: "systemMaintenance",
+                    label: "System Maintenance",
+                    description: "Notifications about system updates",
+                  },
                 ].map((setting) => (
-                  <div key={setting.key} className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100">
+                  <div
+                    key={setting.key}
+                    className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100"
+                  >
                     <div className="space-y-1">
-                      <div className="font-medium text-wrench-navy-800">{setting.label}</div>
-                      <div className="text-sm text-wrench-navy-600">{setting.description}</div>
+                      <div className="font-medium text-wrench-navy-800">
+                        {setting.label}
+                      </div>
+                      <div className="text-sm text-wrench-navy-600">
+                        {setting.description}
+                      </div>
                     </div>
                     <Switch
-                      checked={notificationSettings[setting.key as keyof typeof notificationSettings]}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => ({...prev, [setting.key]: checked}))
+                      checked={
+                        notificationSettings[
+                          setting.key as keyof typeof notificationSettings
+                        ]
+                      }
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          [setting.key]: checked,
+                        }))
                       }
                     />
                   </div>
@@ -349,13 +443,20 @@ export default function Settings() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100">
                       <div>
-                        <div className="font-medium text-wrench-navy-800">Two-Factor Authentication</div>
-                        <div className="text-sm text-wrench-navy-600">Add extra layer of security</div>
+                        <div className="font-medium text-wrench-navy-800">
+                          Two-Factor Authentication
+                        </div>
+                        <div className="text-sm text-wrench-navy-600">
+                          Add extra layer of security
+                        </div>
                       </div>
                       <Switch
                         checked={securitySettings.twoFactorAuth}
-                        onCheckedChange={(checked) => 
-                          setSecuritySettings(prev => ({...prev, twoFactorAuth: checked}))
+                        onCheckedChange={(checked) =>
+                          setSecuritySettings((prev) => ({
+                            ...prev,
+                            twoFactorAuth: checked,
+                          }))
                         }
                       />
                     </div>
@@ -366,7 +467,12 @@ export default function Settings() {
                       </Label>
                       <Select
                         value={securitySettings.sessionTimeout}
-                        onValueChange={(value) => setSecuritySettings({...securitySettings, sessionTimeout: value})}
+                        onValueChange={(value) =>
+                          setSecuritySettings({
+                            ...securitySettings,
+                            sessionTimeout: value,
+                          })
+                        }
                       >
                         <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                           <SelectValue />
@@ -388,7 +494,12 @@ export default function Settings() {
                       </Label>
                       <Select
                         value={securitySettings.passwordExpiry}
-                        onValueChange={(value) => setSecuritySettings({...securitySettings, passwordExpiry: value})}
+                        onValueChange={(value) =>
+                          setSecuritySettings({
+                            ...securitySettings,
+                            passwordExpiry: value,
+                          })
+                        }
                       >
                         <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                           <SelectValue />
@@ -408,7 +519,12 @@ export default function Settings() {
                       </Label>
                       <Select
                         value={securitySettings.loginAttempts}
-                        onValueChange={(value) => setSecuritySettings({...securitySettings, loginAttempts: value})}
+                        onValueChange={(value) =>
+                          setSecuritySettings({
+                            ...securitySettings,
+                            loginAttempts: value,
+                          })
+                        }
                       >
                         <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                           <SelectValue />
@@ -455,7 +571,9 @@ export default function Settings() {
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-wrench-navy-800 text-lg">{currentUser?.name}</h3>
+                    <h3 className="font-semibold text-wrench-navy-800 text-lg">
+                      {currentUser?.name}
+                    </h3>
                     <p className="text-wrench-navy-600">{currentUser?.email}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="px-2 py-1 bg-wrench-accent text-white text-xs rounded-full font-medium">
@@ -470,10 +588,15 @@ export default function Settings() {
 
                 {/* Password Change */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-wrench-navy-800">Change Password</h3>
+                  <h3 className="text-lg font-semibold text-wrench-navy-800">
+                    Change Password
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="text-wrench-navy-700 font-medium">
+                      <Label
+                        htmlFor="newPassword"
+                        className="text-wrench-navy-700 font-medium"
+                      >
                         New Password
                       </Label>
                       <div className="relative">
@@ -500,9 +623,12 @@ export default function Settings() {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-wrench-navy-700 font-medium">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="text-wrench-navy-700 font-medium"
+                      >
                         Confirm Password
                       </Label>
                       <Input
@@ -515,7 +641,7 @@ export default function Settings() {
                       />
                     </div>
                   </div>
-                  
+
                   <Button
                     onClick={handlePasswordChange}
                     disabled={!newPassword || !confirmPassword}
@@ -529,28 +655,39 @@ export default function Settings() {
                 {/* Danger Zone */}
                 <Separator />
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-wrench-error">Danger Zone</h3>
+                  <h3 className="text-lg font-semibold text-wrench-error">
+                    Danger Zone
+                  </h3>
                   <div className="p-4 border border-wrench-error/20 bg-wrench-error/5 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-wrench-navy-800">Delete Account</p>
+                        <p className="font-medium text-wrench-navy-800">
+                          Delete Account
+                        </p>
                         <p className="text-sm text-wrench-navy-600">
-                          Permanently delete your account and all associated data
+                          Permanently delete your account and all associated
+                          data
                         </p>
                       </div>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" className="border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white">
+                          <Button
+                            variant="outline"
+                            className="border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white"
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete Account
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              Are you absolutely sure?
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete your account
-                              and remove your data from our servers.
+                              This action cannot be undone. This will
+                              permanently delete your account and remove your
+                              data from our servers.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
