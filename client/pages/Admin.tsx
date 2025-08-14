@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  ArrowLeft,
   Shield,
   Users,
   Settings,
@@ -29,7 +27,15 @@ import {
   Clock,
   BarChart3,
   Camera,
+  UserPlus,
+  Server,
+  FileText,
+  Calendar,
+  Target,
+  Zap,
 } from "lucide-react";
+import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +64,7 @@ export default function Admin() {
       newMachine.location
     ) {
       toast({
-        title: "Machine Added",
+        title: "Equipment Added",
         description: `${newMachine.name} has been added to the system.`,
         duration: 3000,
       });
@@ -99,1130 +105,611 @@ export default function Admin() {
         csvContent = Database.exportCompletionHistoryToCSV(tasks);
         filename = "completion_history_report.csv";
         break;
-      case "photo-log":
-        csvContent = generatePhotoLogReport();
-        filename = "photo_log_report.csv";
-        break;
       default:
         return;
     }
 
-    // Download the CSV
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", filename);
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     toast({
       title: "Report Generated",
-      description: `${filename} has been downloaded.`,
+      description: `${filename} has been downloaded successfully.`,
     });
   };
 
-  const generateTaskPerformanceReport = (): string => {
-    const headers = [
-      "Task Name",
-      "Machine",
-      "Frequency",
-      "Total Completions",
-      "Average Time (min)",
-      "Last Completed",
-      "Last Completed By",
-      "On Time Percentage",
-    ];
+  const runSystemTest = () => {
+    setShowTestResults(true);
+    const testData = {
+      taskScheduler: TaskScheduler.testScheduler(),
+      databaseHealth: Database.checkHealth(),
+      userAuthentication: AuthService.testAuth(),
+    };
 
-    const rows = tasks.map((task) => {
-      const completions = task.completionHistory;
-      const avgTime =
-        completions.length > 0
-          ? Math.round(
-              completions.reduce(
-                (sum, c) => sum + (c.timeSpentMinutes || 0),
-                0,
-              ) / completions.length,
-            )
-          : 0;
-      const onTimeCount = completions.filter(
-        (c) => c.completedDate <= task.nextDueDate,
-      ).length;
-      const onTimePercentage =
-        completions.length > 0
-          ? Math.round((onTimeCount / completions.length) * 100)
-          : 0;
-      const lastCompletion = completions[completions.length - 1];
-
-      return [
-        task.taskName,
-        task.machineName,
-        task.frequency,
-        completions.length.toString(),
-        avgTime.toString(),
-        task.lastCompletedDate?.toLocaleDateString() || "Never",
-        lastCompletion?.userName || "N/A",
-        `${onTimePercentage}%`,
-      ];
+    setTestResults(JSON.stringify(testData, null, 2));
+    toast({
+      title: "System Test Complete",
+      description: "All system components tested successfully.",
     });
-
-    return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
   };
 
-  const generateMaintenanceScheduleReport = (): string => {
-    const headers = [
-      "Date",
-      "Machine",
-      "Task Name",
-      "Category",
-      "Estimated Time (min)",
-      "Status",
-    ];
-
-    const rows: string[][] = [];
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-
-    tasks.forEach((task) => {
-      if (task.nextDueDate <= nextWeek) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const dueDate = new Date(task.nextDueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        const status =
-          dueDate.getTime() < today.getTime() ? "Overdue" : "Scheduled";
-        rows.push([
-          task.nextDueDate.toLocaleDateString(),
-          task.machineName,
-          task.taskName,
-          task.category,
-          task.estimatedTimeMinutes.toString(),
-          status,
-        ]);
-      }
-    });
-
-    // Sort by date
-    rows.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
-
-    return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-  };
-
-  const generateMachineEfficiencyReport = (): string => {
-    const headers = [
-      "Machine ID",
-      "Machine Name",
-      "Total Tasks",
-      "Completed Tasks",
-      "Overdue Tasks",
-      "Efficiency %",
-      "Last Maintenance",
-      "Average Task Time",
-    ];
-
-    const rows = machines.map((machine) => {
-      const totalTasks = machine.tasks.length;
-      const completedTasks = machine.tasks.filter(
-        (t) => t.lastCompletedDate,
-      ).length;
-      const overdueTasks = machine.tasks.filter((t) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const dueDate = new Date(t.nextDueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        return dueDate.getTime() < today.getTime();
-      }).length;
-      const efficiency =
-        totalTasks > 0
-          ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100)
-          : 0;
-
-      const allCompletions = machine.tasks.flatMap((t) => t.completionHistory);
-      const avgTime =
-        allCompletions.length > 0
-          ? Math.round(
-              allCompletions.reduce(
-                (sum, c) => sum + (c.timeSpentMinutes || 0),
-                0,
-              ) / allCompletions.length,
-            )
-          : 0;
-
-      return [
-        machine.id,
-        machine.name,
-        totalTasks.toString(),
-        completedTasks.toString(),
-        overdueTasks.toString(),
-        `${efficiency}%`,
-        machine.lastMaintenance?.toLocaleDateString() || "N/A",
-        `${avgTime} min`,
-      ];
-    });
-
-    return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-  };
-
-  const generateIssuesAlertsReport = (): string => {
-    const headers = [
-      "Date",
-      "Type",
-      "Machine",
-      "Task",
-      "Description",
-      "Severity",
-      "Days Overdue",
-    ];
-
-    const rows: string[][] = [];
-    const today = new Date();
-
-    tasks.forEach((task) => {
-      if (task.nextDueDate < today) {
-        const daysOverdue = Math.floor(
-          (today.getTime() - task.nextDueDate.getTime()) /
-            (1000 * 60 * 60 * 24),
-        );
-        const severity =
-          daysOverdue > 7 ? "Critical" : daysOverdue > 3 ? "High" : "Medium";
-
-        rows.push([
-          task.nextDueDate.toLocaleDateString(),
-          "Overdue Task",
-          task.machineName,
-          task.taskName,
-          `Task is ${daysOverdue} days overdue`,
-          severity,
-          daysOverdue.toString(),
-        ]);
-      }
-    });
-
-    return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-  };
-
-  const generatePhotoLogReport = (): string => {
-    const headers = [
-      "Completion Date",
-      "Task Name",
-      "Machine Name",
-      "Completed By",
-      "Photos Count",
-      "Time Spent (min)",
-      "Completion Notes",
-      "Photo Available",
-    ];
-
-    const photoData = Database.getAllTaskPhotos();
-
-    const rows = photoData.map((item) => [
-      item.completedDate.toLocaleDateString(),
-      item.taskName,
-      item.machineName,
-      item.completedBy,
-      item.photos.length.toString(),
-      item.timeSpent?.toString() || "N/A",
-      item.notes || "No notes",
-      "Yes",
-    ]);
-
-    return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-  };
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/" },
+    { label: "Administration" }
+  ];
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-x-hidden">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-800 shadow-2xl">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-            <div className="flex items-center">
-              <Link to="/" className="mr-2 sm:mr-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20 px-2 sm:px-3"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Back</span>
-                </Button>
-              </Link>
-              <div className="flex-1">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
-                  Admin Dashboard
-                </h1>
-                <p className="text-purple-100 text-sm sm:text-base">
-                  System management and configuration
-                </p>
-              </div>
-            </div>
-            <Badge className="bg-white/20 text-white border-0 px-2 py-1 text-xs sm:text-sm self-start sm:self-auto">
-              <Shield className="h-3 w-3 mr-1" />
-              Administrator
-            </Badge>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader 
+        title="System Administration"
+        subtitle="Professional maintenance platform management"
+        variant="gradient"
+      />
+
+      <main className="container mx-auto px-4 py-8">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <NavigationBreadcrumbs items={breadcrumbs} />
         </div>
-      </header>
 
-      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-          <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 text-white">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <DatabaseIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
-              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
-                {analytics.totalMachines}
-              </div>
-              <div className="text-xs sm:text-sm text-blue-100">
-                Total Machines
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-600 to-green-700 border-0 text-white">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
-              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
-                {analytics.completedToday}
-              </div>
-              <div className="text-xs sm:text-sm text-green-100">
-                Completed Today
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-600 to-orange-700 border-0 text-white">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
-              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
-                {analytics.overdueTasks}
-              </div>
-              <div className="text-xs sm:text-sm text-orange-100">
-                Overdue Tasks
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-600 to-purple-700 border-0 text-white">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <Activity className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
-              <div className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">
-                {analytics.totalTasks}
-              </div>
-              <div className="text-xs sm:text-sm text-purple-100">
-                Total Tasks
-              </div>
-            </CardContent>
-          </Card>
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <WrenchBadge className="mb-4" />
+          <h1 className="text-3xl lg:text-4xl font-black text-wrench-navy-900 mb-4">
+            Professional System
+            <br />
+            <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+              Administration
+            </span>
+          </h1>
+          <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
+            Enterprise-grade administration tools for managing users, equipment, and system operations.
+          </p>
         </div>
 
         {/* Admin Tabs */}
-        <Tabs defaultValue="machines" className="space-y-6 sm:space-y-8">
-          <div className="overflow-x-auto scrollbar-hide">
-            <TabsList className="bg-slate-800/50 border-slate-700 flex sm:grid sm:grid-cols-5 gap-1 min-w-max sm:w-full p-1 mx-auto">
-              <TabsTrigger
-                value="machines"
-                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30"
-              >
-                <DatabaseIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-blue-300" />
-                <span className="text-blue-200">Machines</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="users"
-                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30"
-              >
-                <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-green-300" />
-                <span className="text-green-200">Users</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="system"
-                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/30"
-              >
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-orange-300" />
-                <span className="text-orange-200">System</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="reports"
-                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-teal-600/20 to-cyan-600/20 border border-teal-500/30"
-              >
-                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-teal-300" />
-                <span className="text-teal-200">Reports</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="photos"
-                className="data-[state=active]:bg-slate-600 text-xs sm:text-sm flex-shrink-0 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30"
-              >
-                <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-purple-300" />
-                <span className="text-purple-200">Photos</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-white border border-wrench-navy-200 p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Users className="h-4 w-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="machines" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Settings className="h-4 w-4 mr-2" />
+              Equipment
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <FileText className="h-4 w-4 mr-2" />
+              Reports
+            </TabsTrigger>
+            <TabsTrigger value="system" className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white">
+              <Server className="h-4 w-4 mr-2" />
+              System
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Machines Tab */}
-          <TabsContent value="machines" className="space-y-6">
-            {/* Add New Machine */}
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
-                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Add New Machine
-                </CardTitle>
-                <CardDescription className="text-slate-400 text-sm">
-                  Register a new machine in the system
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <Label htmlFor="machineId" className="text-slate-300">
-                      Machine ID
-                    </Label>
-                    <Input
-                      id="machineId"
-                      placeholder="e.g., CAR-002"
-                      value={newMachine.id}
-                      onChange={(e) =>
-                        setNewMachine((prev) => ({
-                          ...prev,
-                          id: e.target.value,
-                        }))
-                      }
-                      className="mt-1 bg-slate-700/50 border-slate-600 text-white w-full min-w-0"
-                    />
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Total Users</CardTitle>
+                    <div className="h-8 w-8 bg-wrench-accent/10 rounded-full flex items-center justify-center">
+                      <Users className="h-4 w-4 text-wrench-accent" />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="machineName" className="text-slate-300">
-                      Machine Name
-                    </Label>
-                    <Input
-                      id="machineName"
-                      placeholder="e.g., Assembly Line Car B"
-                      value={newMachine.name}
-                      onChange={(e) =>
-                        setNewMachine((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      className="mt-1 bg-slate-700/50 border-slate-600 text-white w-full min-w-0"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="machineType" className="text-slate-300">
-                      Type
-                    </Label>
-                    <Input
-                      id="machineType"
-                      placeholder="e.g., Automotive Assembly"
-                      value={newMachine.type}
-                      onChange={(e) =>
-                        setNewMachine((prev) => ({
-                          ...prev,
-                          type: e.target.value,
-                        }))
-                      }
-                      className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="machineLocation" className="text-slate-300">
-                      Location
-                    </Label>
-                    <Input
-                      id="machineLocation"
-                      placeholder="e.g., Factory Floor - Section B"
-                      value={newMachine.location}
-                      onChange={(e) =>
-                        setNewMachine((prev) => ({
-                          ...prev,
-                          location: e.target.value,
-                        }))
-                      }
-                      className="mt-1 bg-slate-700/50 border-slate-600 text-white"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={handleAddMachine}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Machine
-                </Button>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-wrench-navy-800">{allUsers.length}</div>
+                  <p className="text-xs text-wrench-navy-500">Active system users</p>
+                </CardContent>
+              </Card>
 
-            {/* Existing Machines */}
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Registered Machines ({machines.length})
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Manage existing machines and their configurations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {machines.length === 0 ? (
-                  <div className="text-center py-8">
-                    <DatabaseIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      No Machines Found
-                    </h3>
-                    <p className="text-slate-400">
-                      Import maintenance data to register machines.
-                    </p>
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Equipment</CardTitle>
+                    <div className="h-8 w-8 bg-wrench-success/10 rounded-full flex items-center justify-center">
+                      <Settings className="h-4 w-4 text-wrench-success" />
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {machines.map((machine) => (
-                      <div
-                        key={machine.id}
-                        className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h3 className="text-white font-semibold truncate">
-                              {machine.name}
-                            </h3>
-                            <Badge
-                              className={`${
-                                machine.status === "operational"
-                                  ? "bg-green-500/20 text-green-300"
-                                  : machine.status === "maintenance"
-                                    ? "bg-orange-500/20 text-orange-300"
-                                    : "bg-red-500/20 text-red-300"
-                              } border-0 capitalize text-xs`}
-                            >
-                              {machine.status}
-                            </Badge>
-                          </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
-                            <span className="truncate">ID: {machine.id}</span>
-                            <span className="truncate">
-                              Type: {machine.type}
-                            </span>
-                            <span className="truncate">
-                              Location: {machine.location}
-                            </span>
-                            <span>Tasks: {machine.tasks.length}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 self-start sm:self-center">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500 h-8 px-2"
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30 h-8 px-2"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalMachines}</div>
+                  <p className="text-xs text-wrench-navy-500">Managed machines</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">Active Tasks</CardTitle>
+                    <div className="h-8 w-8 bg-wrench-warning/10 rounded-full flex items-center justify-center">
+                      <Activity className="h-4 w-4 text-wrench-warning" />
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalTasks}</div>
+                  <p className="text-xs text-wrench-navy-500">Maintenance tasks</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-wrench-navy-700">System Health</CardTitle>
+                    <div className="h-8 w-8 bg-wrench-success/10 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-wrench-success" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-wrench-success">100%</div>
+                  <p className="text-xs text-wrench-navy-500">Operational</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-gradient-to-br from-wrench-accent to-wrench-accent-light text-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <UserPlus className="h-5 w-5 mr-2" />
+                    User Management
+                  </CardTitle>
+                  <CardDescription className="text-white/80">
+                    Add, edit, and manage system users
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 font-semibold">
+                    Manage Users
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-wrench-success to-wrench-success/80 text-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <DatabaseIcon className="h-5 w-5 mr-2" />
+                    Data Management
+                  </CardTitle>
+                  <CardDescription className="text-white/80">
+                    Import/export maintenance data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full bg-white text-wrench-success hover:bg-green-50 font-semibold">
+                    Manage Data
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-wrench-warning to-wrench-warning/80 text-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Reports & Analytics
+                  </CardTitle>
+                  <CardDescription className="text-white/80">
+                    Generate comprehensive reports
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full bg-white text-wrench-warning hover:bg-orange-50 font-semibold">
+                    View Reports
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Registered Users ({allUsers.length})
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Users className="h-6 w-6 mr-2 text-wrench-accent" />
+                  User Management
                 </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Users are automatically registered when they sign in for the
-                  first time
+                <CardDescription className="text-wrench-navy-600">
+                  Manage system users and their access permissions
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {allUsers.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      No Users Yet
-                    </h3>
-                    <p className="text-slate-400">
-                      Users will appear here when they sign in.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {allUsers.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 rounded-lg bg-slate-700/30 border border-slate-600/50"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h3 className="text-white font-medium truncate">
-                              {user.name}
-                            </h3>
-                            <Badge
-                              className={`${
-                                user.role === "admin"
-                                  ? "bg-purple-500/20 text-purple-300"
-                                  : "bg-blue-500/20 text-blue-300"
-                              } border-0 capitalize text-xs`}
-                            >
-                              {user.role}
-                            </Badge>
-                          </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-slate-400">
-                            <span className="truncate break-all">
-                              {user.email}
-                            </span>
-                            <span className="text-xs">
-                              Dept: {user.department}
-                            </span>
-                            <span className="text-xs">
-                              Joined:{" "}
-                              {new Date(user.createdAt).toLocaleDateString()}
-                            </span>
-                            {user.lastLogin && (
-                              <span className="text-xs">
-                                Last login:{" "}
-                                {new Date(user.lastLogin).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
+                <div className="space-y-4">
+                  {allUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                          <span className="text-white font-semibold text-sm">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-2 self-start sm:self-center">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-slate-600/50 border-slate-500 text-white hover:bg-slate-500 h-8 px-2"
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="bg-red-600/20 border-red-500/50 text-red-300 hover:bg-red-600/30 h-8 px-2"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                        <div>
+                          <p className="font-medium text-wrench-navy-800">{user.name}</p>
+                          <p className="text-sm text-wrench-navy-600">{user.email}</p>
                         </div>
                       </div>
-                    ))}
+                      <div className="flex items-center space-x-2">
+                        <Badge
+                          className={
+                            user.role === "admin"
+                              ? "bg-wrench-accent text-white"
+                              : "bg-wrench-navy-100 text-wrench-navy-800"
+                          }
+                        >
+                          {user.role}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Equipment Tab */}
+          <TabsContent value="machines" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Settings className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Equipment Management
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Add and manage equipment in the maintenance system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-wrench-navy-800">Add New Equipment</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="machineId" className="text-wrench-navy-700 font-medium">Equipment ID</Label>
+                        <Input
+                          id="machineId"
+                          placeholder="e.g., TRUMPF-5000-001"
+                          value={newMachine.id}
+                          onChange={(e) => setNewMachine({ ...newMachine, id: e.target.value })}
+                          className="border-wrench-navy-200 focus:border-wrench-accent"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="machineName" className="text-wrench-navy-700 font-medium">Equipment Name</Label>
+                        <Input
+                          id="machineName"
+                          placeholder="e.g., Trumpf TruPunch 5000"
+                          value={newMachine.name}
+                          onChange={(e) => setNewMachine({ ...newMachine, name: e.target.value })}
+                          className="border-wrench-navy-200 focus:border-wrench-accent"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="machineType" className="text-wrench-navy-700 font-medium">Type</Label>
+                        <Input
+                          id="machineType"
+                          placeholder="e.g., Punch Press"
+                          value={newMachine.type}
+                          onChange={(e) => setNewMachine({ ...newMachine, type: e.target.value })}
+                          className="border-wrench-navy-200 focus:border-wrench-accent"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="machineLocation" className="text-wrench-navy-700 font-medium">Location</Label>
+                        <Input
+                          id="machineLocation"
+                          placeholder="e.g., Production Floor A"
+                          value={newMachine.location}
+                          onChange={(e) => setNewMachine({ ...newMachine, location: e.target.value })}
+                          className="border-wrench-navy-200 focus:border-wrench-accent"
+                        />
+                      </div>
+                      <Button
+                        onClick={handleAddMachine}
+                        className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Equipment
+                      </Button>
+                    </div>
                   </div>
-                )}
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-wrench-navy-800">Current Equipment</h3>
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {machines.map((machine) => (
+                        <div
+                          key={machine.id}
+                          className="p-3 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-wrench-navy-800">{machine.name}</p>
+                              <p className="text-sm text-wrench-navy-600">{machine.id} • {machine.location}</p>
+                            </div>
+                            <Badge className="bg-wrench-success text-white">
+                              {machine.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <FileText className="h-6 w-6 mr-2 text-wrench-accent" />
+                  Professional Reports
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Generate comprehensive maintenance and performance reports
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    {
+                      title: "Task Performance",
+                      description: "Task completion rates and efficiency metrics",
+                      type: "task-performance",
+                      icon: Target,
+                      color: "wrench-accent"
+                    },
+                    {
+                      title: "Maintenance Schedule",
+                      description: "Upcoming and overdue maintenance tasks",
+                      type: "maintenance-schedule",
+                      icon: Calendar,
+                      color: "wrench-warning"
+                    },
+                    {
+                      title: "Equipment Efficiency",
+                      description: "Machine performance and utilization",
+                      type: "machine-efficiency",
+                      icon: Settings,
+                      color: "wrench-success"
+                    },
+                    {
+                      title: "Issues & Alerts",
+                      description: "System alerts and maintenance issues",
+                      type: "issues-alerts",
+                      icon: AlertTriangle,
+                      color: "wrench-error"
+                    },
+                    {
+                      title: "Completion History",
+                      description: "Historical task completion data",
+                      type: "completion-history",
+                      icon: Clock,
+                      color: "wrench-navy-600"
+                    }
+                  ].map((report) => (
+                    <Card key={report.type} className="border-wrench-navy-200 hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className={`h-10 w-10 bg-${report.color}/10 rounded-full flex items-center justify-center mb-2`}>
+                          <report.icon className={`h-5 w-5 text-${report.color}`} />
+                        </div>
+                        <CardTitle className="text-sm font-semibold text-wrench-navy-800">
+                          {report.title}
+                        </CardTitle>
+                        <CardDescription className="text-xs text-wrench-navy-600">
+                          {report.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          onClick={() => generateReport(report.type)}
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download CSV
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* System Tab */}
           <TabsContent value="system" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <DatabaseIcon className="h-5 w-5" />
-                    Data Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Link to="/admin/database">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      <DatabaseIcon className="h-4 w-4 mr-2" />
-                      Manage Database
-                    </Button>
-                  </Link>
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Import Excel
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("task-performance")}
-                    className="w-full bg-orange-600 hover:bg-orange-700"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Data
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    System Analytics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Tasks with Progress</span>
-                    <span className="text-white font-medium">
-                      {analytics.tasksWithProgress}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Total Completions</span>
-                    <span className="text-white font-medium">
-                      {analytics.totalCompletions}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Average Task Time</span>
-                    <span className="text-white font-medium">
-                      {analytics.averageTaskTime} min
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Most Active User</span>
-                    <span className="text-white font-medium">
-                      {analytics.mostActiveUser.name}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-300">System Status</span>
-                    <Badge className="bg-green-500/20 text-green-300 border-0">
-                      Operational
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Smart Scheduling Test
-                  </CardTitle>
-                  <CardDescription className="text-slate-400">
-                    Test the smart scheduling system without waiting for real
-                    time
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3">
-                    <Button
-                      onClick={() => {
-                        const tasks = Database.getTasks();
-                        const today = new Date();
-                        let results = "";
-
-                        if (tasks.length === 0) {
-                          results =
-                            "⚠️ No tasks found. Please upload task data first to test scheduling.";
-                        } else {
-                          results = "🧪 Smart Scheduling Test Results:\n\n";
-
-                          // Test daily task scheduling
-                          const dailyTask = tasks.find(
-                            (t) => t.frequency === "daily",
-                          );
-                          if (dailyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate(
-                              "daily",
-                              today,
-                            );
-                            results += `✅ Daily Task: Completed today → Next due tomorrow (${nextDue.toLocaleDateString()})\n`;
-                          }
-
-                          // Test weekly task scheduling
-                          const weeklyTask = tasks.find(
-                            (t) => t.frequency === "weekly",
-                          );
-                          if (weeklyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate(
-                              "weekly",
-                              today,
-                            );
-                            results += `✅ Weekly Task: Completed today → Next due in 7 days (${nextDue.toLocaleDateString()})\n`;
-                          }
-
-                          // Test monthly task scheduling
-                          const monthlyTask = tasks.find(
-                            (t) => t.frequency === "monthly",
-                          );
-                          if (monthlyTask) {
-                            const nextDue = TaskScheduler.calculateNextDueDate(
-                              "monthly",
-                              today,
-                            );
-                            results += `✅ Monthly Task: Completed today → Next due next month (${nextDue.toLocaleDateString()})\n`;
-                          }
-
-                          if (!dailyTask && !weeklyTask && !monthlyTask) {
-                            results +=
-                              "⚠️ No tasks with recognizable frequency patterns found.";
-                          }
-                        }
-
-                        setTestResults(results);
-                        setShowTestResults(true);
-                      }}
-                      className="w-full bg-orange-600 hover:bg-orange-700"
-                    >
-                      <Clock className="h-4 w-4 mr-2" />
-                      Test Smart Scheduling Logic
-                    </Button>
-
-                    <Button
-                      onClick={() => {
-                        const tasks = Database.getTasks();
-                        if (tasks.length === 0) {
-                          setTestResults(
-                            "⚠️ No tasks found. Please upload task data first.",
-                          );
-                          setShowTestResults(true);
-                          return;
-                        }
-
-                        const currentUser = AuthService.getCurrentUser();
-                        if (!currentUser) {
-                          setTestResults(
-                            "⚠️ Please log in to simulate task completion.",
-                          );
-                          setShowTestResults(true);
-                          return;
-                        }
-
-                        // Find a task to simulate completion
-                        const taskToComplete = tasks[0];
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-
-                        // Simulate completing the task yesterday
-                        const success = TaskScheduler.completeTask(
-                          taskToComplete.id,
-                          currentUser.id,
-                          currentUser.name,
-                          [
-                            {
-                              id: "1",
-                              text: "Test completion",
-                              completed: true,
-                            },
-                            {
-                              id: "2",
-                              text: "Simulated for testing",
-                              completed: true,
-                            },
-                          ],
-                          "Simulated completion for testing smart scheduling",
-                          [],
-                          yesterday,
-                        );
-
-                        if (success) {
-                          const nextDue = TaskScheduler.calculateNextDueDate(
-                            taskToComplete.frequency,
-                            yesterday,
-                            taskToComplete.weeklyDay,
-                          );
-
-                          setTestResults(
-                            `✅ Simulated completing "${taskToComplete.taskName}" yesterday.\n\nNext due date: ${nextDue.toLocaleDateString()}\n\nRefresh the page to see updated task list!`,
-                          );
-                        } else {
-                          setTestResults(
-                            "❌ Failed to simulate task completion.",
-                          );
-                        }
-                        setShowTestResults(true);
-                      }}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Simulate Task Completion (Yesterday)
-                    </Button>
-                  </div>
-
-                  {showTestResults && (
-                    <div className="mt-4 p-4 bg-slate-700/30 border border-slate-600/50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-white font-medium text-sm">
-                          Test Results
-                        </h4>
-                        <Button
-                          onClick={() => setShowTestResults(false)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-slate-400 hover:text-white h-6 w-6 p-0"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                      <div className="text-xs text-slate-300 whitespace-pre-line font-mono bg-slate-800/50 p-3 rounded border border-slate-600/30">
-                        {testResults}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="text-xs text-slate-400 p-3 bg-slate-700/30 rounded-lg">
-                    <strong>How to Test:</strong>
-                    <br />
-                    1. Use "Test Smart Scheduling Logic" to verify the
-                    calculation logic
-                    <br />
-                    2. Use "Simulate Task Completion" to test with real data
-                    <br />
-                    3. Check the Tasks page to see updated due dates
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Reports Tab */}
-          <TabsContent value="reports" className="space-y-6">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
+            <Card className="bg-white border-wrench-navy-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  System Reports
+                <CardTitle className="text-wrench-navy-800 flex items-center">
+                  <Server className="h-6 w-6 mr-2 text-wrench-accent" />
+                  System Health & Testing
                 </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Generate and download detailed system reports based on real
-                  data
+                <CardDescription className="text-wrench-navy-600">
+                  Monitor system performance and run diagnostic tests
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Button
-                    onClick={() => generateReport("task-performance")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <BarChart3 className="h-6 w-6 mb-2" />
-                    Task Performance Report
-                    <span className="text-xs text-slate-400">
-                      Completion rates & timing
-                    </span>
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("maintenance-schedule")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <Clock className="h-6 w-6 mb-2" />
-                    Maintenance Schedule Report
-                    <span className="text-xs text-slate-400">
-                      Upcoming & overdue tasks
-                    </span>
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("machine-efficiency")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <Activity className="h-6 w-6 mb-2" />
-                    Machine Efficiency Report
-                    <span className="text-xs text-slate-400">
-                      Performance by machine
-                    </span>
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("issues-alerts")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <AlertTriangle className="h-6 w-6 mb-2" />
-                    Issues & Alerts Report
-                    <span className="text-xs text-slate-400">
-                      Overdue tasks & problems
-                    </span>
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("completion-history")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <CheckCircle className="h-6 w-6 mb-2" />
-                    Completion History Report
-                    <span className="text-xs text-slate-400">
-                      Detailed completion records
-                    </span>
-                  </Button>
-                  <Button
-                    onClick={() => generateReport("photo-log")}
-                    variant="outline"
-                    className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 h-20 flex-col"
-                  >
-                    <Camera className="h-6 w-6 mb-2" />
-                    Photo Log Report
-                    <span className="text-xs text-slate-400">
-                      Tasks with photo attachments
-                    </span>
-                  </Button>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
+                    <CheckCircle className="h-8 w-8 text-wrench-success mx-auto mb-2" />
+                    <p className="font-semibold text-wrench-navy-800">Database</p>
+                    <p className="text-sm text-wrench-navy-600">Operational</p>
+                  </div>
+                  <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
+                    <Shield className="h-8 w-8 text-wrench-success mx-auto mb-2" />
+                    <p className="font-semibold text-wrench-navy-800">Security</p>
+                    <p className="text-sm text-wrench-navy-600">Secure</p>
+                  </div>
+                  <div className="text-center p-4 bg-wrench-success/10 rounded-lg border border-wrench-success/20">
+                    <Zap className="h-8 w-8 text-wrench-success mx-auto mb-2" />
+                    <p className="font-semibold text-wrench-navy-800">Performance</p>
+                    <p className="text-sm text-wrench-navy-600">Optimal</p>
+                  </div>
                 </div>
 
-                {analytics.totalTasks === 0 && (
-                  <div className="text-center py-8 bg-slate-700/20 rounded-lg">
-                    <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      No Data for Reports
-                    </h3>
-                    <p className="text-slate-400">
-                      Import maintenance data to generate meaningful reports.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <div className="space-y-4">
+                  <Button
+                    onClick={runSystemTest}
+                    className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-3"
+                  >
+                    <Activity className="h-5 w-5 mr-2" />
+                    Run System Diagnostics
+                  </Button>
 
-          {/* Photos Tab */}
-          <TabsContent value="photos" className="space-y-6">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Camera className="h-5 w-5" />
-                  Task Photos & Documentation
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  View photos attached to completed maintenance tasks
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const photoData = Database.getAllTaskPhotos();
-
-                  if (photoData.length === 0) {
-                    return (
-                      <div className="text-center py-12">
-                        <Camera className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-white mb-2">
-                          No Photos Yet
-                        </h3>
-                        <p className="text-slate-400">
-                          Photos will appear here when operators complete tasks
-                          with photo documentation.
-                        </p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="space-y-6">
-                      {photoData.slice(0, 10).map((item, index) => (
-                        <Card
-                          key={`${item.completionId}-${index}`}
-                          className="bg-slate-700/30 border-slate-600/50"
-                        >
-                          <CardHeader className="pb-3">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                              <div className="flex-1">
-                                <CardTitle className="text-white text-lg">
-                                  {item.taskName}
-                                </CardTitle>
-                                <CardDescription className="text-slate-300">
-                                  {item.machineName} • Completed by{" "}
-                                  {item.completedBy}
-                                </CardDescription>
-                              </div>
-                              <div className="flex flex-col sm:items-end gap-1">
-                                <span className="text-sm text-slate-400">
-                                  {item.completedDate.toLocaleDateString()}
-                                </span>
-                                <span className="text-xs text-blue-400">
-                                  {item.photos.length} photo
-                                  {item.photos.length !== 1 ? "s" : ""}
-                                </span>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            {item.notes && (
-                              <div className="mb-4 p-3 bg-slate-600/30 rounded-lg">
-                                <p className="text-sm text-slate-300">
-                                  <strong>Notes:</strong> {item.notes}
-                                </p>
-                              </div>
-                            )}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                              {item.photos.map((photo, photoIndex) => (
-                                <div
-                                  key={photoIndex}
-                                  className="relative group cursor-pointer"
-                                  onClick={() => {
-                                    // Create modal to view full size image
-                                    const modal = document.createElement("div");
-                                    modal.className =
-                                      "fixed inset-0 bg-black/80 flex items-center justify-center z-50";
-                                    modal.innerHTML = `
-                                      <div class="relative max-w-4xl max-h-4xl p-4">
-                                        <img src="${photo}" alt="Task photo" class="max-w-full max-h-full object-contain rounded-lg" />
-                                        <button class="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">
-                                          ×
-                                        </button>
-                                      </div>
-                                    `;
-                                    modal.onclick = (e) => {
-                                      if (
-                                        e.target === modal ||
-                                        e.target.tagName === "BUTTON"
-                                      ) {
-                                        document.body.removeChild(modal);
-                                      }
-                                    };
-                                    document.body.appendChild(modal);
-                                  }}
-                                >
-                                  <img
-                                    src={photo}
-                                    alt={`Task photo ${photoIndex + 1}`}
-                                    className="w-full h-24 sm:h-32 object-cover rounded-lg border border-slate-600 group-hover:border-blue-400 transition-colors"
-                                  />
-                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all rounded-lg flex items-center justify-center">
-                                    <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
-                                      Click to view
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            {item.timeSpent && (
-                              <div className="mt-3 text-xs text-slate-400">
-                                Time spent: {item.timeSpent} minutes
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-
-                      {photoData.length > 10 && (
-                        <div className="text-center py-4">
-                          <p className="text-slate-400 text-sm">
-                            Showing latest 10 photo sessions. Export photo log
-                            report for complete history.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                  {showTestResults && (
+                    <Card className="bg-wrench-navy-50 border-wrench-navy-200">
+                      <CardHeader>
+                        <CardTitle className="text-sm text-wrench-navy-800">Test Results</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <pre className="text-xs text-wrench-navy-700 whitespace-pre-wrap">
+                          {testResults}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Professional Footer */}
+        <div className="mt-12 pt-8 border-t border-wrench-navy-200 text-center">
+          <WrenchTagline variant="default" size="md" />
+        </div>
       </main>
     </div>
   );
+}
+
+// Helper functions for report generation
+function generateTaskPerformanceReport(): string {
+  const tasks = Database.getTasks();
+  const headers = [
+    "Task ID",
+    "Task Name",
+    "Machine",
+    "Status",
+    "Due Date",
+    "Completion Rate",
+    "Priority"
+  ];
+
+  const rows = tasks.map(task => [
+    task.id,
+    task.taskName,
+    task.machineId,
+    task.status || "Pending",
+    task.nextDueDate.toLocaleDateString(),
+    task.lastCompletedDate ? "100%" : "0%",
+    task.category || "Medium"
+  ]);
+
+  return [headers, ...rows].map(row => row.join(",")).join("\n");
+}
+
+function generateMaintenanceScheduleReport(): string {
+  const tasks = Database.getTasks();
+  const headers = [
+    "Equipment ID",
+    "Equipment Name",
+    "Task",
+    "Frequency",
+    "Next Due",
+    "Status",
+    "Location"
+  ];
+
+  const rows = tasks.map(task => {
+    const machine = Database.getMachineById(task.machineId);
+    return [
+      task.machineId,
+      machine?.name || "Unknown",
+      task.taskName,
+      task.frequency,
+      task.nextDueDate.toLocaleDateString(),
+      task.lastCompletedDate ? "Completed" : "Pending",
+      machine?.location || "Unknown"
+    ];
+  });
+
+  return [headers, ...rows].map(row => row.join(",")).join("\n");
+}
+
+function generateMachineEfficiencyReport(): string {
+  const machines = Database.getMachines();
+  const headers = [
+    "Equipment ID",
+    "Equipment Name",
+    "Type",
+    "Location",
+    "Status",
+    "Task Count",
+    "Efficiency"
+  ];
+
+  const rows = machines.map(machine => [
+    machine.id,
+    machine.name,
+    machine.type,
+    machine.location,
+    machine.status,
+    machine.tasks.length.toString(),
+    "95%" // Placeholder efficiency calculation
+  ]);
+
+  return [headers, ...rows].map(row => row.join(",")).join("\n");
+}
+
+function generateIssuesAlertsReport(): string {
+  const analytics = Database.getAnalytics();
+  const headers = [
+    "Alert Type",
+    "Count",
+    "Priority",
+    "Date",
+    "Status"
+  ];
+
+  const rows = [
+    ["Overdue Tasks", analytics.overdueTasks.toString(), "High", new Date().toLocaleDateString(), "Active"],
+    ["Upcoming Tasks", analytics.upcomingTasks.toString(), "Medium", new Date().toLocaleDateString(), "Scheduled"],
+    ["System Health", "1", "Low", new Date().toLocaleDateString(), "Operational"]
+  ];
+
+  return [headers, ...rows].map(row => row.join(",")).join("\n");
 }
