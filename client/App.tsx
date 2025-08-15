@@ -137,7 +137,7 @@ const App = () => {
               path="/settings"
               element={
                 <RoleBasedRoute
-                  allowedRoles={["admin"]}
+                  allowedRoles={["admin", "user"]}
                   fallback={<Navigate to="/" />}
                 >
                   <Settings />
