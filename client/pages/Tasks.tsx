@@ -51,16 +51,19 @@ import {
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
 import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
+import ExportSystem, { type ExportDateType } from "@/lib/exportSystem";
 
 export default function Tasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterMachine, setFilterMachine] = useState("all");
-  const [exportDateRange, setExportDateRange] = useState({
-    start: "",
-    end: "",
-    type: "all",
+  const [exportConfig, setExportConfig] = useState({
+    type: "all" as ExportDateType,
+    startDate: "",
+    endDate: "",
+    format: "csv" as "csv" | "json",
+    includePhotos: false,
   });
 
   const allTasks = Database.getTasks();
@@ -173,65 +176,33 @@ export default function Tasks() {
   };
 
   const handleExportTasks = () => {
-    let tasksToExport = filteredTasks;
+    try {
+      if (exportConfig.type === "custom") {
+        if (!exportConfig.startDate || !exportConfig.endDate) {
+          alert("Please select both start and end dates for custom range export.");
+          return;
+        }
+        ExportSystem.exportCustomRange(
+          new Date(exportConfig.startDate),
+          new Date(exportConfig.endDate),
+          exportConfig.format
+        );
+      } else {
+        const config = {
+          type: exportConfig.type,
+          format: exportConfig.format,
+          includePhotos: exportConfig.includePhotos,
+        };
 
-    // Apply date filtering for export
-    if (exportDateRange.start && exportDateRange.end) {
-      const startDate = new Date(exportDateRange.start);
-      const endDate = new Date(exportDateRange.end);
-
-      tasksToExport = filteredTasks.filter((task) => {
-        const taskDate = task.lastCompleted || task.dueDate;
-        return taskDate >= startDate && taskDate <= endDate;
-      });
+        const content = ExportSystem.exportTaskCompletions(config);
+        const filename = ExportSystem.getReportFilename(exportConfig.type, exportConfig.format);
+        const mimeType = exportConfig.format === "json" ? "application/json" : "text/csv";
+        ExportSystem.downloadFile(content, filename, mimeType);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Export failed. Please try again.");
     }
-
-    const headers = [
-      "Task Name",
-      "Machine Name",
-      "Machine ID",
-      "Frequency",
-      "Due Date",
-      "Status",
-      "Priority",
-      "Assigned To",
-      "Completed By",
-      "Completion Date",
-      "Time Taken (min)",
-      "Notes",
-      "Photos Count",
-    ];
-
-    const rows = tasksToExport.map((task) => [
-      task.name,
-      task.machineName,
-      task.machineId,
-      task.frequency,
-      task.dueDate.toLocaleDateString(),
-      task.status,
-      task.priority,
-      task.assignedTo,
-      task.completedBy || "",
-      task.lastCompleted?.toLocaleDateString() || "",
-      task.actualTimeSpent?.toString() || "",
-      task.completionNotes || "",
-      task.photos.length.toString(),
-    ]);
-
-    const csvContent = [headers, ...rows]
-      .map((row) => row.join(","))
-      .join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `tasks_report_${new Date().toISOString().split("T")[0]}.csv`,
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const breadcrumbs = [
@@ -363,8 +334,7 @@ export default function Tasks() {
                   Task Filters & Export
                 </CardTitle>
                 <CardDescription className="text-wrench-navy-600">
-                  Filter tasks and export professional reports with date range
-                  selection
+                  Advanced filtering and professional export system with flexible date ranges (daily, weekly, monthly, yearly, custom)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -433,16 +403,16 @@ export default function Tasks() {
 
                   {/* Export Controls */}
                   <div className="flex flex-col md:flex-row gap-4 items-end">
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div>
                         <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
                           Export Type
                         </label>
                         <Select
-                          value={exportDateRange.type}
-                          onValueChange={(value) =>
-                            setExportDateRange({
-                              ...exportDateRange,
+                          value={exportConfig.type}
+                          onValueChange={(value: ExportDateType) =>
+                            setExportConfig({
+                              ...exportConfig,
                               type: value,
                             })
                           }
@@ -453,18 +423,38 @@ export default function Tasks() {
                           <SelectContent>
                             <SelectItem value="all">All Tasks</SelectItem>
                             <SelectItem value="daily">Daily Report</SelectItem>
-                            <SelectItem value="weekly">
-                              Weekly Report
-                            </SelectItem>
-                            <SelectItem value="monthly">
-                              Monthly Report
-                            </SelectItem>
+                            <SelectItem value="weekly">Weekly Report</SelectItem>
+                            <SelectItem value="monthly">Monthly Report</SelectItem>
+                            <SelectItem value="yearly">Yearly Report</SelectItem>
                             <SelectItem value="custom">Custom Range</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
-                      {exportDateRange.type === "custom" && (
+                      <div>
+                        <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
+                          Format
+                        </label>
+                        <Select
+                          value={exportConfig.format}
+                          onValueChange={(value: "csv" | "json") =>
+                            setExportConfig({
+                              ...exportConfig,
+                              format: value,
+                            })
+                          }
+                        >
+                          <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="csv">CSV (Excel)</SelectItem>
+                            <SelectItem value="json">JSON (Advanced)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {exportConfig.type === "custom" && (
                         <>
                           <div>
                             <label className="text-sm font-medium text-wrench-navy-700 mb-1 block">
@@ -472,11 +462,11 @@ export default function Tasks() {
                             </label>
                             <Input
                               type="date"
-                              value={exportDateRange.start}
+                              value={exportConfig.startDate}
                               onChange={(e) =>
-                                setExportDateRange({
-                                  ...exportDateRange,
-                                  start: e.target.value,
+                                setExportConfig({
+                                  ...exportConfig,
+                                  startDate: e.target.value,
                                 })
                               }
                               className="border-wrench-navy-200 focus:border-wrench-accent"
@@ -489,11 +479,11 @@ export default function Tasks() {
                             </label>
                             <Input
                               type="date"
-                              value={exportDateRange.end}
+                              value={exportConfig.endDate}
                               onChange={(e) =>
-                                setExportDateRange({
-                                  ...exportDateRange,
-                                  end: e.target.value,
+                                setExportConfig({
+                                  ...exportConfig,
+                                  endDate: e.target.value,
                                 })
                               }
                               className="border-wrench-navy-200 focus:border-wrench-accent"
