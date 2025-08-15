@@ -19,6 +19,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import {
   Download,
   Calendar,
@@ -30,38 +31,31 @@ import {
   CheckCircle,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Target,
   Award,
-  Shield,
   Zap,
   Filter,
   RefreshCw,
+  Database as DatabaseIcon,
+  Camera,
 } from "lucide-react";
 import {
   ProfessionalHeader,
   NavigationBreadcrumbs,
 } from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
-import {
-  TaskCompletionTracker,
-  ExportUtils,
-  type ExportFilters,
-} from "@/lib/taskCompletionTracking";
+import ExportSystem, { type ExportDateType } from "@/lib/exportSystem";
+import { TaskCompletionTracker } from "@/lib/taskCompletionTracking";
 import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
-type ReportPeriod = "daily" | "weekly" | "monthly" | "yearly" | "custom";
-
 interface ReportFilters {
-  period: ReportPeriod;
+  period: ExportDateType;
   startDate: string;
   endDate: string;
-  machines: string[];
-  technicians: string[];
-  priorities: string[];
-  categories: string[];
+  format: "csv" | "json";
+  includePhotos: boolean;
 }
 
 export default function Reports() {
@@ -70,10 +64,8 @@ export default function Reports() {
     period: "monthly",
     startDate: "",
     endDate: "",
-    machines: [],
-    technicians: [],
-    priorities: [],
-    categories: [],
+    format: "csv",
+    includePhotos: false,
   });
 
   const [reportData, setReportData] = useState<any>(null);
@@ -81,14 +73,7 @@ export default function Reports() {
 
   const machines = Database.getMachines();
   const users = AuthService.getAllUsers();
-  const priorities = ["Critical", "High", "Medium", "Low"];
-  const categories = [
-    "safety",
-    "inspection",
-    "cleaning",
-    "repair",
-    "calibration",
-  ];
+  const analytics = Database.getAnalytics();
 
   useEffect(() => {
     generateReport();
@@ -98,38 +83,48 @@ export default function Reports() {
     setIsGenerating(true);
 
     try {
-      // Simulate data processing
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Generate comprehensive report data
+      const analytics = Database.getAnalytics();
+      const completionData = TaskCompletionTracker.getAnalytics();
+      const allTasks = Database.getTasks();
+      
+      // Calculate performance metrics
+      const totalCompletions = allTasks.reduce((sum, task) => sum + task.completionHistory.length, 0);
+      const averagePhotosPerCompletion = totalCompletions > 0 
+        ? allTasks.reduce((sum, task) => 
+            sum + task.completionHistory.reduce((photoSum, completion) => 
+              photoSum + (completion.photos?.length || 0), 0), 0) / totalCompletions
+        : 0;
+      
+      const recentCompletions = Database.getRecentCompletions(10);
+      const machineEfficiency = Database.getMachineEfficiency();
 
-      const dateRange =
-        filters.period === "custom"
-          ? {
-              start: new Date(filters.startDate),
-              end: new Date(filters.endDate),
-            }
-          : TaskCompletionTracker.getDateRangeForPeriod(filters.period);
-
-      const exportFilters: Partial<ExportFilters> = {
-        dateRange: { ...dateRange, type: filters.period },
-        machines: filters.machines.length > 0 ? filters.machines : undefined,
-        technicians:
-          filters.technicians.length > 0 ? filters.technicians : undefined,
-        priorities:
-          filters.priorities.length > 0 ? filters.priorities : undefined,
-      };
-
-      const data = TaskCompletionTracker.exportDetailedReport(exportFilters);
-      setReportData(data);
+      setReportData({
+        analytics,
+        completionData,
+        totalCompletions,
+        averagePhotosPerCompletion,
+        recentCompletions,
+        machineEfficiency,
+        summary: {
+          totalTasks: analytics.totalTasks,
+          completedToday: analytics.completedToday,
+          overdueTasks: analytics.overdueTasks,
+          avgCompletionTime: analytics.averageTaskTime,
+          mostActiveUser: analytics.mostActiveUser,
+          totalMachines: analytics.totalMachines,
+        }
+      });
 
       toast({
         title: "Report Generated",
-        description:
-          "Professional maintenance report has been generated successfully.",
+        description: "Professional maintenance report generated successfully.",
       });
     } catch (error) {
+      console.error('Failed to generate report:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate report. Please try again.",
+        title: "Report Generation Failed",
+        description: "Unable to generate report data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -137,52 +132,47 @@ export default function Reports() {
     }
   };
 
-  const exportReport = (format: "csv" | "json") => {
-    if (!reportData) return;
-
-    const dateRange =
-      filters.period === "custom"
-        ? { start: new Date(filters.startDate), end: new Date(filters.endDate) }
-        : TaskCompletionTracker.getDateRangeForPeriod(filters.period);
-
-    const filename = ExportUtils.generateReportFilename(
-      `${filters.period}_maintenance`,
-      dateRange,
-    );
-
-    if (format === "csv") {
-      const csvContent = TaskCompletionTracker.exportToCSV({
-        dateRange: { ...dateRange, type: filters.period },
-        machines: filters.machines.length > 0 ? filters.machines : undefined,
-        technicians:
-          filters.technicians.length > 0 ? filters.technicians : undefined,
-        priorities:
-          filters.priorities.length > 0 ? filters.priorities : undefined,
+  const handleExportReport = () => {
+    try {
+      if (filters.period === "custom") {
+        if (!filters.startDate || !filters.endDate) {
+          toast({
+            title: "Missing Dates",
+            description: "Please select both start and end dates for custom range.",
+            variant: "destructive",
+          });
+          return;
+        }
+        ExportSystem.exportCustomRange(
+          new Date(filters.startDate),
+          new Date(filters.endDate),
+          filters.format
+        );
+      } else {
+        const config = {
+          type: filters.period,
+          format: filters.format,
+          includePhotos: filters.includePhotos,
+        };
+        
+        const content = ExportSystem.exportTaskCompletions(config);
+        const filename = ExportSystem.getReportFilename(filters.period, filters.format);
+        const mimeType = filters.format === "json" ? "application/json" : "text/csv";
+        ExportSystem.downloadFile(content, filename, mimeType);
+      }
+      
+      toast({
+        title: "Export Successful",
+        description: `${filters.period} report downloaded in ${filters.format.toUpperCase()} format.`,
       });
-
-      ExportUtils.downloadCSV(csvContent, filename);
-    } else {
-      ExportUtils.downloadJSON(reportData, filename.replace(".csv", ".json"));
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: "Export Failed", 
+        description: "Unable to export report. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    toast({
-      title: "Export Complete",
-      description: `Report exported as ${format.toUpperCase()} successfully.`,
-    });
-  };
-
-  const handleFilterChange = (key: keyof ReportFilters, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleMultiSelectChange = (key: keyof ReportFilters, value: string) => {
-    setFilters((prev) => {
-      const currentValues = prev[key] as string[];
-      const newValues = currentValues.includes(value)
-        ? currentValues.filter((v) => v !== value)
-        : [...currentValues, value];
-      return { ...prev, [key]: newValues };
-    });
   };
 
   const breadcrumbs = [
@@ -216,25 +206,23 @@ export default function Reports() {
             </span>
           </h1>
           <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
-            Comprehensive maintenance analytics, performance metrics, and
-            professional reporting for data-driven operational decisions.
+            Comprehensive maintenance analytics with flexible export options: daily, weekly, monthly, yearly, and custom date ranges.
           </p>
         </div>
 
-        {/* Filters Card */}
+        {/* Export Controls */}
         <Card className="bg-white border-wrench-navy-200 shadow-lg mb-8">
           <CardHeader>
             <CardTitle className="text-wrench-navy-800 flex items-center">
-              <Filter className="h-6 w-6 mr-2 text-wrench-accent" />
-              Report Configuration
+              <Download className="h-6 w-6 mr-2 text-wrench-accent" />
+              Professional Export System
             </CardTitle>
             <CardDescription className="text-wrench-navy-600">
-              Configure date ranges, filters, and export options for your
-              professional reports
+              Export maintenance data with flexible date filtering (daily, weekly, monthly, yearly, custom ranges)
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
               {/* Period Selection */}
               <div className="space-y-2">
                 <Label className="text-wrench-navy-700 font-medium">
@@ -242,19 +230,41 @@ export default function Reports() {
                 </Label>
                 <Select
                   value={filters.period}
-                  onValueChange={(value: ReportPeriod) =>
-                    handleFilterChange("period", value)
+                  onValueChange={(value: ExportDateType) =>
+                    setFilters(prev => ({ ...prev, period: value }))
                   }
                 >
                   <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
                     <SelectItem value="daily">Daily Report</SelectItem>
                     <SelectItem value="weekly">Weekly Report</SelectItem>
                     <SelectItem value="monthly">Monthly Report</SelectItem>
                     <SelectItem value="yearly">Yearly Report</SelectItem>
                     <SelectItem value="custom">Custom Range</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Format Selection */}
+              <div className="space-y-2">
+                <Label className="text-wrench-navy-700 font-medium">
+                  Export Format
+                </Label>
+                <Select
+                  value={filters.format}
+                  onValueChange={(value: "csv" | "json") =>
+                    setFilters(prev => ({ ...prev, format: value }))
+                  }
+                >
+                  <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="csv">CSV (Excel Compatible)</SelectItem>
+                    <SelectItem value="json">JSON (Advanced Data)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -270,7 +280,7 @@ export default function Reports() {
                       type="date"
                       value={filters.startDate}
                       onChange={(e) =>
-                        handleFilterChange("startDate", e.target.value)
+                        setFilters(prev => ({ ...prev, startDate: e.target.value }))
                       }
                       className="border-wrench-navy-200 focus:border-wrench-accent"
                     />
@@ -283,89 +293,107 @@ export default function Reports() {
                       type="date"
                       value={filters.endDate}
                       onChange={(e) =>
-                        handleFilterChange("endDate", e.target.value)
+                        setFilters(prev => ({ ...prev, endDate: e.target.value }))
                       }
                       className="border-wrench-navy-200 focus:border-wrench-accent"
                     />
                   </div>
                 </>
               )}
-
-              {/* Machine Filter */}
+              
+              {/* Photo Inclusion */}
               <div className="space-y-2">
                 <Label className="text-wrench-navy-700 font-medium">
-                  Equipment Filter
+                  Include Photos
                 </Label>
-                <Select
-                  onValueChange={(value) =>
-                    handleMultiSelectChange("machines", value)
-                  }
-                >
-                  <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
-                    <SelectValue
-                      placeholder={`${filters.machines.length} selected`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {machines.map((machine) => (
-                      <SelectItem key={machine.id} value={machine.id}>
-                        {machine.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center space-x-2 pt-2">
+                  <Switch
+                    checked={filters.includePhotos}
+                    onCheckedChange={(checked) =>
+                      setFilters(prev => ({ ...prev, includePhotos: checked }))
+                    }
+                  />
+                  <span className="text-sm text-wrench-navy-600">
+                    Export photo data
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Export Actions */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                onClick={generateReport}
-                disabled={isGenerating}
-                className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white"
+                onClick={handleExportReport}
+                className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white px-6 py-2"
               >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Generating Report...
-                  </>
-                ) : (
-                  <>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Generate Report
-                  </>
-                )}
+                <Download className="h-4 w-4 mr-2" />
+                Export {filters.period} Report
               </Button>
-
-              {reportData && (
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => exportReport("csv")}
-                    variant="outline"
-                    className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export CSV
-                  </Button>
-
-                  <Button
-                    onClick={() => exportReport("json")}
-                    variant="outline"
-                    className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Export JSON
-                  </Button>
-                </div>
-              )}
+              
+              <Button
+                onClick={generateReport}
+                variant="outline"
+                className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
+                disabled={isGenerating}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+                Refresh Data
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Report Content */}
+        {/* Quick Export Buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Button
+            onClick={() => ExportSystem.exportDaily()}
+            variant="outline"
+            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+          >
+            <div className="text-center">
+              <Calendar className="h-5 w-5 mx-auto mb-1 text-wrench-accent" />
+              <div className="text-sm font-medium">Daily</div>
+            </div>
+          </Button>
+          
+          <Button
+            onClick={() => ExportSystem.exportWeekly()}
+            variant="outline"
+            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+          >
+            <div className="text-center">
+              <BarChart3 className="h-5 w-5 mx-auto mb-1 text-wrench-success" />
+              <div className="text-sm font-medium">Weekly</div>
+            </div>
+          </Button>
+          
+          <Button
+            onClick={() => ExportSystem.exportMonthly()}
+            variant="outline"
+            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+          >
+            <div className="text-center">
+              <Target className="h-5 w-5 mx-auto mb-1 text-wrench-warning" />
+              <div className="text-sm font-medium">Monthly</div>
+            </div>
+          </Button>
+          
+          <Button
+            onClick={() => ExportSystem.exportYearly()}
+            variant="outline"
+            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+          >
+            <div className="text-center">
+              <Award className="h-5 w-5 mx-auto mb-1 text-wrench-navy-600" />
+              <div className="text-sm font-medium">Yearly</div>
+            </div>
+          </Button>
+        </div>
+
+        {/* Analytics Dashboard */}
         {reportData && (
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 bg-white border border-wrench-navy-200 p-1">
+            <TabsList className="grid w-full grid-cols-4 bg-white border border-wrench-navy-200 p-1">
               <TabsTrigger
                 value="overview"
                 className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
@@ -388,24 +416,16 @@ export default function Reports() {
                 Equipment
               </TabsTrigger>
               <TabsTrigger
-                value="technicians"
+                value="team"
                 className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
               >
                 <Users className="h-4 w-4 mr-2" />
-                Technicians
-              </TabsTrigger>
-              <TabsTrigger
-                value="detailed"
-                className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Detailed
+                Team
               </TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="bg-white border-wrench-navy-200 shadow-lg">
                   <CardHeader className="pb-2">
@@ -413,17 +433,15 @@ export default function Reports() {
                       <CardTitle className="text-sm font-medium text-wrench-navy-700">
                         Total Tasks
                       </CardTitle>
-                      <div className="h-8 w-8 bg-wrench-accent/10 rounded-full flex items-center justify-center">
-                        <Target className="h-4 w-4 text-wrench-accent" />
-                      </div>
+                      <DatabaseIcon className="h-4 w-4 text-wrench-accent" />
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-wrench-navy-800">
-                      {reportData.summary.totalTasksCompleted}
+                      {reportData.summary.totalTasks}
                     </div>
                     <p className="text-xs text-wrench-navy-500">
-                      Completed tasks
+                      Active maintenance tasks
                     </p>
                   </CardContent>
                 </Card>
@@ -432,40 +450,17 @@ export default function Reports() {
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                        Total Time
+                        Completed Today
                       </CardTitle>
-                      <div className="h-8 w-8 bg-wrench-warning/10 rounded-full flex items-center justify-center">
-                        <Clock className="h-4 w-4 text-wrench-warning" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-wrench-navy-800">
-                      {Math.round(reportData.summary.totalTimeSpent / 60)}h
-                    </div>
-                    <p className="text-xs text-wrench-navy-500">
-                      Avg: {reportData.summary.averageTimePerTask}min/task
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white border-wrench-navy-200 shadow-lg">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                        Efficiency
-                      </CardTitle>
-                      <div className="h-8 w-8 bg-wrench-success/10 rounded-full flex items-center justify-center">
-                        <Zap className="h-4 w-4 text-wrench-success" />
-                      </div>
+                      <CheckCircle className="h-4 w-4 text-wrench-success" />
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-wrench-success">
-                      {reportData.summary.efficiencyRate}%
+                      {reportData.summary.completedToday}
                     </div>
                     <p className="text-xs text-wrench-navy-500">
-                      Time efficiency
+                      Tasks finished today
                     </p>
                   </CardContent>
                 </Card>
@@ -474,331 +469,144 @@ export default function Reports() {
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-wrench-navy-700">
-                        Safety
+                        Overdue
                       </CardTitle>
-                      <div className="h-8 w-8 bg-wrench-navy-600/10 rounded-full flex items-center justify-center">
-                        <Shield className="h-4 w-4 text-wrench-navy-600" />
-                      </div>
+                      <AlertTriangle className="h-4 w-4 text-wrench-error" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-wrench-error">
+                      {reportData.summary.overdueTasks}
+                    </div>
+                    <p className="text-xs text-wrench-navy-500">
+                      Tasks past due date
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white border-wrench-navy-200 shadow-lg">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-wrench-navy-700">
+                        Avg Time
+                      </CardTitle>
+                      <Clock className="h-4 w-4 text-wrench-warning" />
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-wrench-navy-800">
-                      {reportData.summary.safetyComplianceRate}%
+                      {reportData.summary.avgCompletionTime}m
                     </div>
                     <p className="text-xs text-wrench-navy-500">
-                      Compliance rate
+                      Average completion time
                     </p>
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
 
-              {/* Performance Summary */}
+            {/* Performance Tab */}
+            <TabsContent value="performance" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-white border-wrench-navy-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-wrench-navy-800">Total Completions</CardTitle>
+                    <CardDescription className="text-wrench-navy-600">
+                      Overall task completion metrics
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-wrench-accent mb-2">
+                      {reportData.totalCompletions}
+                    </div>
+                    <div className="text-sm text-wrench-navy-600">
+                      Total task completions recorded
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white border-wrench-navy-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-wrench-navy-800">Photo Documentation</CardTitle>
+                    <CardDescription className="text-wrench-navy-600">
+                      Average photos per completion
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-wrench-success mb-2">
+                      {reportData.averagePhotosPerCompletion.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-wrench-navy-600 flex items-center">
+                      <Camera className="h-4 w-4 mr-1" />
+                      Photos per task completion
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Equipment Tab */}
+            <TabsContent value="machines" className="space-y-6">
               <Card className="bg-white border-wrench-navy-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-wrench-navy-800">
-                    Performance Summary
-                  </CardTitle>
+                  <CardTitle className="text-wrench-navy-800">Equipment Efficiency</CardTitle>
                   <CardDescription className="text-wrench-navy-600">
-                    Key performance indicators for the selected period
+                    Maintenance completion rates by equipment
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-wrench-navy-700 font-medium">
-                          Efficiency Rate
-                        </span>
-                        <span className="text-wrench-navy-800 font-semibold">
-                          {reportData.summary.efficiencyRate}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={reportData.summary.efficiencyRate}
-                        className="h-3"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-wrench-navy-700 font-medium">
-                          Safety Compliance
-                        </span>
-                        <span className="text-wrench-navy-800 font-semibold">
-                          {reportData.summary.safetyComplianceRate}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={reportData.summary.safetyComplianceRate}
-                        className="h-3"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-wrench-navy-700 font-medium">
-                          Quality Rate
-                        </span>
-                        <span className="text-wrench-navy-800 font-semibold">
-                          {reportData.summary.qualityRate}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={reportData.summary.qualityRate}
-                        className="h-3"
-                      />
-                    </div>
+                  <div className="space-y-4">
+                    {Object.entries(reportData.machineEfficiency).map(([machineId, efficiency]) => {
+                      const machine = machines.find(m => m.id === machineId);
+                      return (
+                        <div key={machineId} className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-wrench-navy-800">
+                              {machine?.name || machineId}
+                            </p>
+                            <p className="text-sm text-wrench-navy-600">{machineId}</p>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <Progress value={efficiency as number} className="w-24" />
+                            <span className="text-sm font-medium text-wrench-navy-700">
+                              {efficiency}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Performance Tab */}
-            <TabsContent value="performance" className="space-y-6">
-              {reportData.performanceMetrics && (
-                <Card className="bg-white border-wrench-navy-200 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-wrench-navy-800">
-                      Detailed Performance Metrics
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between p-3 bg-wrench-success/10 rounded-lg">
-                          <span className="text-wrench-navy-700 font-medium">
-                            On-Time Completion
-                          </span>
-                          <Badge className="bg-wrench-success text-white">
-                            {reportData.performanceMetrics.onTimeCompletionRate}
-                            %
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-wrench-accent/10 rounded-lg">
-                          <span className="text-wrench-navy-700 font-medium">
-                            Average Efficiency
-                          </span>
-                          <Badge className="bg-wrench-accent text-white">
-                            {reportData.performanceMetrics.averageEfficiency}%
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-wrench-warning/10 rounded-lg">
-                          <span className="text-wrench-navy-700 font-medium">
-                            Avg Task Duration
-                          </span>
-                          <Badge className="bg-wrench-warning text-white">
-                            {reportData.performanceMetrics.averageTaskDuration}{" "}
-                            min
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-wrench-navy-800">
-                          Tasks by Category
-                        </h4>
-                        {Object.entries(
-                          reportData.performanceMetrics.tasksByCategory,
-                        ).map(([category, count]) => (
-                          <div
-                            key={category}
-                            className="flex items-center justify-between"
-                          >
-                            <span className="text-wrench-navy-600 capitalize">
-                              {category}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="border-wrench-navy-300 text-wrench-navy-700"
-                            >
-                              {count as number}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
-            {/* Machines Tab */}
-            <TabsContent value="machines" className="space-y-6">
-              <div className="grid gap-4">
-                {Object.entries(reportData.tasksByMachine).map(
-                  ([machineId, data]: [string, any]) => (
-                    <Card
-                      key={machineId}
-                      className="bg-white border-wrench-navy-200 shadow-lg"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-wrench-navy-800">
-                              {data.machineName}
-                            </h3>
-                            <p className="text-sm text-wrench-navy-600">
-                              {data.location}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-wrench-navy-800">
-                              {data.taskCount}
-                            </div>
-                            <p className="text-sm text-wrench-navy-600">
-                              tasks
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-wrench-navy-600">
-                              Total Time:
-                            </span>
-                            <span className="ml-2 font-semibold text-wrench-navy-800">
-                              {Math.round(data.totalTime / 60)}h{" "}
-                              {data.totalTime % 60}m
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-wrench-navy-600">
-                              Avg per Task:
-                            </span>
-                            <span className="ml-2 font-semibold text-wrench-navy-800">
-                              {Math.round(data.totalTime / data.taskCount)} min
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ),
-                )}
-              </div>
-            </TabsContent>
-
-            {/* Technicians Tab */}
-            <TabsContent value="technicians" className="space-y-6">
-              <div className="grid gap-4">
-                {Object.entries(reportData.tasksByTechnician).map(
-                  ([techId, data]: [string, any]) => (
-                    <Card
-                      key={techId}
-                      className="bg-white border-wrench-navy-200 shadow-lg"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="h-12 w-12 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold">
-                                {data.technicianName.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-wrench-navy-800">
-                                {data.technicianName}
-                              </h3>
-                              <p className="text-sm text-wrench-navy-600">
-                                Professional Technician
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-wrench-navy-800">
-                              {data.taskCount}
-                            </div>
-                            <p className="text-sm text-wrench-navy-600">
-                              tasks
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-wrench-navy-600">
-                              Total Time:
-                            </span>
-                            <div className="font-semibold text-wrench-navy-800">
-                              {Math.round(data.totalTime / 60)}h{" "}
-                              {data.totalTime % 60}m
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-wrench-navy-600">
-                              Avg per Task:
-                            </span>
-                            <div className="font-semibold text-wrench-navy-800">
-                              {Math.round(data.totalTime / data.taskCount)} min
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-wrench-navy-600">
-                              Productivity:
-                            </span>
-                            <div className="font-semibold text-wrench-success">
-                              {data.taskCount > 5
-                                ? "High"
-                                : data.taskCount > 2
-                                  ? "Medium"
-                                  : "Standard"}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ),
-                )}
-              </div>
-            </TabsContent>
-
-            {/* Detailed Tab */}
-            <TabsContent value="detailed" className="space-y-6">
+            {/* Team Tab */}
+            <TabsContent value="team" className="space-y-6">
               <Card className="bg-white border-wrench-navy-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-wrench-navy-800">
-                    Detailed Task List
-                  </CardTitle>
+                  <CardTitle className="text-wrench-navy-800">Top Performer</CardTitle>
                   <CardDescription className="text-wrench-navy-600">
-                    Complete list of tasks included in this report
+                    Most active team member
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {reportData.tasks.slice(0, 10).map((task: any) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center justify-between p-4 bg-wrench-navy-50 rounded-lg border border-wrench-navy-100"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-wrench-navy-800">
-                            {task.taskName}
-                          </h4>
-                          <p className="text-sm text-wrench-navy-600">
-                            {task.machineName} • {task.completedBy} •{" "}
-                            {task.completionDate.toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge className="bg-wrench-success text-white">
-                            {task.actualTimeSpent} min
-                          </Badge>
-                          <Badge
-                            className={`${task.priority === "Critical" ? "bg-wrench-error" : task.priority === "High" ? "bg-wrench-warning" : "bg-wrench-accent"} text-white`}
-                          >
-                            {task.priority}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-
-                    {reportData.tasks.length > 10 && (
-                      <div className="text-center p-4 text-wrench-navy-600">
-                        ... and {reportData.tasks.length - 10} more tasks.
-                        Export the full report to see all data.
-                      </div>
-                    )}
+                  <div className="flex items-center space-x-4">
+                    <div className="h-16 w-16 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-xl">
+                        {reportData.summary.mostActiveUser.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-wrench-navy-800 text-lg">
+                        {reportData.summary.mostActiveUser.name}
+                      </h3>
+                      <p className="text-wrench-navy-600">
+                        {reportData.summary.mostActiveUser.completions} completions
+                      </p>
+                      <Badge className="bg-wrench-accent text-white mt-1">
+                        Top Performer
+                      </Badge>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
