@@ -273,6 +273,16 @@ body {
     animation: pulseGlow 2s ease-in-out infinite;
   }
 
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
   /* Keyframe animations */
   @keyframes fadeInUp {
     to {
