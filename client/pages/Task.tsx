@@ -106,12 +106,7 @@ export default function Task() {
         setChecklist(savedProgress.checklistItems || []);
         setNotes(savedProgress.notes || "");
         setPhotos(savedProgress.photos || []);
-        setStartTime(savedProgress.startTime || new Date());
-        setActualTimeSpent(savedProgress.actualTimeSpent || null);
-        if (savedProgress.completed) {
-          setIsCompleted(true);
-          setEndTime(savedProgress.endTime || new Date());
-        }
+        setProgressSaved(true);
       } else {
         // Generate professional checklist based on task type
         const taskChecklist = [
@@ -232,59 +227,67 @@ export default function Task() {
   const saveProgress = () => {
     if (!task || !currentUser) return;
 
-    const progressData = {
-      taskId: task.id,
-      userId: currentUser.id,
-      checklistItems: checklist,
+    const success = TaskScheduler.saveTaskProgress(
+      task.id,
+      currentUser.id,
+      currentUser.name,
+      checklist,
       notes,
-      photos,
-      startTime,
-      endTime,
-      actualTimeSpent,
-      completed: isCompleted,
-      lastUpdated: new Date(),
-    };
+      photos
+    );
 
-    TaskScheduler.saveTaskProgress(progressData);
-    setProgressSaved(true);
-
-    toast({
-      title: "Progress Saved",
-      description: "Task progress has been saved successfully.",
-    });
-
-    setTimeout(() => setProgressSaved(false), 2000);
+    if (success) {
+      setProgressSaved(true);
+      toast({
+        title: "Progress Saved",
+        description: "Task progress has been saved successfully.",
+      });
+      setTimeout(() => setProgressSaved(false), 2000);
+    } else {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save progress. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const completeTask = () => {
     if (!task || !currentUser) return;
 
-    const completedData = {
-      taskId: task.id,
-      userId: currentUser.id,
-      machineId: machineId!,
-      completedBy: currentUser.name,
-      completionDate: new Date(),
-      actualTimeSpent: actualTimeSpent || Math.floor(elapsedTime / 60),
+    const timeSpent = actualTimeSpent || Math.floor(elapsedTime / 60);
+
+    const success = TaskScheduler.completeTask(
+      task.id,
+      currentUser.id,
+      currentUser.name,
+      checklist,
       notes,
       photos,
-      checklistItems: checklist,
-    };
+      new Date(),
+      timeSpent
+    );
 
-    // Save completion data
-    Database.completeTask(completedData);
-    setIsCompleted(true);
-    setEndTime(new Date());
+    if (success) {
+      setIsCompleted(true);
+      setEndTime(new Date());
 
-    toast({
-      title: "Task Completed",
-      description: "Maintenance task has been marked as complete.",
-    });
+      toast({
+        title: "Task Completed Successfully",
+        description: `Maintenance task completed in ${timeSpent} minutes. Data saved to comprehensive tracking system.`,
+      });
 
-    // Navigate back after a short delay
-    setTimeout(() => {
-      navigate(-1);
-    }, 2000);
+      // Navigate back after a short delay
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
+    } else {
+      toast({
+        title: "Completion Failed",
+        description: "Unable to complete task. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const formatTime = (seconds: number) => {
