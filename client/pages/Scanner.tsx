@@ -281,44 +281,6 @@ export default function Scanner() {
         </div>
 
         {/* Professional Instructions */}
-        <div className="mt-12 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h3 className="text-xl font-bold text-wrench-navy-800 mb-4">
-              Professional Equipment Identification
-            </h3>
-            <p className="text-wrench-navy-600 mb-6">
-              Our advanced scanning system provides instant access to equipment records, 
-              maintenance schedules, and task assignments. Simply scan the QR code or enter 
-              the equipment ID to begin professional maintenance operations.
-            </p>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="h-12 w-12 bg-wrench-accent/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <QrCode className="h-6 w-6 text-wrench-accent" />
-                </div>
-                <h4 className="font-semibold text-wrench-navy-800 mb-2">Scan QR Code</h4>
-                <p className="text-sm text-wrench-navy-600">Use camera to scan equipment QR codes</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="h-12 w-12 bg-wrench-success/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="h-6 w-6 text-wrench-success" />
-                </div>
-                <h4 className="font-semibold text-wrench-navy-800 mb-2">Instant Access</h4>
-                <p className="text-sm text-wrench-navy-600">Immediate access to maintenance data</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="h-12 w-12 bg-wrench-warning/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Settings className="h-6 w-6 text-wrench-warning" />
-                </div>
-                <h4 className="font-semibold text-wrench-navy-800 mb-2">Start Tasks</h4>
-                <p className="text-sm text-wrench-navy-600">Begin scheduled maintenance procedures</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );
