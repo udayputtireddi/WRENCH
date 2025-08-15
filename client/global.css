@@ -206,6 +206,13 @@ body {
     --sidebar-accent-foreground: 210 15% 85%;
     --sidebar-border: 210 30% 15%;
     --sidebar-ring: 217 91% 65%;
+
+    /* WRENCH brand color variables */
+    --wrench-navy: 210 40% 23%;
+    --wrench-accent: 217 91% 60%;
+    --wrench-success: 142 76% 36%;
+    --wrench-warning: 38 92% 50%;
+    --wrench-error: 0 75% 55%;
   }
 }
 
