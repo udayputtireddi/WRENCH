@@ -12,14 +12,7 @@ import {
   Settings,
   BarChart3,
   CheckSquare,
-  Zap,
-  Clock,
   Activity,
-  Users,
-  TrendingUp,
-  Calendar,
-  Target,
-  Award,
   Shield,
   FileText,
   Database as DatabaseIcon,
@@ -48,50 +41,48 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <WrenchBadge className="mb-6" />
-              
-              <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
-                Professional Equipment
-                <br />
-                <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
-                  Maintenance Platform
-                </span>
-              </h1>
-              
-              <p className="text-xl text-wrench-navy-600 mb-6 max-w-3xl mx-auto leading-relaxed">
-                Advanced maintenance management system with professional task tracking and comprehensive reporting.
-              </p>
+            <WrenchBadge className="mb-6" />
+            
+            <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
+              Professional Equipment
+              <br />
+              <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+                Maintenance Platform
+              </span>
+            </h1>
+            
+            <p className="text-xl text-wrench-navy-600 mb-6 max-w-3xl mx-auto leading-relaxed">
+              Advanced maintenance management system with professional task tracking and comprehensive reporting.
+            </p>
 
-              {/* Quick Stats */}
-              {analytics.totalTasks > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
-                    <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalTasks}</div>
-                    <div className="text-sm text-wrench-navy-600">Total Tasks</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
-                    <div className="text-2xl font-bold text-wrench-success">{analytics.completedToday}</div>
-                    <div className="text-sm text-wrench-navy-600">Completed</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
-                    <div className="text-2xl font-bold text-wrench-error">{analytics.overdueTasks}</div>
-                    <div className="text-sm text-wrench-navy-600">Overdue</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
-                    <div className="text-2xl font-bold text-wrench-accent">{analytics.totalMachines}</div>
-                    <div className="text-sm text-wrench-navy-600">Equipment</div>
-                  </div>
+            {/* Quick Stats */}
+            {analytics.totalTasks > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
+                  <div className="text-2xl font-bold text-wrench-navy-800">{analytics.totalTasks}</div>
+                  <div className="text-sm text-wrench-navy-600">Total Tasks</div>
                 </div>
-              )}
-            </div>
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
+                  <div className="text-2xl font-bold text-wrench-success">{analytics.completedToday}</div>
+                  <div className="text-sm text-wrench-navy-600">Completed</div>
+                </div>
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
+                  <div className="text-2xl font-bold text-wrench-error">{analytics.overdueTasks}</div>
+                  <div className="text-sm text-wrench-navy-600">Overdue</div>
+                </div>
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-wrench-navy-200">
+                  <div className="text-2xl font-bold text-wrench-accent">{analytics.totalMachines}</div>
+                  <div className="text-sm text-wrench-navy-600">Equipment</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Main Action Cards - Always show these core options */}
+        {/* Main Action Cards - Core functionality for all users */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* Equipment Scanner */}
-          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardHeader className="text-center pb-4">
               <div className="h-16 w-16 bg-gradient-to-br from-wrench-accent to-wrench-accent-light rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <QrCode className="h-8 w-8 text-white" />
@@ -103,7 +94,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center">
               <Link to="/scan">
-                <Button className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white">
+                <Button className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-3">
                   <QrCode className="h-4 w-4 mr-2" />
                   Start Scanning
                 </Button>
@@ -112,7 +103,7 @@ export default function Home() {
           </Card>
 
           {/* Active Tasks */}
-          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardHeader className="text-center pb-4">
               <div className="h-16 w-16 bg-gradient-to-br from-wrench-success to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <CheckSquare className="h-8 w-8 text-white" />
@@ -124,7 +115,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center">
               <Link to="/tasks">
-                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white">
+                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-3">
                   <CheckSquare className="h-4 w-4 mr-2" />
                   View Tasks
                 </Button>
@@ -133,7 +124,7 @@ export default function Home() {
           </Card>
 
           {/* Analytics */}
-          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardHeader className="text-center pb-4">
               <div className="h-16 w-16 bg-gradient-to-br from-wrench-warning to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <BarChart3 className="h-8 w-8 text-white" />
@@ -145,7 +136,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center">
               <Link to="/analytics">
-                <Button className="w-full bg-gradient-to-r from-wrench-warning to-orange-500 hover:from-orange-500 hover:to-wrench-warning text-white">
+                <Button className="w-full bg-gradient-to-r from-wrench-warning to-orange-500 hover:from-orange-500 hover:to-wrench-warning text-white py-3">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   View Analytics
                 </Button>
@@ -154,7 +145,7 @@ export default function Home() {
           </Card>
 
           {/* System Settings */}
-          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardHeader className="text-center pb-4">
               <div className="h-16 w-16 bg-gradient-to-br from-wrench-navy-600 to-wrench-navy-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Settings className="h-8 w-8 text-white" />
@@ -166,7 +157,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center">
               <Link to="/settings">
-                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white">
+                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white py-3">
                   <Settings className="h-4 w-4 mr-2" />
                   Open Settings
                 </Button>
@@ -183,7 +174,7 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Database Management */}
-              <Card className="bg-gradient-to-br from-wrench-accent to-wrench-accent-light text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
+              <Card className="bg-gradient-to-br from-wrench-accent to-wrench-accent-light text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="text-center">
                   <DatabaseIcon className="h-12 w-12 mx-auto mb-4" />
                   <CardTitle className="text-white">Database Management</CardTitle>
@@ -193,7 +184,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <Link to="/admin/database">
-                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50">
+                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 py-3">
                       <DatabaseIcon className="h-4 w-4 mr-2" />
                       Manage Data
                     </Button>
@@ -202,7 +193,7 @@ export default function Home() {
               </Card>
 
               {/* Professional Reports */}
-              <Card className="bg-gradient-to-br from-wrench-success to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
+              <Card className="bg-gradient-to-br from-wrench-success to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="text-center">
                   <FileText className="h-12 w-12 mx-auto mb-4" />
                   <CardTitle className="text-white">Professional Reports</CardTitle>
@@ -212,7 +203,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <Link to="/reports">
-                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50">
+                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50 py-3">
                       <FileText className="h-4 w-4 mr-2" />
                       View Reports
                     </Button>
@@ -221,7 +212,7 @@ export default function Home() {
               </Card>
 
               {/* Administration Panel */}
-              <Card className="bg-gradient-to-br from-wrench-navy-700 to-wrench-navy-900 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
+              <Card className="bg-gradient-to-br from-wrench-navy-700 to-wrench-navy-900 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="text-center">
                   <Shield className="h-12 w-12 mx-auto mb-4" />
                   <CardTitle className="text-white">Administration</CardTitle>
@@ -231,7 +222,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <Link to="/admin">
-                    <Button className="w-full bg-white text-wrench-navy-800 hover:bg-wrench-navy-50">
+                    <Button className="w-full bg-white text-wrench-navy-800 hover:bg-wrench-navy-50 py-3">
                       <Shield className="h-4 w-4 mr-2" />
                       Admin Panel
                     </Button>
@@ -242,11 +233,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Quick Actions */}
+        {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-white border-wrench-navy-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <Card className="bg-white border-wrench-navy-200 shadow-md">
             <CardContent className="p-6 text-center">
-              <Clock className="h-10 w-10 text-wrench-accent mx-auto mb-3" />
+              <Activity className="h-10 w-10 text-wrench-accent mx-auto mb-3" />
               <h3 className="font-semibold text-wrench-navy-800 mb-2">Recent Activity</h3>
               <p className="text-sm text-wrench-navy-600">
                 {analytics.completedToday} tasks completed today
@@ -254,9 +245,9 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-wrench-navy-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <Card className="bg-white border-wrench-navy-200 shadow-md">
             <CardContent className="p-6 text-center">
-              <Activity className="h-10 w-10 text-wrench-success mx-auto mb-3" />
+              <CheckSquare className="h-10 w-10 text-wrench-success mx-auto mb-3" />
               <h3 className="font-semibold text-wrench-navy-800 mb-2">System Status</h3>
               <p className="text-sm text-wrench-navy-600">
                 All systems operational
@@ -264,9 +255,9 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-wrench-navy-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <Card className="bg-white border-wrench-navy-200 shadow-md">
             <CardContent className="p-6 text-center">
-              <TrendingUp className="h-10 w-10 text-wrench-warning mx-auto mb-3" />
+              <BarChart3 className="h-10 w-10 text-wrench-warning mx-auto mb-3" />
               <h3 className="font-semibold text-wrench-navy-800 mb-2">Performance</h3>
               <p className="text-sm text-wrench-navy-600">
                 {analytics.averageTaskTime}min avg completion
