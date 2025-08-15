@@ -226,33 +226,37 @@ export function ProfessionalHeader({
                   </p>
                 </div>
 
+                {/* Settings for all users */}
                 <DropdownMenuItem asChild>
-                  <Link to="/analytics" className="cursor-pointer">
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Analytics Dashboard
+                  <Link to="/settings" className="cursor-pointer">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Account Settings
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                  <Link to="/reports" className="cursor-pointer">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Professional Reports
-                  </Link>
-                </DropdownMenuItem>
-
+                {/* Admin-only features */}
                 {currentUser?.role === "admin" && (
                   <>
+                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem asChild>
-                      <Link to="/admin" className="cursor-pointer">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Admin Panel
+                      <Link to="/analytics" className="cursor-pointer">
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Analytics Dashboard
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
-                      <Link to="/settings" className="cursor-pointer">
-                        <Settings className="h-4 w-4 mr-2" />
-                        System Settings
+                      <Link to="/reports" className="cursor-pointer">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Professional Reports
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Administration
                       </Link>
                     </DropdownMenuItem>
                   </>
