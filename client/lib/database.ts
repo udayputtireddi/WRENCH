@@ -97,6 +97,7 @@ export class TaskScheduler {
     notes?: string,
     photos?: string[],
     customCompletionDate?: Date,
+    timeSpentMinutes?: number,
   ): boolean {
     const task = taskDatabase.find((t) => t.id === taskId);
     if (!task) return false;
@@ -111,6 +112,7 @@ export class TaskScheduler {
       notes,
       photos: photos || [],
       checklistItems,
+      timeSpentMinutes,
     };
 
     task.completionHistory.push(completion);
@@ -120,6 +122,21 @@ export class TaskScheduler {
       completionDate,
       task.weeklyDay,
     );
+
+    // Save to comprehensive tracking system
+    TaskCompletionTracker.saveTaskCompletion({
+      taskId,
+      taskName: task.taskName,
+      machineId: task.machineId,
+      machineName: task.machineName,
+      frequency: task.frequency,
+      completedBy: userName,
+      completedDate: completionDate,
+      timeSpentMinutes: timeSpentMinutes || 0,
+      notes: notes || '',
+      photos: photos || [],
+      checklistItems
+    });
 
     return true;
   }
@@ -206,60 +223,59 @@ export class ExcelParser {
 
   static exportTasksToCSV(tasks: Task[]): string {
     const headers = [
-      "Machine ID",
-      "Machine Name",
       "Task Name",
-      "Description",
+      "Machine Name",
+      "Machine ID",
       "Frequency",
+      "Date",
+      "Completed By",
+      "Time Taken (min)",
+      "Notes",
+      "Photos Count",
       "Category",
-      "Estimated Time (min)",
-      "Weekly Day",
-      "Safety Notes",
-      "Required Tools",
       "Status",
       "Next Due Date",
-      "Last Completed",
-      "Completion Count",
-      "Last Completed By",
-      "Photos Attached",
-      "Total Photos",
-      "Last Completion Notes",
-      "Time Spent (min)",
     ];
 
-    const rows = tasks.map((task) => {
-      const lastCompletion =
-        task.completionHistory[task.completionHistory.length - 1];
+    // For new format: show each completion as separate row under task
+    const rows: string[][] = [];
 
-      // Count total photos across all completions
-      const totalPhotos = task.completionHistory.reduce(
-        (total, completion) => total + (completion.photos?.length || 0),
-        0,
-      );
-
-      const hasPhotos = totalPhotos > 0 ? "Yes" : "No";
-
-      return [
-        task.machineId,
-        task.machineName,
-        task.taskName,
-        task.description,
-        task.frequency,
-        task.category,
-        task.estimatedTimeMinutes.toString(),
-        task.weeklyDay || "",
-        task.safetyNotes.join("; "),
-        task.requiredTools.join("; "),
-        task.isActive ? "Active" : "Inactive",
-        task.nextDueDate.toLocaleDateString(),
-        task.lastCompletedDate?.toLocaleDateString() || "Never",
-        task.completionHistory.length.toString(),
-        lastCompletion?.userName || "N/A",
-        hasPhotos,
-        totalPhotos.toString(),
-        lastCompletion?.notes || "No notes",
-        lastCompletion?.timeSpentMinutes?.toString() || "N/A",
-      ];
+    tasks.forEach((task) => {
+      if (task.completionHistory.length === 0) {
+        // No completions - show pending task
+        rows.push([
+          task.taskName,
+          task.machineName,
+          task.machineId,
+          task.frequency,
+          task.nextDueDate.toLocaleDateString(),
+          "Pending",
+          "",
+          "Not completed",
+          "0",
+          task.category,
+          "Pending",
+          task.nextDueDate.toLocaleDateString(),
+        ]);
+      } else {
+        // Show each completion
+        task.completionHistory.forEach((completion) => {
+          rows.push([
+            task.taskName,
+            task.machineName,
+            task.machineId,
+            task.frequency,
+            completion.completedDate.toLocaleDateString(),
+            completion.userName,
+            completion.timeSpentMinutes?.toString() || "N/A",
+            completion.notes || "No notes",
+            (completion.photos?.length || 0).toString(),
+            task.category,
+            "Completed",
+            task.nextDueDate.toLocaleDateString(),
+          ]);
+        });
+      }
     });
 
     return [headers, ...rows]
