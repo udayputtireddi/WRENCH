@@ -54,7 +54,7 @@ export default function UserHome() {
                 </h1>
                 
                 <p className="text-xl text-wrench-navy-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  Ready to begin maintenance operations. Contact your supervisor to get started.
+                  Ready to begin maintenance operations. System is prepared for task assignment.
                 </p>
               </div>
             </div>
