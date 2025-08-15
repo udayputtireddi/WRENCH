@@ -228,7 +228,7 @@ export default function Login() {
                     <div className="space-y-4">
                       <div className="text-center">
                         <p className="text-wrench-navy-600 text-sm font-medium">
-                          Contact your system administrator for access
+                          Production-ready maintenance management system
                         </p>
                       </div>
                       
