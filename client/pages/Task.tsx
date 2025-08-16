@@ -50,7 +50,6 @@ import {
   NavigationBreadcrumbs,
 } from "@/components/ProfessionalHeader";
 import { WrenchBadge, WrenchTagline } from "@/components/WrenchLogo";
-import { getTaskStatusColor } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
