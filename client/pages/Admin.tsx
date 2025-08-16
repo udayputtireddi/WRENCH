@@ -126,20 +126,6 @@ export default function Admin() {
     });
   };
 
-  const runSystemTest = () => {
-    setShowTestResults(true);
-    const testData = {
-      taskScheduler: TaskScheduler.testScheduler(),
-      databaseHealth: Database.checkHealth(),
-      userAuthentication: AuthService.testAuth(),
-    };
-
-    setTestResults(JSON.stringify(testData, null, 2));
-    toast({
-      title: "System Test Complete",
-      description: "All system components tested successfully.",
-    });
-  };
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/" },
