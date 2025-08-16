@@ -228,7 +228,7 @@ export default function Scanner() {
                   <Input
                     id="machineId"
                     type="text"
-                    placeholder="Enter equipment ID (e.g., TRUMPF-5000-001)"
+                    placeholder="Enter equipment ID (e.g., EQ-001)"
                     value={manualId}
                     onChange={(e) => setManualId(e.target.value)}
                     className="border-wrench-navy-200 focus:border-wrench-accent focus:ring-wrench-accent/20 text-wrench-navy-800 h-14 text-lg"

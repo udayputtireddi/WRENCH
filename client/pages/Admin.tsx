@@ -425,7 +425,7 @@ export default function Admin() {
                         </Label>
                         <Input
                           id="machineId"
-                          placeholder="e.g., TRUMPF-5000-001"
+                          placeholder="e.g., EQ-001"
                           value={newMachine.id}
                           onChange={(e) =>
                             setNewMachine({ ...newMachine, id: e.target.value })
@@ -442,7 +442,7 @@ export default function Admin() {
                         </Label>
                         <Input
                           id="machineName"
-                          placeholder="e.g., Trumpf TruPunch 5000"
+                          placeholder="e.g., Industrial Equipment Unit"
                           value={newMachine.name}
                           onChange={(e) =>
                             setNewMachine({
