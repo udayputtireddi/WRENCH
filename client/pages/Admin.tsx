@@ -165,7 +165,7 @@ export default function Admin() {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white border border-wrench-navy-200 p-1">
+          <TabsList className="grid w-full grid-cols-4 bg-white border border-wrench-navy-200 p-1">
             <TabsTrigger
               value="overview"
               className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
@@ -193,13 +193,6 @@ export default function Admin() {
             >
               <FileText className="h-4 w-4 mr-2" />
               Reports
-            </TabsTrigger>
-            <TabsTrigger
-              value="system"
-              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
-            >
-              <Server className="h-4 w-4 mr-2" />
-              System
             </TabsTrigger>
           </TabsList>
 
