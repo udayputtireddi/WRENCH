@@ -51,8 +51,6 @@ export default function Admin() {
     type: "",
     location: "",
   });
-  const [testResults, setTestResults] = useState<string>("");
-  const [showTestResults, setShowTestResults] = useState(false);
 
   const analytics = Database.getAnalytics();
   const allUsers = AuthService.getAllUsers();
