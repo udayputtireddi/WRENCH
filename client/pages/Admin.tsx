@@ -708,7 +708,7 @@ function generateMachineEfficiencyReport(): string {
     machine.location,
     machine.status,
     machine.tasks.length.toString(),
-    "95%", // Placeholder efficiency calculation
+    "95%"
   ]);
 
   return [headers, ...rows].map((row) => row.join(",")).join("\n");
