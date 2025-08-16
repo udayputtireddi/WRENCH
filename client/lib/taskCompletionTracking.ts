@@ -453,6 +453,49 @@ export class TaskCompletionTracker {
     return "task_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
   }
 
+  // Get analytics data for reporting
+  static getAnalytics(): any {
+    const tasks = this.getCompletedTasks();
+
+    if (tasks.length === 0) {
+      return {
+        totalCompletions: 0,
+        averageTimePerTask: 0,
+        efficiencyRate: 100,
+        safetyComplianceRate: 100,
+        qualityRate: 100,
+        onTimeCompletionRate: 100,
+        tasksByMachine: {},
+        tasksByTechnician: {},
+        tasksByPriority: {},
+        tasksByCategory: {},
+      };
+    }
+
+    return {
+      totalCompletions: tasks.length,
+      averageTimePerTask: Math.round(
+        tasks.reduce((sum, task) => sum + task.actualTimeSpent, 0) / tasks.length,
+      ),
+      efficiencyRate: this.calculateOverallEfficiency(tasks),
+      safetyComplianceRate: this.calculateSafetyCompliance(tasks),
+      qualityRate: this.calculateQualityRate(tasks),
+      onTimeCompletionRate: Math.round(
+        (tasks.filter((task) => task.completionDate <= task.nextDueDate).length / tasks.length) * 100,
+      ),
+      tasksByMachine: this.groupTasksByMachine(tasks),
+      tasksByTechnician: this.groupTasksByTechnician(tasks),
+      tasksByPriority: this.groupTasksByPriority(tasks),
+      tasksByCategory: tasks.reduce(
+        (acc, task) => {
+          acc[task.category] = (acc[task.category] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+    };
+  }
+
   // Initialize on module load
   static {
     this.loadFromStorage();
