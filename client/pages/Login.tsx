@@ -170,25 +170,6 @@ export default function Login() {
                 </Button>
               </form>
 
-              {/* Demo Credentials */}
-              <div className="mt-6 pt-6 border-t border-wrench-navy-200">
-                <p className="text-center text-sm text-wrench-navy-600 mb-3">
-                  Demo Credentials
-                </p>
-                <div className="grid grid-cols-1 gap-2 text-xs">
-                  <div className="flex items-center justify-between p-2 bg-wrench-navy-50 rounded">
-                    <span className="font-mono text-wrench-navy-800">admin@wrench.com</span>
-                    <span className="text-wrench-navy-600">Administrator</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-wrench-navy-50 rounded">
-                    <span className="font-mono text-wrench-navy-800">operator@wrench.com</span>
-                    <span className="text-wrench-navy-600">Operator</span>
-                  </div>
-                </div>
-                <p className="text-center text-xs text-wrench-navy-500 mt-2">
-                  Password: <span className="font-mono">123</span>
-                </p>
-              </div>
             </CardContent>
           </Card>
 
