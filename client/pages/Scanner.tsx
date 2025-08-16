@@ -245,25 +245,6 @@ export default function Scanner() {
                 </Button>
               </form>
 
-              {/* Example IDs */}
-              <div className="mt-6 p-6 bg-gradient-to-br from-wrench-navy-50 to-wrench-accent/5 rounded-xl border border-wrench-navy-100">
-                <div className="flex items-center space-x-2 mb-4">
-                  <QrCode className="h-5 w-5 text-wrench-accent" />
-                  <p className="text-wrench-navy-700 font-semibold">
-                    Sample Equipment IDs:
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="font-mono text-sm bg-wrench-navy-800 text-white px-3 py-1 rounded">TRUMPF-5000-001</span>
-                    <span className="text-wrench-navy-600 text-sm">Trumpf TruPunch 5000</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="font-mono text-sm bg-wrench-navy-800 text-white px-3 py-1 rounded">TRUMPF-5000-002</span>
-                    <span className="text-wrench-navy-600 text-sm">Trumpf TruPunch 5000 #2</span>
-                  </div>
-                </div>
-              </div>
 
               {/* Professional Features */}
               <div className="grid grid-cols-2 gap-4 pt-6 border-t border-wrench-navy-100">
