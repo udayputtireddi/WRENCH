@@ -278,7 +278,7 @@ export default function AdminDatabase() {
                   className="bg-white text-wrench-navy-800 hover:bg-wrench-navy-50"
                 >
                   <FileSpreadsheet className="h-4 w-4 mr-2" />
-                  Download Excel Template
+                  Download Template
                 </Button>
               </CardContent>
             </Card>
