@@ -57,7 +57,8 @@ export class TaskCompletionTracker {
   private static completedTasks: TaskCompletionData[] = [];
 
   // Save completed task data
-  static saveTaskCompletion(data: Partial<TaskCompletionData>): void {
+  static saveTaskCompletion(data: Partial<TaskCompletionData> & { timeSpentMinutes?: number }): void {
+    const now = new Date();
     const completion: TaskCompletionData = {
       id: data.id || this.generateId(),
       taskId: data.taskId!,
@@ -65,12 +66,12 @@ export class TaskCompletionTracker {
       machineId: data.machineId!,
       machineName: data.machineName!,
       frequency: data.frequency!,
-      completionDate: data.completionDate || new Date(),
+      completionDate: data.completionDate || now,
       completedBy: data.completedBy!,
-      userId: data.userId!,
-      timeStarted: data.timeStarted!,
-      timeCompleted: data.timeCompleted || new Date(),
-      actualTimeSpent: data.actualTimeSpent || 0,
+      userId: data.userId || "system",
+      timeStarted: data.timeStarted || new Date(now.getTime() - (data.timeSpentMinutes || data.actualTimeSpent || 30) * 60000),
+      timeCompleted: data.timeCompleted || now,
+      actualTimeSpent: data.actualTimeSpent || (data as any).timeSpentMinutes || 0,
       estimatedTime: data.estimatedTime || 30,
       notes: data.notes || "",
       photos: data.photos || [],
@@ -82,7 +83,7 @@ export class TaskCompletionTracker {
       qualityCheck: data.qualityCheck || true,
       issuesEncountered: data.issuesEncountered || [],
       partsUsed: data.partsUsed || [],
-      nextDueDate: data.nextDueDate!,
+      nextDueDate: data.nextDueDate || new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // Default to next week
       status: "Completed",
     };
 
