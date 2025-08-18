@@ -96,22 +96,21 @@ export class ExportSystem {
   }
 
   private static exportToCSV(tasks: Task[], start: Date, end: Date, includePhotos = false): string {
+    // New format matching user's Excel requirements:
+    // Task Name, Machine Name, Frequency, Date, then completion details below
     const headers = [
       "Task Name",
       "Machine Name",
-      "Machine ID", 
       "Frequency",
       "Date",
       "Completed By",
       "Time Taken (min)",
       "Notes",
-      "Photos Count",
-      ...(includePhotos ? ["Photo Data"] : []),
+      "Photos",
       "Category",
       "Status",
       "Next Due Date",
-      "Checklist Items Completed",
-      "Total Checklist Items"
+      "Checklist Progress"
     ];
 
     const rows: string[][] = [];
@@ -129,43 +128,47 @@ export class ExportSystem {
           rows.push([
             task.taskName,
             task.machineName,
-            task.machineId,
             task.frequency,
             task.nextDueDate.toLocaleDateString(),
-            "Pending",
-            "",
-            "Not completed",
+            "-- PENDING --",
+            "--",
+            "Task not yet completed",
             "0",
-            ...(includePhotos ? [""] : []),
             task.category,
             "Pending",
             task.nextDueDate.toLocaleDateString(),
-            "0",
-            "0"
+            "0/0"
           ]);
         }
       } else {
-        // Show each completion in date range
+        // Show each completion in date range with enhanced format
         completionsInRange.forEach((completion) => {
           const completedItems = completion.checklistItems.filter(item => item.completed).length;
           const totalItems = completion.checklistItems.length;
 
+          // Format photos for better readability
+          let photosDisplay = "No photos";
+          if (completion.photos && completion.photos.length > 0) {
+            if (includePhotos) {
+              photosDisplay = `${completion.photos.length} photos: ${completion.photos.join("; ")}`;
+            } else {
+              photosDisplay = `${completion.photos.length} photo(s) attached`;
+            }
+          }
+
           rows.push([
             task.taskName,
             task.machineName,
-            task.machineId,
             task.frequency,
             completion.completedDate.toLocaleDateString(),
             completion.userName,
-            completion.timeSpentMinutes?.toString() || "N/A",
-            completion.notes || "No notes",
-            (completion.photos?.length || 0).toString(),
-            ...(includePhotos ? [completion.photos?.join(";") || ""] : []),
+            completion.timeSpentMinutes?.toString() || "Not recorded",
+            completion.notes || "No notes provided",
+            photosDisplay,
             task.category,
             "Completed",
             task.nextDueDate.toLocaleDateString(),
-            completedItems.toString(),
-            totalItems.toString()
+            `${completedItems}/${totalItems}`
           ]);
         });
       }
@@ -185,12 +188,14 @@ export class ExportSystem {
       },
       summary: {
         totalTasks: tasks.length,
-        totalCompletions: tasks.reduce((sum, task) => 
-          sum + task.completionHistory.filter(c => 
+        totalCompletions: tasks.reduce((sum, task) =>
+          sum + task.completionHistory.filter(c =>
             new Date(c.completedDate) >= start && new Date(c.completedDate) <= end
           ).length, 0
         ),
-        completionRate: 0 // Will be calculated below
+        averageTimeSpent: 0,
+        totalPhotos: 0,
+        completionRate: 0
       },
       tasks: tasks.map((task) => {
         const completionsInRange = task.completionHistory.filter((completion) => {
@@ -199,38 +204,62 @@ export class ExportSystem {
         });
 
         return {
-          taskId: task.id,
-          taskName: task.taskName,
-          machineName: task.machineName,
-          machineId: task.machineId,
-          frequency: task.frequency,
-          category: task.category,
-          nextDueDate: task.nextDueDate,
-          completions: completionsInRange.map((completion) => ({
-            completionId: completion.id,
-            completedBy: completion.userName,
-            completedDate: completion.completedDate,
-            timeSpentMinutes: completion.timeSpentMinutes,
-            notes: completion.notes,
-            photosCount: completion.photos?.length || 0,
-            checklistCompletion: {
-              completed: completion.checklistItems.filter(item => item.completed).length,
-              total: completion.checklistItems.length
-            }
-          }))
+          taskDetails: {
+            taskId: task.id,
+            taskName: task.taskName,
+            machineName: task.machineName,
+            machineId: task.machineId,
+            frequency: task.frequency,
+            category: task.category,
+            nextDueDate: task.nextDueDate
+          },
+          completionHistory: completionsInRange.map((completion) => {
+            const completedItems = completion.checklistItems.filter(item => item.completed).length;
+            const totalItems = completion.checklistItems.length;
+
+            return {
+              completionId: completion.id,
+              date: completion.completedDate,
+              completedBy: completion.userName,
+              timeSpentMinutes: completion.timeSpentMinutes,
+              notes: completion.notes,
+              photos: {
+                count: completion.photos?.length || 0,
+                files: completion.photos || []
+              },
+              checklistProgress: {
+                completed: completedItems,
+                total: totalItems,
+                percentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+              }
+            };
+          })
         };
       })
     };
 
-    // Calculate completion rate
-    const pendingTasks = tasks.filter(task => 
-      task.nextDueDate >= start && task.nextDueDate <= end && 
+    // Calculate additional metrics
+    const allCompletions = tasks.flatMap(task =>
+      task.completionHistory.filter(c =>
+        new Date(c.completedDate) >= start && new Date(c.completedDate) <= end
+      )
+    );
+
+    const totalTimeSpent = allCompletions.reduce((sum, c) => sum + (c.timeSpentMinutes || 0), 0);
+    exportData.summary.averageTimeSpent = allCompletions.length > 0
+      ? Math.round(totalTimeSpent / allCompletions.length)
+      : 0;
+
+    exportData.summary.totalPhotos = allCompletions.reduce((sum, c) => sum + (c.photos?.length || 0), 0);
+
+    const pendingTasks = tasks.filter(task =>
+      task.nextDueDate >= start && task.nextDueDate <= end &&
       !task.completionHistory.some(c => new Date(c.completedDate) >= start && new Date(c.completedDate) <= end)
     ).length;
-    
+
     const totalRelevantTasks = exportData.summary.totalCompletions + pendingTasks;
-    exportData.summary.completionRate = totalRelevantTasks > 0 
-      ? Math.round((exportData.summary.totalCompletions / totalRelevantTasks) * 100) 
+    exportData.summary.completionRate = totalRelevantTasks > 0
+      ? Math.round((exportData.summary.totalCompletions / totalRelevantTasks) * 100)
       : 100;
 
     return JSON.stringify(exportData, null, 2);
