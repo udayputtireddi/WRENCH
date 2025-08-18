@@ -218,6 +218,7 @@ export default function Tasks() {
         subtitle="Professional maintenance task tracking and coordination"
         showStats={true}
         variant="gradient"
+        showBackButton={true}
       />
 
       <main className="container mx-auto px-4 py-8">
