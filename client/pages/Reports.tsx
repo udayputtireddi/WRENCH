@@ -212,21 +212,21 @@ export default function Reports() {
         </div>
 
         {/* Export Controls */}
-        <Card className="bg-white border-wrench-navy-200 shadow-lg mb-8">
-          <CardHeader>
-            <CardTitle className="text-wrench-navy-800 flex items-center">
-              <Download className="h-6 w-6 mr-2 text-wrench-accent" />
+        <Card className="bg-white border-wrench-navy-200 shadow-lg mb-6 sm:mb-8">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-wrench-navy-800 flex items-center text-lg sm:text-xl">
+              <Download className="h-5 sm:h-6 w-5 sm:w-6 mr-2 text-wrench-accent" />
               Professional Export System
             </CardTitle>
-            <CardDescription className="text-wrench-navy-600">
+            <CardDescription className="text-wrench-navy-600 text-sm sm:text-base">
               Export maintenance data with flexible date filtering (daily, weekly, monthly, yearly, custom ranges)
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
               {/* Period Selection */}
               <div className="space-y-2">
-                <Label className="text-wrench-navy-700 font-medium">
+                <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
                   Report Period
                 </Label>
                 <Select
@@ -251,7 +251,7 @@ export default function Reports() {
 
               {/* Format Selection */}
               <div className="space-y-2">
-                <Label className="text-wrench-navy-700 font-medium">
+                <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
                   Export Format
                 </Label>
                 <Select
@@ -274,7 +274,7 @@ export default function Reports() {
               {filters.period === "custom" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-wrench-navy-700 font-medium">
+                    <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
                       Start Date
                     </Label>
                     <Input
@@ -287,7 +287,7 @@ export default function Reports() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-wrench-navy-700 font-medium">
+                    <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
                       End Date
                     </Label>
                     <Input
@@ -303,8 +303,8 @@ export default function Reports() {
               )}
               
               {/* Photo Inclusion */}
-              <div className="space-y-2">
-                <Label className="text-wrench-navy-700 font-medium">
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
                   Include Photos
                 </Label>
                 <div className="flex items-center space-x-2 pt-2">
@@ -322,19 +322,19 @@ export default function Reports() {
             </div>
 
             {/* Export Actions */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
                 onClick={handleExportReport}
-                className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white px-6 py-2"
+                className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export {filters.period} Report
               </Button>
-              
+
               <Button
                 onClick={generateReport}
                 variant="outline"
-                className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50"
+                className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base"
                 disabled={isGenerating}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -345,48 +345,48 @@ export default function Reports() {
         </Card>
 
         {/* Quick Export Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button
             onClick={() => ExportSystem.exportDaily()}
             variant="outline"
-            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+            className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
             <div className="text-center">
-              <Calendar className="h-5 w-5 mx-auto mb-1 text-wrench-accent" />
-              <div className="text-sm font-medium">Daily</div>
+              <Calendar className="h-4 sm:h-5 w-4 sm:w-5 mx-auto mb-1 text-wrench-accent" />
+              <div className="text-xs sm:text-sm font-medium">Daily</div>
             </div>
           </Button>
           
           <Button
             onClick={() => ExportSystem.exportWeekly()}
             variant="outline"
-            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+            className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
             <div className="text-center">
-              <BarChart3 className="h-5 w-5 mx-auto mb-1 text-wrench-success" />
-              <div className="text-sm font-medium">Weekly</div>
+              <BarChart3 className="h-4 sm:h-5 w-4 sm:w-5 mx-auto mb-1 text-wrench-success" />
+              <div className="text-xs sm:text-sm font-medium">Weekly</div>
             </div>
           </Button>
           
           <Button
             onClick={() => ExportSystem.exportMonthly()}
             variant="outline"
-            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+            className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
             <div className="text-center">
-              <Target className="h-5 w-5 mx-auto mb-1 text-wrench-warning" />
-              <div className="text-sm font-medium">Monthly</div>
+              <Target className="h-4 sm:h-5 w-4 sm:w-5 mx-auto mb-1 text-wrench-warning" />
+              <div className="text-xs sm:text-sm font-medium">Monthly</div>
             </div>
           </Button>
           
           <Button
             onClick={() => ExportSystem.exportYearly()}
             variant="outline"
-            className="h-16 border-wrench-navy-200 hover:bg-wrench-navy-50"
+            className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
             <div className="text-center">
-              <Award className="h-5 w-5 mx-auto mb-1 text-wrench-navy-600" />
-              <div className="text-sm font-medium">Yearly</div>
+              <Award className="h-4 sm:h-5 w-4 sm:w-5 mx-auto mb-1 text-wrench-navy-600" />
+              <div className="text-xs sm:text-sm font-medium">Yearly</div>
             </div>
           </Button>
         </div>
