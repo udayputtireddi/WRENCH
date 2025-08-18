@@ -43,11 +43,12 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
       {/* Professional Header */}
-      <ProfessionalHeader 
+      <ProfessionalHeader
         title="Analytics Dashboard"
         subtitle="Performance insights and maintenance intelligence"
         showStats={true}
         variant="gradient"
+        showBackButton={true}
       />
 
       <main className="container mx-auto px-4 py-8">
