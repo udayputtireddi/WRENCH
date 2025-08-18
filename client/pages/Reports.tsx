@@ -219,7 +219,8 @@ export default function Reports() {
               Professional Export System
             </CardTitle>
             <CardDescription className="text-wrench-navy-600 text-sm sm:text-base">
-              Export maintenance data with flexible date filtering (daily, weekly, monthly, yearly, custom ranges)
+              Export maintenance data with flexible date filtering (daily, weekly, monthly, yearly, custom ranges).<br />
+              <span className="text-wrench-accent font-medium">New Format:</span> Task name, machine name, frequency, date, completed by, time taken, notes, and photos in Excel-compatible layout.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
