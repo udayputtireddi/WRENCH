@@ -80,21 +80,21 @@ export default function Home() {
         </div>
 
         {/* Main Action Cards - Core functionality for all users */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* Equipment Scanner */}
           <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-            <CardHeader className="text-center pb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-wrench-accent to-wrench-accent-light rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <QrCode className="h-8 w-8 text-white" />
+            <CardHeader className="text-center pb-3 sm:pb-4 p-4 sm:p-6">
+              <div className="h-12 sm:h-16 w-12 sm:w-16 bg-gradient-to-br from-wrench-accent to-wrench-accent-light rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <QrCode className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
               </div>
-              <CardTitle className="text-wrench-navy-800">Equipment Scanner</CardTitle>
-              <CardDescription className="text-wrench-navy-600">
+              <CardTitle className="text-wrench-navy-800 text-sm sm:text-base">Equipment Scanner</CardTitle>
+              <CardDescription className="text-wrench-navy-600 text-xs sm:text-sm">
                 Scan QR codes to access equipment tasks
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="text-center p-4 sm:p-6">
               <Link to="/scan">
-                <Button className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-3">
+                <Button className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-2 sm:py-3 text-sm sm:text-base">
                   <QrCode className="h-4 w-4 mr-2" />
                   Start Scanning
                 </Button>
@@ -104,18 +104,18 @@ export default function Home() {
 
           {/* Active Tasks */}
           <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-            <CardHeader className="text-center pb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-wrench-success to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <CheckSquare className="h-8 w-8 text-white" />
+            <CardHeader className="text-center pb-3 sm:pb-4 p-4 sm:p-6">
+              <div className="h-12 sm:h-16 w-12 sm:w-16 bg-gradient-to-br from-wrench-success to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <CheckSquare className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
               </div>
-              <CardTitle className="text-wrench-navy-800">Active Tasks</CardTitle>
-              <CardDescription className="text-wrench-navy-600">
+              <CardTitle className="text-wrench-navy-800 text-sm sm:text-base">Active Tasks</CardTitle>
+              <CardDescription className="text-wrench-navy-600 text-xs sm:text-sm">
                 View and manage maintenance tasks
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="text-center p-4 sm:p-6">
               <Link to="/tasks">
-                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-3">
+                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-2 sm:py-3 text-sm sm:text-base">
                   <CheckSquare className="h-4 w-4 mr-2" />
                   View Tasks
                 </Button>
@@ -125,18 +125,18 @@ export default function Home() {
 
           {/* Analytics */}
           <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-            <CardHeader className="text-center pb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-wrench-warning to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <BarChart3 className="h-8 w-8 text-white" />
+            <CardHeader className="text-center pb-3 sm:pb-4 p-4 sm:p-6">
+              <div className="h-12 sm:h-16 w-12 sm:w-16 bg-gradient-to-br from-wrench-warning to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <BarChart3 className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
               </div>
-              <CardTitle className="text-wrench-navy-800">Analytics</CardTitle>
-              <CardDescription className="text-wrench-navy-600">
+              <CardTitle className="text-wrench-navy-800 text-sm sm:text-base">Analytics</CardTitle>
+              <CardDescription className="text-wrench-navy-600 text-xs sm:text-sm">
                 Performance metrics and insights
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="text-center p-4 sm:p-6">
               <Link to="/analytics">
-                <Button className="w-full bg-gradient-to-r from-wrench-warning to-orange-500 hover:from-orange-500 hover:to-wrench-warning text-white py-3">
+                <Button className="w-full bg-gradient-to-r from-wrench-warning to-orange-500 hover:from-orange-500 hover:to-wrench-warning text-white py-2 sm:py-3 text-sm sm:text-base">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   View Analytics
                 </Button>
@@ -146,18 +146,18 @@ export default function Home() {
 
           {/* System Settings */}
           <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-            <CardHeader className="text-center pb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-wrench-navy-600 to-wrench-navy-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <Settings className="h-8 w-8 text-white" />
+            <CardHeader className="text-center pb-3 sm:pb-4 p-4 sm:p-6">
+              <div className="h-12 sm:h-16 w-12 sm:w-16 bg-gradient-to-br from-wrench-navy-600 to-wrench-navy-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Settings className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
               </div>
-              <CardTitle className="text-wrench-navy-800">System Settings</CardTitle>
-              <CardDescription className="text-wrench-navy-600">
+              <CardTitle className="text-wrench-navy-800 text-sm sm:text-base">System Settings</CardTitle>
+              <CardDescription className="text-wrench-navy-600 text-xs sm:text-sm">
                 Configure platform preferences
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="text-center p-4 sm:p-6">
               <Link to="/settings">
-                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white py-3">
+                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white py-2 sm:py-3 text-sm sm:text-base">
                   <Settings className="h-4 w-4 mr-2" />
                   Open Settings
                 </Button>
@@ -169,22 +169,22 @@ export default function Home() {
         {/* Admin-Only Features */}
         {currentUser?.role === "admin" && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-wrench-navy-900 mb-6 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-wrench-navy-900 mb-6 text-center">
               Administrative Tools
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Database Management */}
               <Card className="bg-gradient-to-br from-wrench-accent to-wrench-accent-light text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="text-center">
-                  <DatabaseIcon className="h-12 w-12 mx-auto mb-4" />
-                  <CardTitle className="text-white">Database Management</CardTitle>
-                  <CardDescription className="text-white/80">
+                <CardHeader className="text-center p-4 sm:p-6">
+                  <DatabaseIcon className="h-10 sm:h-12 w-10 sm:w-12 mx-auto mb-3 sm:mb-4" />
+                  <CardTitle className="text-white text-sm sm:text-base">Database Management</CardTitle>
+                  <CardDescription className="text-white/80 text-xs sm:text-sm">
                     Import and manage maintenance data
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="text-center p-4 sm:p-6">
                   <Link to="/admin/database">
-                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 py-3">
+                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 py-2 sm:py-3 text-sm sm:text-base">
                       <DatabaseIcon className="h-4 w-4 mr-2" />
                       Manage Data
                     </Button>
@@ -194,37 +194,18 @@ export default function Home() {
 
               {/* Professional Reports */}
               <Card className="bg-gradient-to-br from-wrench-success to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4" />
-                  <CardTitle className="text-white">Professional Reports</CardTitle>
-                  <CardDescription className="text-white/80">
+                <CardHeader className="text-center p-4 sm:p-6">
+                  <FileText className="h-10 sm:h-12 w-10 sm:w-12 mx-auto mb-3 sm:mb-4" />
+                  <CardTitle className="text-white text-sm sm:text-base">Professional Reports</CardTitle>
+                  <CardDescription className="text-white/80 text-xs sm:text-sm">
                     Generate comprehensive reports
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="text-center p-4 sm:p-6">
                   <Link to="/reports">
-                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50 py-3">
+                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50 py-2 sm:py-3 text-sm sm:text-base">
                       <FileText className="h-4 w-4 mr-2" />
                       View Reports
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Administration Panel */}
-              <Card className="bg-gradient-to-br from-wrench-navy-700 to-wrench-navy-900 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="text-center">
-                  <Shield className="h-12 w-12 mx-auto mb-4" />
-                  <CardTitle className="text-white">Administration</CardTitle>
-                  <CardDescription className="text-white/80">
-                    System administration tools
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <Link to="/admin">
-                    <Button className="w-full bg-white text-wrench-navy-800 hover:bg-wrench-navy-50 py-3">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Admin Panel
                     </Button>
                   </Link>
                 </CardContent>
