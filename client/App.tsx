@@ -18,6 +18,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import AdminDatabase from "./pages/AdminDatabase";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import RoleBasedRoute from "./components/RoleBasedRoute";
 import ScrollToTop from "./components/ScrollToTop";
@@ -136,10 +137,21 @@ const App = () => {
               path="/settings"
               element={
                 <RoleBasedRoute
-                  allowedRoles={["admin"]}
+                  allowedRoles={["admin", "user"]}
                   fallback={<Navigate to="/" />}
                 >
                   <Settings />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <RoleBasedRoute
+                  allowedRoles={["admin"]}
+                  fallback={<Navigate to="/" />}
+                >
+                  <Reports />
                 </RoleBasedRoute>
               }
             />

@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import { handleDemo } from "./routes/demo";
 
 export function createServer() {
   const app = express();
@@ -10,12 +9,10 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Example API routes
+  // API routes
   app.get("/api/ping", (_req, res) => {
-    res.json({ message: "Hello from Express server v2!" });
+    res.json({ message: "Server operational" });
   });
-
-  app.get("/api/demo", handleDemo);
 
   return app;
 }

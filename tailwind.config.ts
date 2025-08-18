@@ -57,7 +57,28 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Industrial theme colors
+        // WRENCH brand colors - extracted from logo
+        wrench: {
+          navy: "#2B3A52",
+          "navy-light": "#3A4A63",
+          "navy-dark": "#1E2A3A",
+          "navy-50": "#F8F9FB",
+          "navy-100": "#E8EBF0",
+          "navy-200": "#D1D8E2",
+          "navy-300": "#A8B4C7",
+          "navy-400": "#7B8CA8",
+          "navy-500": "#5A6B82",
+          "navy-600": "#475569",
+          "navy-700": "#3A4A63",
+          "navy-800": "#2B3A52",
+          "navy-900": "#1E2A3A",
+          accent: "#3B82F6",
+          "accent-light": "#60A5FA",
+          warning: "#F59E0B",
+          success: "#10B981",
+          error: "#EF4444",
+        },
+        // Industrial theme colors (legacy)
         industrial: {
           blue: "#2563eb",
           steel: "#475569",

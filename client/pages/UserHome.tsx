@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,214 +10,208 @@ import {
 import {
   QrCode,
   CheckSquare,
-  Zap,
   Activity,
-  LogOut,
-  User,
   AlertCircle,
-  Upload,
+  Clock,
+  Settings,
+  Wrench,
 } from "lucide-react";
-import AuthService from "@/lib/auth";
+import { ProfessionalHeader } from "@/components/ProfessionalHeader";
+import { WrenchTagline, WrenchBadge } from "@/components/WrenchLogo";
 import Database from "@/lib/database";
 
 export default function UserHome() {
-  const navigate = useNavigate();
-  const currentUser = AuthService.getCurrentUser();
   const analytics = Database.getAnalytics();
 
-  const handleLogout = () => {
-    AuthService.logout();
-    navigate("/login");
-  };
-
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative">
-          <div className="flex flex-col items-center gap-3 sm:gap-4">
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center text-white">
-                <User className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-                <div>
-                  <p className="font-semibold text-sm sm:text-base truncate max-w-32 sm:max-w-none">
-                    {currentUser?.name}
-                  </p>
-                  <p className="text-blue-200 text-xs sm:text-sm">
-                    {currentUser?.department}
-                  </p>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader 
+        title="Operator Dashboard"
+        subtitle="Your maintenance tasks and equipment access"
+        showStats={false}
+        variant="gradient"
+      />
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          {analytics.totalTasks === 0 ? (
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-wrench-warning/10 to-wrench-error/10 rounded-full border border-wrench-warning/20 mb-6">
+                  <AlertCircle className="h-6 w-6 text-wrench-warning" />
+                  <span className="text-wrench-navy-800 font-semibold">No Tasks Available</span>
                 </div>
-              </div>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs px-2 py-1"
-              >
-                <LogOut className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-            </div>
-            <div className="text-center">
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10 blur-2xl rounded-full"></div>
-                <h1 className="relative text-2xl sm:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2 tracking-wider">
-                  Check<span className="text-green-400">Mate</span>
+                
+                <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
+                  Awaiting Task
+                  <br />
+                  <span className="bg-gradient-to-r from-wrench-warning to-wrench-error bg-clip-text text-transparent">
+                    Assignment
+                  </span>
                 </h1>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-300/20 to-green-300/20 blur-lg rounded-full"></div>
-                <p className="relative text-blue-100 text-xs sm:text-sm lg:text-lg font-medium tracking-wide uppercase">
-                  Operator Dashboard
+                
+                <p className="text-xl text-wrench-navy-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Ready to begin maintenance operations. System is prepared for task assignment.
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </header>
+          ) : (
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <WrenchBadge className="mb-6" />
+                
+                <h1 className="text-4xl lg:text-5xl font-black text-wrench-navy-900 mb-4">
+                  Ready for
+                  <br />
+                  <span className="bg-gradient-to-r from-wrench-success to-wrench-accent bg-clip-text text-transparent">
+                    Professional Service
+                  </span>
+                </h1>
+                
+                <p className="text-xl text-wrench-navy-600 mb-6 max-w-3xl mx-auto leading-relaxed">
+                  You have <span className="font-semibold text-wrench-navy-800">{analytics.totalTasks} maintenance tasks</span> scheduled across{" "}
+                  <span className="font-semibold text-wrench-navy-800">{analytics.totalMachines} equipment units</span>.
+                </p>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        {/* System Status */}
-        {analytics.totalTasks === 0 ? (
-          <div className="text-center mb-8 sm:mb-16 px-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 blur-3xl rounded-full"></div>
-              <AlertCircle className="h-12 w-12 sm:h-16 sm:w-16 text-orange-400 mx-auto mb-3 sm:mb-4" />
-              <h2 className="relative text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-4 sm:mb-6">
-                No Tasks Available
-              </h2>
-            </div>
-            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8">
-              Your maintenance schedule hasn't been uploaded yet. Contact your
-              supervisor or administrator to set up your tasks.
-            </p>
-            <div className="flex justify-center gap-4">
-              <Button
-                variant="outline"
-                className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600 text-sm px-4 py-2"
-              >
-                Contact Support
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center mb-8 sm:mb-16 px-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-green-500/20 blur-3xl rounded-full"></div>
-              <h2 className="relative text-2xl sm:text-3xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-4 sm:mb-6">
-                Ready for Work
-              </h2>
-            </div>
-            <p className="text-sm sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              You have {analytics.totalTasks} tasks scheduled across{" "}
-              {analytics.totalMachines} machines.
-            </p>
-          </div>
-        )}
-
-        {/* Quick Action Cards - Only Scan and Tasks for Operators */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 max-w-4xl mx-auto mb-8 sm:mb-16">
-          <Card
-            className="group bg-gradient-to-br from-blue-600 to-blue-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/25 animate-slideInUp"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <CardHeader className="text-center pb-6">
-              <div className="relative">
-                <QrCode className="h-16 w-16 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" />
-                <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
+                {/* Quick Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                  <div className="flex items-center justify-center space-x-2 px-4 py-2 bg-wrench-success/10 rounded-full">
+                    <CheckSquare className="h-4 w-4 text-wrench-success" />
+                    <span className="text-wrench-navy-700 font-medium text-sm">
+                      {analytics.completedToday} Completed
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-center space-x-2 px-4 py-2 bg-wrench-warning/10 rounded-full">
+                    <Clock className="h-4 w-4 text-wrench-warning" />
+                    <span className="text-wrench-navy-700 font-medium text-sm">
+                      {analytics.overdueTasks} Overdue
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-center space-x-2 px-4 py-2 bg-wrench-accent/10 rounded-full">
+                    <Activity className="h-4 w-4 text-wrench-accent" />
+                    <span className="text-wrench-navy-700 font-medium text-sm">
+                      {analytics.upcomingTasks} Upcoming
+                    </span>
+                  </div>
+                </div>
               </div>
-              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">
-                Scan Machine
-              </CardTitle>
-              <CardDescription className="text-blue-100 text-sm sm:text-base lg:text-lg">
-                Scan QR code to access machine tasks
+            </div>
+          )}
+        </div>
+
+        {/* Main Action Cards - Only operator-relevant features */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+          {/* Equipment Scanner */}
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
+            <CardHeader className="text-center pb-6">
+              <div className="h-20 w-20 bg-gradient-to-br from-wrench-accent to-wrench-accent-light rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <QrCode className="h-10 w-10 text-white" />
+              </div>
+              <CardTitle className="text-xl text-wrench-navy-800">Scan Equipment</CardTitle>
+              <CardDescription className="text-wrench-navy-600">
+                Scan QR codes to access maintenance tasks
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Link to="/scan">
-                <Button className="w-full bg-white text-blue-700 hover:bg-blue-50 font-semibold py-4 sm:py-6 text-sm sm:text-base lg:text-lg">
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <CardContent className="text-center pb-6">
+              <Link to="/scan" className="block w-full">
+                <Button className="w-full bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-3 text-lg font-medium">
+                  <QrCode className="h-5 w-5 mr-2" />
                   Start Scanning
                 </Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card
-            className="group bg-gradient-to-br from-green-600 to-green-700 border-0 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/25 animate-slideInUp"
-            style={{ animationDelay: "0.2s" }}
-          >
+          {/* My Tasks */}
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift group">
             <CardHeader className="text-center pb-6">
-              <div className="relative">
-                <CheckSquare className="h-16 w-16 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" />
-                <div className="absolute -inset-2 bg-white/20 rounded-full blur group-hover:blur-md transition-all duration-300"></div>
+              <div className="h-20 w-20 bg-gradient-to-br from-wrench-success to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <CheckSquare className="h-10 w-10 text-white" />
               </div>
-              <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">
-                My Tasks
-              </CardTitle>
-              <CardDescription className="text-green-100 text-sm sm:text-base lg:text-lg">
-                View your assigned maintenance tasks
+              <CardTitle className="text-xl text-wrench-navy-800">My Tasks</CardTitle>
+              <CardDescription className="text-wrench-navy-600">
+                View and complete your assigned tasks
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Link to="/tasks">
-                <Button className="w-full bg-white text-green-700 hover:bg-green-50 font-semibold py-4 sm:py-6 text-sm sm:text-base lg:text-lg">
-                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  View Tasks ({analytics.totalTasks})
+            <CardContent className="text-center pb-6">
+              <Link to="/tasks" className="block w-full">
+                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-3 text-lg font-medium">
+                  <CheckSquare className="h-5 w-5 mr-2" />
+                  View Tasks
                 </Button>
               </Link>
             </CardContent>
           </Card>
         </div>
 
-        {/* Personal Statistics - Only show if data exists */}
-        {analytics.totalTasks > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-4xl mx-auto animate-fadeInUp">
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-slate-300 text-sm font-medium text-center">
-                  Completed Today
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-400">
-                  {analytics.completedToday}
-                </div>
-                <p className="text-slate-400 text-sm mt-1">Tasks Finished</p>
+        {/* Settings Access */}
+        <div className="max-w-md mx-auto mb-12">
+          <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
+            <CardHeader className="text-center pb-4">
+              <Settings className="h-12 w-12 text-wrench-navy-600 mx-auto mb-3" />
+              <CardTitle className="text-wrench-navy-800">Account Settings</CardTitle>
+              <CardDescription className="text-wrench-navy-600">
+                Manage your account preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Link to="/settings" className="block w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50 py-2"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Open Settings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Status Information */}
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-white border-wrench-navy-200 shadow-md">
+              <CardContent className="p-6 text-center">
+                <Clock className="h-10 w-10 text-wrench-accent mx-auto mb-3" />
+                <h3 className="font-semibold text-wrench-navy-800 mb-2">Today's Progress</h3>
+                <p className="text-sm text-wrench-navy-600">
+                  {analytics.completedToday} tasks completed
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-slate-300 text-sm font-medium text-center">
-                  Pending Tasks
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-yellow-400">
-                  {analytics.totalTasks - analytics.completedToday}
-                </div>
-                <p className="text-slate-400 text-sm mt-1">Remaining</p>
+            <Card className="bg-white border-wrench-navy-200 shadow-md">
+              <CardContent className="p-6 text-center">
+                <Activity className="h-10 w-10 text-wrench-success mx-auto mb-3" />
+                <h3 className="font-semibold text-wrench-navy-800 mb-2">System Status</h3>
+                <p className="text-sm text-wrench-navy-600">
+                  All systems operational
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-slate-300 text-sm font-medium text-center">
-                  Overdue
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-400">
-                  {analytics.overdueTasks}
-                </div>
-                <p className="text-slate-400 text-sm mt-1">Need Attention</p>
+            <Card className="bg-white border-wrench-navy-200 shadow-md">
+              <CardContent className="p-6 text-center">
+                <Wrench className="h-10 w-10 text-wrench-warning mx-auto mb-3" />
+                <h3 className="font-semibold text-wrench-navy-800 mb-2">Next Task</h3>
+                <p className="text-sm text-wrench-navy-600">
+                  {analytics.upcomingTasks > 0 ? "Tasks pending" : "No pending tasks"}
+                </p>
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
+
+        {/* Professional Footer */}
+        <div className="mt-12 pt-8 border-t border-wrench-navy-200 text-center">
+          <WrenchTagline variant="default" size="md" />
+        </div>
       </main>
     </div>
   );

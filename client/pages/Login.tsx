@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Mail, AlertCircle } from "lucide-react";
+import { Lock, Mail, AlertCircle, Settings, CheckCircle, Zap } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { WrenchLogo, WrenchTagline, WrenchBadge } from "@/components/WrenchLogo";
 import AuthService from "@/lib/auth";
 
 export default function Login() {
@@ -44,121 +45,138 @@ export default function Login() {
   };
 
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="text-center mb-6 sm:mb-12">
-          {/* WRENCH Logo */}
-          <div className="flex items-center justify-center mb-4">
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2Fc74d1f1dfcad4af19f49ea67139a7c6d%2F87c28fdfc7e74b0d9ffade230cc52ef6?format=webp&width=800"
-              alt="WRENCH Logo"
-              className="h-24 sm:h-32 lg:h-40 w-auto object-contain"
-            />
-          </div>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-3 sm:mb-4 tracking-tight">
-            WRENCH
-          </h1>
-          <p className="text-xl sm:text-2xl lg:text-3xl text-blue-200 font-medium mb-2 tracking-wide">
-            We Repair Everything Now – Checklists Help
-          </p>
-          <p className="text-slate-400 text-base sm:text-lg lg:text-xl px-4 italic">
-            Because missed maintenance costs money.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-900 via-wrench-navy-800 to-wrench-navy-900 flex items-center justify-center p-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      
+      {/* Decorative Elements */}
+      <div className="absolute top-20 left-20 text-wrench-navy-300 opacity-20">
+        <Settings className="h-8 w-8 animate-spin" style={{ animationDuration: "20s" }} />
+      </div>
+      <div className="absolute bottom-20 right-20 text-wrench-navy-300 opacity-20">
+        <Zap className="h-6 w-6" />
+      </div>
 
-        <Card className="w-full max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm border-slate-700/50 overflow-hidden">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-white">Sign In</CardTitle>
-            <CardDescription className="text-slate-400">
-              Enter your credentials to access the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-300">
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
-                    required
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <Alert className="bg-red-500/10 border-red-500/20">
-                  <AlertCircle className="h-4 w-4 text-red-400" />
-                  <AlertDescription className="text-red-300">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <Button
-                type="submit"
-                disabled={isLoading || !email || !password}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg"
-              >
-                {isLoading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
-
-            <div className="mt-4 sm:mt-6 text-center space-y-2">
-              <p className="text-slate-400 text-xs sm:text-sm px-2">
-                Contact your system administrator for access
+      {/* Main Login Container */}
+      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center relative z-10">
+        {/* Left Side - Branding */}
+        <div className="hidden lg:block text-white">
+          <div className="space-y-8">
+            <div>
+              <WrenchLogo size="xl" variant="dark" showText={true} />
+            </div>
+            
+            <div className="space-y-6">
+              <h1 className="text-4xl xl:text-5xl font-black leading-tight">
+                Professional
+                <br />
+                <span className="bg-gradient-to-r from-wrench-accent to-blue-400 bg-clip-text text-transparent">
+                  Maintenance Platform
+                </span>
+              </h1>
+              
+              <p className="text-xl text-white/80 leading-relaxed">
+                Advanced equipment maintenance management with comprehensive tracking and professional reporting.
               </p>
-              <div className="p-2 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left mx-2 sm:mx-0">
-                <p className="text-blue-300 text-xs font-medium mb-1">
-                  Quick Login Examples:
-                </p>
-                <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">admin@company.com</span>{" "}
-                  with any password
-                </p>
-                <p className="text-blue-200 text-xs break-all">
-                  <span className="font-mono text-xs">
-                    operator@company.com
-                  </span>{" "}
-                  with any password
-                </p>
-                <p className="text-slate-400 text-xs mt-1">
-                  Note: Use strong passwords to avoid browser security warnings
-                </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center space-x-3 text-white/80">
+                <CheckCircle className="h-5 w-5 text-wrench-success" />
+                <span>Real-time task tracking</span>
+              </div>
+              <div className="flex items-center space-x-3 text-white/80">
+                <CheckCircle className="h-5 w-5 text-wrench-success" />
+                <span>Comprehensive reporting</span>
+              </div>
+              <div className="flex items-center space-x-3 text-white/80">
+                <CheckCircle className="h-5 w-5 text-wrench-success" />
+                <span>Mobile-ready interface</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <div className="text-center mt-6 sm:mt-8 px-4">
-          <p className="text-slate-500 text-xs sm:text-sm">
-            © 2024 CheckMate. All rights reserved.
-          </p>
+        {/* Right Side - Login Form */}
+        <div className="w-full max-w-md mx-auto lg:mx-0">
+          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+            <CardHeader className="text-center space-y-4">
+              <div className="lg:hidden">
+                <WrenchBadge />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold text-wrench-navy-900">
+                  Welcome Back
+                </CardTitle>
+                <CardDescription className="text-wrench-navy-600">
+                  Professional maintenance management system
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <Alert className="border-wrench-error/20 bg-wrench-error/5">
+                    <AlertCircle className="h-4 w-4 text-wrench-error" />
+                    <AlertDescription className="text-wrench-error">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-wrench-navy-700 font-medium">
+                    Email Address
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-wrench-navy-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 border-wrench-navy-200 focus:border-wrench-accent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-wrench-navy-700 font-medium">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-wrench-navy-400" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 border-wrench-navy-200 focus:border-wrench-accent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-wrench-accent to-blue-600 hover:from-blue-600 hover:to-wrench-accent text-white font-semibold py-3 transition-all duration-300"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing In..." : "Sign In"}
+                </Button>
+              </form>
+
+            </CardContent>
+          </Card>
+
+          {/* Mobile Branding */}
+          <div className="lg:hidden text-center mt-8">
+            <WrenchTagline variant="light" size="sm" />
+          </div>
         </div>
       </div>
     </div>

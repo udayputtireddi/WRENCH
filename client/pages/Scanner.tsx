@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Camera, Hash, Scan } from "lucide-react";
+import { Camera, Hash, Scan, Target, Zap, CheckCircle, Settings, QrCode } from "lucide-react";
+import { ProfessionalHeader, NavigationBreadcrumbs } from "@/components/ProfessionalHeader";
+import { WrenchBadge } from "@/components/WrenchLogo";
 
 export default function Scanner() {
   const [scanning, setScanning] = useState(false);
@@ -60,128 +62,207 @@ export default function Scanner() {
     };
   }, []);
 
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/" },
+    { label: "Equipment Scanner" }
+  ];
+
   return (
-    <div className="app-container bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center">
-            <Link to="/" className="mr-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Scan Machine</h1>
-              <p className="text-blue-100">
-                Identify machines via QR code scanning
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-wrench-navy-50 via-white to-wrench-navy-50">
+      {/* Professional Header */}
+      <ProfessionalHeader
+        title="Equipment Scanner"
+        subtitle="Professional machine identification system"
+        variant="gradient"
+        showBackButton={true}
+      />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Scanner Section */}
-          <Card className="mb-8 bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader className="text-center">
-              <CardTitle className="text-white flex items-center justify-center gap-2">
-                <Camera className="h-6 w-6" />
-                QR Code Scanner
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Point your camera at the QR code attached to the machine
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <NavigationBreadcrumbs items={breadcrumbs} />
+        </div>
+
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <WrenchBadge className="mb-4" />
+          <h1 className="text-3xl lg:text-4xl font-black text-wrench-navy-900 mb-4">
+            Professional Equipment
+            <br />
+            <span className="bg-gradient-to-r from-wrench-accent to-wrench-success bg-clip-text text-transparent">
+              Identification System
+            </span>
+          </h1>
+          <p className="text-lg text-wrench-navy-600 max-w-2xl mx-auto">
+            Instantly access equipment maintenance records and task schedules using our 
+            advanced QR code scanning technology.
+          </p>
+        </div>
+
+        <div className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-8">
+          {/* QR Scanner Section */}
+          <Card className="bg-white border-wrench-navy-200 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <CardHeader className="text-center border-b border-wrench-navy-100">
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <div className="h-12 w-12 bg-gradient-to-br from-wrench-accent to-wrench-navy-700 rounded-full flex items-center justify-center">
+                  <Camera className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-wrench-navy-800 text-xl">
+                  QR Code Scanner
+                </CardTitle>
+              </div>
+              <CardDescription className="text-wrench-navy-600">
+                Point your camera at the QR code attached to the equipment
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative">
-                {!scanning ? (
-                  <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
-                    <Scan className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-600 mb-4">Ready to scan QR code</p>
-                    <Button
-                      onClick={startScanner}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Camera className="h-4 w-4 mr-2" />
-                      Start Camera
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="relative">
+            
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                {/* Camera View */}
+                <div className="relative bg-wrench-navy-900 rounded-xl overflow-hidden shadow-inner">
+                  {!scanning ? (
+                    <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-wrench-navy-100 to-wrench-navy-200">
+                      <div className="text-center">
+                        <div className="h-20 w-20 bg-wrench-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Scan className="h-10 w-10 text-wrench-accent" />
+                        </div>
+                        <p className="text-wrench-navy-700 text-lg font-semibold mb-2">
+                          Camera Ready
+                        </p>
+                        <p className="text-wrench-navy-500 text-sm">
+                          Press start to begin professional scanning
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
                     <video
                       ref={videoRef}
                       autoPlay
                       playsInline
-                      className="w-full h-64 bg-black rounded-lg object-cover"
+                      className="w-full aspect-video object-cover"
                     />
-                    <div className="absolute inset-0 border-4 border-blue-500 rounded-lg">
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-blue-400 w-32 h-32 rounded-lg"></div>
+                  )}
+                  
+                  {/* Scanning Overlay */}
+                  {scanning && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative">
+                        <div className="w-48 h-48 border-4 border-wrench-accent rounded-xl shadow-lg">
+                          <div className="w-full h-full border-4 border-white border-dashed rounded-xl animate-pulse"></div>
+                        </div>
+                        {/* Corner guides */}
+                        <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
+                        <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
+                        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                      </div>
                     </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        onClick={stopScanner}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Stop Scanner
-                      </Button>
-                    </div>
+                  )}
+                </div>
+
+                {/* Controls */}
+                <div className="flex gap-4">
+                  {!scanning ? (
+                    <Button
+                      onClick={startScanner}
+                      className="flex-1 bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white py-4 text-lg hover-lift shadow-lg"
+                    >
+                      <Camera className="h-5 w-5 mr-2" />
+                      Start Professional Scan
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={stopScanner}
+                      variant="outline"
+                      className="flex-1 border-wrench-error text-wrench-error hover:bg-wrench-error hover:text-white py-4 text-lg"
+                    >
+                      <Target className="h-5 w-5 mr-2" />
+                      Stop Scanner
+                    </Button>
+                  )}
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="p-4 bg-wrench-error/10 border border-wrench-error/20 rounded-lg">
+                    <p className="text-wrench-error text-sm font-medium">{error}</p>
                   </div>
                 )}
-              </div>
 
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-700">{error}</p>
+                {/* Features */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-wrench-navy-100">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-wrench-success" />
+                    <span className="text-sm text-wrench-navy-700">Instant Recognition</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Settings className="h-4 w-4 text-wrench-accent" />
+                    <span className="text-sm text-wrench-navy-700">Auto-Focus</span>
+                  </div>
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
           {/* Manual Entry Section */}
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader className="text-center">
-              <CardTitle className="text-white flex items-center justify-center gap-2">
-                <Hash className="h-6 w-6" />
-                Manual Entry
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Enter machine ID manually if QR scanning is not available
+          <Card className="bg-white border-wrench-navy-200 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <CardHeader className="text-center border-b border-wrench-navy-100">
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <div className="h-12 w-12 bg-gradient-to-br from-wrench-warning to-wrench-warning/80 rounded-full flex items-center justify-center">
+                  <Hash className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-wrench-navy-800 text-xl">
+                  Manual Entry
+                </CardTitle>
+              </div>
+              <CardDescription className="text-wrench-navy-600">
+                Enter equipment ID manually if QR scanning is not available
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleManualSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="machineId" className="text-slate-300">
-                    Machine ID
+            
+            <CardContent className="p-6">
+              <form onSubmit={handleManualSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="machineId" className="text-wrench-navy-700 font-semibold text-base">
+                    Equipment Identifier
                   </Label>
                   <Input
                     id="machineId"
                     type="text"
-                    placeholder="e.g., CAR-001, PUMP-05, etc."
+                    placeholder="Enter equipment ID (e.g., EQ-001)"
                     value={manualId}
                     onChange={(e) => setManualId(e.target.value)}
-                    className="mt-1 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    className="border-wrench-navy-200 focus:border-wrench-accent focus:ring-wrench-accent/20 text-wrench-navy-800 h-14 text-lg"
                   />
                 </div>
+                
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={!manualId.trim()}
+                  className="w-full bg-gradient-to-r from-wrench-navy-800 to-wrench-navy-700 hover:from-wrench-navy-900 hover:to-wrench-navy-800 text-white py-4 text-lg hover-lift shadow-lg"
                 >
-                  Access Machine
+                  <Zap className="h-5 w-5 mr-2" />
+                  Access Equipment Records
                 </Button>
               </form>
+
+
+              {/* Professional Features */}
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-wrench-navy-100">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-wrench-success" />
+                  <span className="text-sm text-wrench-navy-700">Validated Access</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-4 w-4 text-wrench-accent" />
+                  <span className="text-sm text-wrench-navy-700">Secure Protocol</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Professional Instructions */}
       </main>
     </div>
   );
