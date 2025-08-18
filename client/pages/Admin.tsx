@@ -139,6 +139,7 @@ export default function Admin() {
         title="System Administration"
         subtitle="Professional maintenance platform management"
         variant="gradient"
+        showBackButton={true}
       />
 
       <main className="container mx-auto px-4 py-8">
