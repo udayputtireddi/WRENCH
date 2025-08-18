@@ -153,6 +153,7 @@ export default function AdminDatabase() {
         title="Database Management"
         subtitle="Professional maintenance data management system"
         variant="gradient"
+        showBackButton={true}
       />
 
       <main className="container mx-auto px-4 py-8">
