@@ -187,6 +187,7 @@ export default function Reports() {
         title="Professional Reports"
         subtitle="Advanced maintenance analytics and business intelligence"
         variant="gradient"
+        showBackButton={true}
       />
 
       <main className="container mx-auto px-4 py-8">
