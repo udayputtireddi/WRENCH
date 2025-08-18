@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import useNavigation from "@/hooks/use-navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ import {
   Users,
   Zap,
   FileText,
+  ArrowLeft,
 } from "lucide-react";
 import { WrenchLogo, WrenchBadge } from "@/components/WrenchLogo";
 import AuthService from "@/lib/auth";
@@ -32,6 +34,7 @@ interface ProfessionalHeaderProps {
   subtitle?: string;
   showStats?: boolean;
   variant?: "default" | "dark" | "gradient";
+  showBackButton?: boolean;
 }
 
 export function ProfessionalHeader({
@@ -39,8 +42,10 @@ export function ProfessionalHeader({
   subtitle,
   showStats = false,
   variant = "gradient",
+  showBackButton = false,
 }: ProfessionalHeaderProps) {
   const navigate = useNavigate();
+  const { goBack, canGoBack } = useNavigation();
   const currentUser = AuthService.getCurrentUser();
   const analytics = Database.getAnalytics();
 
@@ -89,7 +94,19 @@ export function ProfessionalHeader({
       <div className="container mx-auto px-4 py-4 relative z-10">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Navigation */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 sm:space-x-6">
+            {/* Back Button */}
+            {showBackButton && canGoBack && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goBack}
+                className={`${variant !== "default" ? "text-white hover:bg-white/10" : "text-wrench-navy-700 hover:bg-wrench-navy-50"} p-2`}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            )}
+
             <Link to="/" className="hover-lift">
               <WrenchLogo
                 size="md"
@@ -102,12 +119,12 @@ export function ProfessionalHeader({
             {title && (
               <div className="hidden md:block">
                 <h1
-                  className={`text-2xl lg:text-3xl font-bold ${textClasses[variant]}`}
+                  className={`text-xl lg:text-2xl xl:text-3xl font-bold ${textClasses[variant]} text-center`}
                 >
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className={`text-sm ${subtextClasses[variant]}`}>
+                  <p className={`text-sm ${subtextClasses[variant]} text-center`}>
                     {subtitle}
                   </p>
                 )}
@@ -287,8 +304,8 @@ export function ProfessionalHeader({
 
         {/* Mobile Title */}
         {title && (
-          <div className="md:hidden mt-4 pb-2">
-            <h1 className={`text-xl font-bold ${textClasses[variant]}`}>
+          <div className="md:hidden mt-4 pb-2 text-center">
+            <h1 className={`text-lg sm:text-xl font-bold ${textClasses[variant]}`}>
               {title}
             </h1>
             {subtitle && (
