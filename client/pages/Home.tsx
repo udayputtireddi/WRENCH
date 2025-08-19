@@ -115,7 +115,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center p-4 sm:p-6">
               <Link to="/tasks">
-                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-2 sm:py-3 text-sm sm:text-base">
+                <Button className="w-full bg-gradient-to-r from-wrench-success to-green-600 hover:from-green-600 hover:to-wrench-success text-white py-2 sm:py-3 text-sm sm:text-base font-medium">
                   <CheckSquare className="h-4 w-4 mr-2" />
                   View Tasks
                 </Button>
