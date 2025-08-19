@@ -370,18 +370,20 @@ export default function Machine() {
                   className="border-wrench-navy-100 hover:shadow-md transition-shadow duration-200"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                           <h3 className="font-semibold text-wrench-navy-800">
                             {task.name}
                           </h3>
-                          <Badge className={getTaskStatusColor(task.status)}>
-                            {task.status}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {task.category}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Badge className={getTaskStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {task.category}
+                            </Badge>
+                          </div>
                         </div>
                         <p className="text-wrench-navy-600 text-sm mb-2">
                           {task.description}
