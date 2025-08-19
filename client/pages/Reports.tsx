@@ -348,7 +348,7 @@ export default function Reports() {
         {/* Quick Export Buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button
-            onClick={() => ExportSystem.exportDaily()}
+            onClick={() => ExportSystem.exportDaily("csv", filters.includePhotos)}
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -359,7 +359,7 @@ export default function Reports() {
           </Button>
           
           <Button
-            onClick={() => ExportSystem.exportWeekly()}
+            onClick={() => ExportSystem.exportWeekly("csv", filters.includePhotos)}
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -370,7 +370,7 @@ export default function Reports() {
           </Button>
           
           <Button
-            onClick={() => ExportSystem.exportMonthly()}
+            onClick={() => ExportSystem.exportMonthly("csv", filters.includePhotos)}
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -381,7 +381,7 @@ export default function Reports() {
           </Button>
           
           <Button
-            onClick={() => ExportSystem.exportYearly()}
+            onClick={() => ExportSystem.exportYearly("csv", filters.includePhotos)}
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
