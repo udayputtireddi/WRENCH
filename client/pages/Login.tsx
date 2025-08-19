@@ -97,13 +97,46 @@ export default function Login() {
           </div>
         </div>
 
+        {/* Mobile Branding - Only visible on mobile */}
+        <div className="lg:hidden text-white text-center space-y-6 mb-8">
+          <div>
+            <WrenchLogo size="lg" variant="dark" showText={true} />
+          </div>
+
+          <div className="space-y-4">
+            <h1 className="text-2xl sm:text-3xl font-black leading-tight">
+              Professional
+              <br />
+              <span className="bg-gradient-to-r from-wrench-accent to-blue-400 bg-clip-text text-transparent">
+                Maintenance Platform
+              </span>
+            </h1>
+
+            <p className="text-lg text-white/80 px-4">
+              Advanced equipment maintenance management with comprehensive tracking and professional reporting.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 max-w-sm mx-auto">
+            <div className="flex items-center space-x-3 text-white/80 justify-center">
+              <CheckCircle className="h-4 w-4 text-wrench-success flex-shrink-0" />
+              <span className="text-sm">Real-time task tracking</span>
+            </div>
+            <div className="flex items-center space-x-3 text-white/80 justify-center">
+              <CheckCircle className="h-4 w-4 text-wrench-success flex-shrink-0" />
+              <span className="text-sm">Comprehensive reporting</span>
+            </div>
+            <div className="flex items-center space-x-3 text-white/80 justify-center">
+              <CheckCircle className="h-4 w-4 text-wrench-success flex-shrink-0" />
+              <span className="text-sm">Mobile-ready interface</span>
+            </div>
+          </div>
+        </div>
+
         {/* Right Side - Login Form */}
         <div className="w-full max-w-md mx-auto lg:mx-0">
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
             <CardHeader className="text-center space-y-4">
-              <div className="lg:hidden">
-                <WrenchBadge />
-              </div>
               <div>
                 <CardTitle className="text-2xl font-bold text-wrench-navy-900">
                   Welcome Back
