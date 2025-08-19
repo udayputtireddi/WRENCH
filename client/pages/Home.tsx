@@ -184,7 +184,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="text-center p-4 sm:p-6">
                   <Link to="/admin/database">
-                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 py-2 sm:py-3 text-sm sm:text-base">
+                    <Button className="w-full bg-white text-wrench-accent hover:bg-wrench-navy-50 py-2 sm:py-3 text-sm sm:text-base font-medium">
                       <DatabaseIcon className="h-4 w-4 mr-2" />
                       Manage Data
                     </Button>
@@ -203,7 +203,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="text-center p-4 sm:p-6">
                   <Link to="/reports">
-                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50 py-2 sm:py-3 text-sm sm:text-base">
+                    <Button className="w-full bg-white text-wrench-success hover:bg-green-50 py-2 sm:py-3 text-sm sm:text-base font-medium">
                       <FileText className="h-4 w-4 mr-2" />
                       View Reports
                     </Button>
