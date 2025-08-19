@@ -87,15 +87,26 @@ export default function Reports() {
       const analytics = Database.getAnalytics();
       const completionData = TaskCompletionTracker.getAnalytics();
       const allTasks = Database.getTasks();
-      
+
       // Calculate performance metrics
-      const totalCompletions = allTasks.reduce((sum, task) => sum + task.completionHistory.length, 0);
-      const averagePhotosPerCompletion = totalCompletions > 0 
-        ? allTasks.reduce((sum, task) => 
-            sum + task.completionHistory.reduce((photoSum, completion) => 
-              photoSum + (completion.photos?.length || 0), 0), 0) / totalCompletions
-        : 0;
-      
+      const totalCompletions = allTasks.reduce(
+        (sum, task) => sum + task.completionHistory.length,
+        0,
+      );
+      const averagePhotosPerCompletion =
+        totalCompletions > 0
+          ? allTasks.reduce(
+              (sum, task) =>
+                sum +
+                task.completionHistory.reduce(
+                  (photoSum, completion) =>
+                    photoSum + (completion.photos?.length || 0),
+                  0,
+                ),
+              0,
+            ) / totalCompletions
+          : 0;
+
       const recentCompletions = Database.getRecentCompletions(10);
       const machineEfficiency = Database.getMachineEfficiency();
 
@@ -113,7 +124,7 @@ export default function Reports() {
           avgCompletionTime: analytics.averageTaskTime,
           mostActiveUser: analytics.mostActiveUser,
           totalMachines: analytics.totalMachines,
-        }
+        },
       });
 
       toast({
@@ -121,7 +132,7 @@ export default function Reports() {
         description: "Professional maintenance report generated successfully.",
       });
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      console.error("Failed to generate report:", error);
       toast({
         title: "Report Generation Failed",
         description: "Unable to generate report data. Please try again.",
@@ -138,7 +149,8 @@ export default function Reports() {
         if (!filters.startDate || !filters.endDate) {
           toast({
             title: "Missing Dates",
-            description: "Please select both start and end dates for custom range.",
+            description:
+              "Please select both start and end dates for custom range.",
             variant: "destructive",
           });
           return;
@@ -147,7 +159,7 @@ export default function Reports() {
           new Date(filters.startDate),
           new Date(filters.endDate),
           filters.format,
-          filters.includePhotos
+          filters.includePhotos,
         );
       } else {
         const config = {
@@ -155,21 +167,25 @@ export default function Reports() {
           format: filters.format,
           includePhotos: filters.includePhotos,
         };
-        
+
         const content = ExportSystem.exportTaskCompletions(config);
-        const filename = ExportSystem.getReportFilename(filters.period, filters.format);
-        const mimeType = filters.format === "json" ? "application/json" : "text/csv";
+        const filename = ExportSystem.getReportFilename(
+          filters.period,
+          filters.format,
+        );
+        const mimeType =
+          filters.format === "json" ? "application/json" : "text/csv";
         ExportSystem.downloadFile(content, filename, mimeType);
       }
-      
+
       toast({
         title: "Export Successful",
         description: `${filters.period} report downloaded in ${filters.format.toUpperCase()} format.`,
       });
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
       toast({
-        title: "Export Failed", 
+        title: "Export Failed",
         description: "Unable to export report. Please try again.",
         variant: "destructive",
       });
@@ -208,7 +224,8 @@ export default function Reports() {
             </span>
           </h1>
           <p className="text-lg text-wrench-navy-600 max-w-3xl mx-auto">
-            Comprehensive maintenance analytics with flexible export options: daily, weekly, monthly, yearly, and custom date ranges.
+            Comprehensive maintenance analytics with flexible export options:
+            daily, weekly, monthly, yearly, and custom date ranges.
           </p>
         </div>
 
@@ -220,9 +237,20 @@ export default function Reports() {
               Professional Export System
             </CardTitle>
             <CardDescription className="text-wrench-navy-600 text-sm sm:text-base">
-              Export maintenance data with intelligent frequency-based filtering showing tasks according to their schedule.<br />
-              <span className="text-wrench-accent font-medium">Excel Format:</span> Task Name, Machine Name, Frequency, Date, Completed By, Time Taken, Notes, Photos.<br />
-              <span className="text-wrench-success font-medium">Smart Display:</span> Weekly tasks appear once per week in weekly reports, daily tasks appear every day, monthly tasks on first of month.
+              Export maintenance data with intelligent frequency-based filtering
+              showing tasks according to their schedule.
+              <br />
+              <span className="text-wrench-accent font-medium">
+                Excel Format:
+              </span>{" "}
+              Task Name, Machine Name, Frequency, Date, Completed By, Time
+              Taken, Notes, Photos.
+              <br />
+              <span className="text-wrench-success font-medium">
+                Smart Display:
+              </span>{" "}
+              Weekly tasks appear once per week in weekly reports, daily tasks
+              appear every day, monthly tasks on first of month.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
@@ -235,7 +263,7 @@ export default function Reports() {
                 <Select
                   value={filters.period}
                   onValueChange={(value: ExportDateType) =>
-                    setFilters(prev => ({ ...prev, period: value }))
+                    setFilters((prev) => ({ ...prev, period: value }))
                   }
                 >
                   <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
@@ -260,7 +288,7 @@ export default function Reports() {
                 <Select
                   value={filters.format}
                   onValueChange={(value: "csv" | "json") =>
-                    setFilters(prev => ({ ...prev, format: value }))
+                    setFilters((prev) => ({ ...prev, format: value }))
                   }
                 >
                   <SelectTrigger className="border-wrench-navy-200 focus:border-wrench-accent">
@@ -284,7 +312,10 @@ export default function Reports() {
                       type="date"
                       value={filters.startDate}
                       onChange={(e) =>
-                        setFilters(prev => ({ ...prev, startDate: e.target.value }))
+                        setFilters((prev) => ({
+                          ...prev,
+                          startDate: e.target.value,
+                        }))
                       }
                       className="border-wrench-navy-200 focus:border-wrench-accent"
                     />
@@ -297,14 +328,17 @@ export default function Reports() {
                       type="date"
                       value={filters.endDate}
                       onChange={(e) =>
-                        setFilters(prev => ({ ...prev, endDate: e.target.value }))
+                        setFilters((prev) => ({
+                          ...prev,
+                          endDate: e.target.value,
+                        }))
                       }
                       className="border-wrench-navy-200 focus:border-wrench-accent"
                     />
                   </div>
                 </>
               )}
-              
+
               {/* Photo Inclusion */}
               <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                 <Label className="text-wrench-navy-700 font-medium text-sm sm:text-base">
@@ -314,7 +348,10 @@ export default function Reports() {
                   <Switch
                     checked={filters.includePhotos}
                     onCheckedChange={(checked) =>
-                      setFilters(prev => ({ ...prev, includePhotos: checked }))
+                      setFilters((prev) => ({
+                        ...prev,
+                        includePhotos: checked,
+                      }))
                     }
                   />
                   <span className="text-sm text-wrench-navy-600">
@@ -340,7 +377,9 @@ export default function Reports() {
                 className="border-wrench-navy-300 text-wrench-navy-700 hover:bg-wrench-navy-50 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base"
                 disabled={isGenerating}
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`}
+                />
                 Refresh Data
               </Button>
             </div>
@@ -350,7 +389,9 @@ export default function Reports() {
         {/* Quick Export Buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button
-            onClick={() => ExportSystem.exportDaily("csv", filters.includePhotos)}
+            onClick={() =>
+              ExportSystem.exportDaily("csv", filters.includePhotos)
+            }
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -359,9 +400,11 @@ export default function Reports() {
               <div className="text-xs sm:text-sm font-medium">Daily</div>
             </div>
           </Button>
-          
+
           <Button
-            onClick={() => ExportSystem.exportWeekly("csv", filters.includePhotos)}
+            onClick={() =>
+              ExportSystem.exportWeekly("csv", filters.includePhotos)
+            }
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -370,9 +413,11 @@ export default function Reports() {
               <div className="text-xs sm:text-sm font-medium">Weekly</div>
             </div>
           </Button>
-          
+
           <Button
-            onClick={() => ExportSystem.exportMonthly("csv", filters.includePhotos)}
+            onClick={() =>
+              ExportSystem.exportMonthly("csv", filters.includePhotos)
+            }
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -381,9 +426,11 @@ export default function Reports() {
               <div className="text-xs sm:text-sm font-medium">Monthly</div>
             </div>
           </Button>
-          
+
           <Button
-            onClick={() => ExportSystem.exportYearly("csv", filters.includePhotos)}
+            onClick={() =>
+              ExportSystem.exportYearly("csv", filters.includePhotos)
+            }
             variant="outline"
             className="h-12 sm:h-16 border-wrench-navy-200 hover:bg-wrench-navy-50 p-2 sm:p-4"
           >
@@ -514,7 +561,9 @@ export default function Reports() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="bg-white border-wrench-navy-200 shadow-lg">
                   <CardHeader>
-                    <CardTitle className="text-wrench-navy-800">Total Completions</CardTitle>
+                    <CardTitle className="text-wrench-navy-800">
+                      Total Completions
+                    </CardTitle>
                     <CardDescription className="text-wrench-navy-600">
                       Overall task completion metrics
                     </CardDescription>
@@ -531,7 +580,9 @@ export default function Reports() {
 
                 <Card className="bg-white border-wrench-navy-200 shadow-lg">
                   <CardHeader>
-                    <CardTitle className="text-wrench-navy-800">Photo Documentation</CardTitle>
+                    <CardTitle className="text-wrench-navy-800">
+                      Photo Documentation
+                    </CardTitle>
                     <CardDescription className="text-wrench-navy-600">
                       Average photos per completion
                     </CardDescription>
@@ -553,32 +604,46 @@ export default function Reports() {
             <TabsContent value="machines" className="space-y-6">
               <Card className="bg-white border-wrench-navy-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-wrench-navy-800">Equipment Efficiency</CardTitle>
+                  <CardTitle className="text-wrench-navy-800">
+                    Equipment Efficiency
+                  </CardTitle>
                   <CardDescription className="text-wrench-navy-600">
                     Maintenance completion rates by equipment
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {Object.entries(reportData.machineEfficiency).map(([machineId, efficiency]) => {
-                      const machine = machines.find(m => m.id === machineId);
-                      return (
-                        <div key={machineId} className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-wrench-navy-800">
-                              {machine?.name || machineId}
-                            </p>
-                            <p className="text-sm text-wrench-navy-600">{machineId}</p>
+                    {Object.entries(reportData.machineEfficiency).map(
+                      ([machineId, efficiency]) => {
+                        const machine = machines.find(
+                          (m) => m.id === machineId,
+                        );
+                        return (
+                          <div
+                            key={machineId}
+                            className="flex items-center justify-between"
+                          >
+                            <div>
+                              <p className="font-medium text-wrench-navy-800">
+                                {machine?.name || machineId}
+                              </p>
+                              <p className="text-sm text-wrench-navy-600">
+                                {machineId}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <Progress
+                                value={efficiency as number}
+                                className="w-24"
+                              />
+                              <span className="text-sm font-medium text-wrench-navy-700">
+                                {efficiency}%
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <Progress value={efficiency as number} className="w-24" />
-                            <span className="text-sm font-medium text-wrench-navy-700">
-                              {efficiency}%
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      },
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -588,7 +653,9 @@ export default function Reports() {
             <TabsContent value="team" className="space-y-6">
               <Card className="bg-white border-wrench-navy-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-wrench-navy-800">Top Performer</CardTitle>
+                  <CardTitle className="text-wrench-navy-800">
+                    Top Performer
+                  </CardTitle>
                   <CardDescription className="text-wrench-navy-600">
                     Most active team member
                   </CardDescription>
@@ -605,7 +672,8 @@ export default function Reports() {
                         {reportData.summary.mostActiveUser.name}
                       </h3>
                       <p className="text-wrench-navy-600">
-                        {reportData.summary.mostActiveUser.completions} completions
+                        {reportData.summary.mostActiveUser.completions}{" "}
+                        completions
                       </p>
                       <Badge className="bg-wrench-accent text-white mt-1">
                         Top Performer

@@ -2,7 +2,13 @@
 import Database, { type Task } from "./database";
 import { TaskCompletionTracker } from "./taskCompletionTracking";
 
-export type ExportDateType = "daily" | "weekly" | "monthly" | "yearly" | "custom" | "all";
+export type ExportDateType =
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "yearly"
+  | "custom"
+  | "all";
 
 export interface ExportConfig {
   type: ExportDateType;
@@ -13,7 +19,11 @@ export interface ExportConfig {
 }
 
 export class ExportSystem {
-  static getDateRange(type: ExportDateType, customStart?: Date, customEnd?: Date): { start: Date; end: Date } {
+  static getDateRange(
+    type: ExportDateType,
+    customStart?: Date,
+    customEnd?: Date,
+  ): { start: Date; end: Date } {
     const now = new Date();
     let start: Date;
     let end: Date = new Date(now);
@@ -74,26 +84,30 @@ export class ExportSystem {
   static getAllDatesInRange(start: Date, end: Date): Date[] {
     const dates: Date[] = [];
     const current = new Date(start);
-    
+
     while (current <= end) {
       dates.push(new Date(current));
       current.setDate(current.getDate() + 1);
     }
-    
+
     return dates;
   }
 
   /**
    * Check if a task should appear on a specific date based on its frequency
    */
-  static shouldTaskAppearOnDate(task: Task, date: Date, reportType: ExportDateType): boolean {
+  static shouldTaskAppearOnDate(
+    task: Task,
+    date: Date,
+    reportType: ExportDateType,
+  ): boolean {
     const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const dayOfMonth = date.getDate();
-    
+
     switch (task.frequency) {
       case "daily":
         return true; // Daily tasks appear every day
-        
+
       case "weekly":
         // For weekly reports, weekly tasks should only appear once per week
         if (reportType === "weekly") {
@@ -102,11 +116,16 @@ export class ExportSystem {
         }
         // For other reports, show on the task's assigned day or Monday if no day assigned
         const assignedDay = task.weeklyDay || "monday";
-        const assignedDayNum = {
-          monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5
-        }[assignedDay] || 1;
+        const assignedDayNum =
+          {
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+          }[assignedDay] || 1;
         return dayOfWeek === assignedDayNum;
-        
+
       case "monthly":
         // For monthly tasks, show on the first day of the month for monthly+ reports
         if (reportType === "monthly" || reportType === "yearly") {
@@ -114,46 +133,62 @@ export class ExportSystem {
         }
         // For daily/weekly reports, check if it's the actual due date
         return task.nextDueDate.toDateString() === date.toDateString();
-        
+
       default:
         return true;
     }
   }
 
   static exportTaskCompletions(config: ExportConfig): string {
-    const { start, end } = this.getDateRange(config.type, config.startDate, config.endDate);
+    const { start, end } = this.getDateRange(
+      config.type,
+      config.startDate,
+      config.endDate,
+    );
     const allTasks = Database.getTasks();
-    
+
     if (config.format === "json") {
       return this.exportToJSON(allTasks, start, end, config.type);
     } else {
-      return this.exportToCSV(allTasks, start, end, config.type, config.includePhotos);
+      return this.exportToCSV(
+        allTasks,
+        start,
+        end,
+        config.type,
+        config.includePhotos,
+      );
     }
   }
 
-  private static exportToCSV(tasks: Task[], start: Date, end: Date, reportType: ExportDateType, includePhotos = false): string {
+  private static exportToCSV(
+    tasks: Task[],
+    start: Date,
+    end: Date,
+    reportType: ExportDateType,
+    includePhotos = false,
+  ): string {
     // Headers as requested: Task Name, Machine Name, Frequency, Date, then completion details
     const headers = [
       "Task Name",
-      "Machine Name", 
+      "Machine Name",
       "Frequency",
       "Date",
       "Completed By",
       "Time Taken (min)",
       "Notes",
-      "Photos"
+      "Photos",
     ];
 
     const rows: string[][] = [];
     const allDates = this.getAllDatesInRange(start, end);
 
     // For each date in the range
-    allDates.forEach(date => {
+    allDates.forEach((date) => {
       // For each task, check if it should appear on this date
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         if (this.shouldTaskAppearOnDate(task, date, reportType)) {
           // Check if there's a completion for this task on this date
-          const completion = task.completionHistory.find(comp => {
+          const completion = task.completionHistory.find((comp) => {
             const compDate = new Date(comp.completedDate);
             return compDate.toDateString() === date.toDateString();
           });
@@ -177,7 +212,7 @@ export class ExportSystem {
               completion.userName,
               completion.timeSpentMinutes?.toString() || "Not recorded",
               completion.notes || "No notes",
-              photosDisplay
+              photosDisplay,
             ]);
           } else {
             // Task was not completed on this date (show as pending/not done)
@@ -189,7 +224,7 @@ export class ExportSystem {
               "-- NOT COMPLETED --",
               "0",
               "Task not completed on this date",
-              "No photos"
+              "No photos",
             ]);
           }
         }
@@ -211,16 +246,21 @@ export class ExportSystem {
       .join("\n");
   }
 
-  private static exportToJSON(tasks: Task[], start: Date, end: Date, reportType: ExportDateType): string {
+  private static exportToJSON(
+    tasks: Task[],
+    start: Date,
+    end: Date,
+    reportType: ExportDateType,
+  ): string {
     const allDates = this.getAllDatesInRange(start, end);
-    
+
     const exportData = {
       exportDate: new Date().toISOString(),
       reportType: reportType,
       dateRange: {
         start: start.toISOString(),
         end: end.toISOString(),
-        totalDays: allDates.length
+        totalDays: allDates.length,
       },
       summary: {
         totalTaskInstances: 0,
@@ -229,17 +269,17 @@ export class ExportSystem {
         uniqueTasks: tasks.length,
         averageTimeSpent: 0,
         totalPhotos: 0,
-        completionRate: 0
+        completionRate: 0,
       },
-      dailyData: allDates.map(date => {
+      dailyData: allDates.map((date) => {
         const dayData = {
-          date: date.toISOString().split('T')[0],
-          tasks: [] as any[]
+          date: date.toISOString().split("T")[0],
+          tasks: [] as any[],
         };
 
-        tasks.forEach(task => {
+        tasks.forEach((task) => {
           if (this.shouldTaskAppearOnDate(task, date, reportType)) {
-            const completion = task.completionHistory.find(comp => {
+            const completion = task.completionHistory.find((comp) => {
               const compDate = new Date(comp.completedDate);
               return compDate.toDateString() === date.toDateString();
             });
@@ -250,17 +290,21 @@ export class ExportSystem {
               frequency: task.frequency,
               category: task.category,
               status: completion ? "completed" : "not_completed",
-              completionDetails: completion ? {
-                completedBy: completion.userName,
-                timeSpentMinutes: completion.timeSpentMinutes || 0,
-                notes: completion.notes || "",
-                photosCount: completion.photos?.length || 0,
-                photos: completion.photos || [],
-                checklistProgress: {
-                  completed: completion.checklistItems.filter(item => item.completed).length,
-                  total: completion.checklistItems.length
-                }
-              } : null
+              completionDetails: completion
+                ? {
+                    completedBy: completion.userName,
+                    timeSpentMinutes: completion.timeSpentMinutes || 0,
+                    notes: completion.notes || "",
+                    photosCount: completion.photos?.length || 0,
+                    photos: completion.photos || [],
+                    checklistProgress: {
+                      completed: completion.checklistItems.filter(
+                        (item) => item.completed,
+                      ).length,
+                      total: completion.checklistItems.length,
+                    },
+                  }
+                : null,
             };
 
             dayData.tasks.push(taskInstance);
@@ -268,7 +312,7 @@ export class ExportSystem {
         });
 
         return dayData;
-      })
+      }),
     };
 
     // Calculate summary statistics
@@ -277,8 +321,8 @@ export class ExportSystem {
     let totalTimeSpent = 0;
     let totalPhotos = 0;
 
-    exportData.dailyData.forEach(day => {
-      day.tasks.forEach(task => {
+    exportData.dailyData.forEach((day) => {
+      day.tasks.forEach((task) => {
         totalInstances++;
         if (task.status === "completed") {
           completedInstances++;
@@ -291,14 +335,24 @@ export class ExportSystem {
     exportData.summary.totalTaskInstances = totalInstances;
     exportData.summary.completedInstances = completedInstances;
     exportData.summary.pendingInstances = totalInstances - completedInstances;
-    exportData.summary.averageTimeSpent = completedInstances > 0 ? Math.round(totalTimeSpent / completedInstances) : 0;
+    exportData.summary.averageTimeSpent =
+      completedInstances > 0
+        ? Math.round(totalTimeSpent / completedInstances)
+        : 0;
     exportData.summary.totalPhotos = totalPhotos;
-    exportData.summary.completionRate = totalInstances > 0 ? Math.round((completedInstances / totalInstances) * 100) : 0;
+    exportData.summary.completionRate =
+      totalInstances > 0
+        ? Math.round((completedInstances / totalInstances) * 100)
+        : 0;
 
     return JSON.stringify(exportData, null, 2);
   }
 
-  static downloadFile(content: string, filename: string, mimeType: string): void {
+  static downloadFile(
+    content: string,
+    filename: string,
+    mimeType: string,
+  ): void {
     const blob = new Blob([content], { type: mimeType });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -311,13 +365,19 @@ export class ExportSystem {
     URL.revokeObjectURL(url);
   }
 
-  static getReportFilename(type: ExportDateType, format: "csv" | "json"): string {
-    const date = new Date().toISOString().split('T')[0];
+  static getReportFilename(
+    type: ExportDateType,
+    format: "csv" | "json",
+  ): string {
+    const date = new Date().toISOString().split("T")[0];
     return `wrench_${type}_report_${date}.${format}`;
   }
 
   // Quick export methods for common use cases
-  static exportDaily(format: "csv" | "json" = "csv", includePhotos = false): void {
+  static exportDaily(
+    format: "csv" | "json" = "csv",
+    includePhotos = false,
+  ): void {
     const config: ExportConfig = { type: "daily", format, includePhotos };
     const content = this.exportTaskCompletions(config);
     const filename = this.getReportFilename("daily", format);
@@ -325,7 +385,10 @@ export class ExportSystem {
     this.downloadFile(content, filename, mimeType);
   }
 
-  static exportWeekly(format: "csv" | "json" = "csv", includePhotos = false): void {
+  static exportWeekly(
+    format: "csv" | "json" = "csv",
+    includePhotos = false,
+  ): void {
     const config: ExportConfig = { type: "weekly", format, includePhotos };
     const content = this.exportTaskCompletions(config);
     const filename = this.getReportFilename("weekly", format);
@@ -333,7 +396,10 @@ export class ExportSystem {
     this.downloadFile(content, filename, mimeType);
   }
 
-  static exportMonthly(format: "csv" | "json" = "csv", includePhotos = false): void {
+  static exportMonthly(
+    format: "csv" | "json" = "csv",
+    includePhotos = false,
+  ): void {
     const config: ExportConfig = { type: "monthly", format, includePhotos };
     const content = this.exportTaskCompletions(config);
     const filename = this.getReportFilename("monthly", format);
@@ -341,7 +407,10 @@ export class ExportSystem {
     this.downloadFile(content, filename, mimeType);
   }
 
-  static exportYearly(format: "csv" | "json" = "csv", includePhotos = false): void {
+  static exportYearly(
+    format: "csv" | "json" = "csv",
+    includePhotos = false,
+  ): void {
     const config: ExportConfig = { type: "yearly", format, includePhotos };
     const content = this.exportTaskCompletions(config);
     const filename = this.getReportFilename("yearly", format);
@@ -350,21 +419,21 @@ export class ExportSystem {
   }
 
   static exportCustomRange(
-    startDate: Date, 
-    endDate: Date, 
+    startDate: Date,
+    endDate: Date,
     format: "csv" | "json" = "csv",
-    includePhotos = false
+    includePhotos = false,
   ): void {
-    const config: ExportConfig = { 
-      type: "custom", 
-      startDate, 
-      endDate, 
+    const config: ExportConfig = {
+      type: "custom",
+      startDate,
+      endDate,
       format,
-      includePhotos
+      includePhotos,
     };
     const content = this.exportTaskCompletions(config);
-    const start = startDate.toISOString().split('T')[0];
-    const end = endDate.toISOString().split('T')[0];
+    const start = startDate.toISOString().split("T")[0];
+    const end = endDate.toISOString().split("T")[0];
     const filename = `wrench_custom_${start}_to_${end}.${format}`;
     const mimeType = format === "json" ? "application/json" : "text/csv";
     this.downloadFile(content, filename, mimeType);
