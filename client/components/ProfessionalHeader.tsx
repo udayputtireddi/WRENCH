@@ -92,7 +92,7 @@ export function ProfessionalHeader({
       )}
 
       <div className="container mx-auto px-4 py-4 relative z-10">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-3 items-center">
           {/* Left Side - Logo and Navigation */}
           <div className="flex items-center space-x-4 sm:space-x-6">
             {/* Back Button */}
@@ -114,23 +114,23 @@ export function ProfessionalHeader({
                 showText={true}
               />
             </Link>
-
-            {/* Page Title */}
-            {title && (
-              <div className="hidden md:block">
-                <h1
-                  className={`text-xl lg:text-2xl xl:text-3xl font-bold ${textClasses[variant]} text-center`}
-                >
-                  {title}
-                </h1>
-                {subtitle && (
-                  <p className={`text-sm ${subtextClasses[variant]} text-center`}>
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
+
+          {/* Center - Page Title */}
+          {title && (
+            <div className="text-center">
+              <h1
+                className={`text-xl lg:text-2xl xl:text-3xl font-bold ${textClasses[variant]}`}
+              >
+                {title}
+              </h1>
+              {subtitle && (
+                <p className={`text-sm ${subtextClasses[variant]}`}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          )}
 
 
           {/* Right Side - User Menu */}
