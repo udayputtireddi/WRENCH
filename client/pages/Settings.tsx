@@ -180,7 +180,7 @@ export default function Settings() {
               value="general"
               className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
             >
-              <Settings className="h-4 w-4 mr-2" />
+              <SettingsIcon className="h-4 w-4 mr-2" />
               General
             </TabsTrigger>
             <TabsTrigger
