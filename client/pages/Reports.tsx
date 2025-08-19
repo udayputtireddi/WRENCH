@@ -146,7 +146,8 @@ export default function Reports() {
         ExportSystem.exportCustomRange(
           new Date(filters.startDate),
           new Date(filters.endDate),
-          filters.format
+          filters.format,
+          filters.includePhotos
         );
       } else {
         const config = {
