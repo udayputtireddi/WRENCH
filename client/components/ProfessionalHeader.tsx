@@ -134,7 +134,7 @@ export function ProfessionalHeader({
 
 
           {/* Right Side - User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 justify-end">
             {/* Notifications */}
             <Button
               variant="ghost"
