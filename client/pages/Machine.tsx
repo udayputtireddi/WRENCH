@@ -399,9 +399,9 @@ export default function Machine() {
                           </span>
                         </div>
                       </div>
-                      <div className="ml-4">
+                      <div className="mt-3 sm:mt-0 sm:ml-4">
                         <Link to={`/machine/${machineId}/task/${task.id}`}>
-                          <Button className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift">
+                          <Button className="w-full sm:w-auto bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift">
                             <Zap className="h-4 w-4 mr-2" />
                             {task.status === "Completed" ? "View" : "Start"}
                           </Button>
