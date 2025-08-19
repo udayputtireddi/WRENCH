@@ -171,6 +171,8 @@ export default function Tasks() {
     switch (status) {
       case "Completed":
         return "bg-wrench-success text-white";
+      case "In Progress":
+        return "bg-wrench-accent text-white";
       case "Overdue":
         return "bg-wrench-error text-white";
       case "Due Today":
