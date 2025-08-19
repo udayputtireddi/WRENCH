@@ -132,58 +132,6 @@ export function ProfessionalHeader({
             )}
           </div>
 
-          {/* Center - Quick Stats (if enabled) */}
-          {showStats && analytics.totalTasks > 0 && (
-            <div className="hidden lg:flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-wrench-success/20 rounded-full flex items-center justify-center">
-                  <Activity className="h-4 w-4 text-wrench-success" />
-                </div>
-                <div>
-                  <p
-                    className={`text-sm font-semibold ${textClasses[variant]}`}
-                  >
-                    {analytics.completedToday}
-                  </p>
-                  <p className={`text-xs ${subtextClasses[variant]}`}>
-                    Completed
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-wrench-warning/20 rounded-full flex items-center justify-center">
-                  <Users className="h-4 w-4 text-wrench-warning" />
-                </div>
-                <div>
-                  <p
-                    className={`text-sm font-semibold ${textClasses[variant]}`}
-                  >
-                    {analytics.totalMachines}
-                  </p>
-                  <p className={`text-xs ${subtextClasses[variant]}`}>
-                    Machines
-                  </p>
-                </div>
-              </div>
-
-              {analytics.overdueTasks > 0 && (
-                <div className="flex items-center space-x-2">
-                  <div className="h-8 w-8 bg-wrench-error/20 rounded-full flex items-center justify-center">
-                    <Zap className="h-4 w-4 text-wrench-error" />
-                  </div>
-                  <div>
-                    <p className={`text-sm font-semibold text-wrench-error`}>
-                      {analytics.overdueTasks}
-                    </p>
-                    <p className={`text-xs ${subtextClasses[variant]}`}>
-                      Overdue
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Right Side - User Menu */}
           <div className="flex items-center space-x-4">
