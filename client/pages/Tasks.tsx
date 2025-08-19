@@ -323,6 +323,15 @@ export default function Tasks() {
 
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-accent">
+                    {stats.inProgress}
+                  </div>
+                  <p className="text-sm text-wrench-navy-600">In Progress</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-wrench-error">
                     {stats.overdue}
                   </div>
