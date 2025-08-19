@@ -376,8 +376,8 @@ export default function Machine() {
                           <h3 className="font-semibold text-wrench-navy-800">
                             {task.name}
                           </h3>
-                          <Badge className={getTaskStatusColor(task.status)}>
-                            {task.status}
+                          <Badge className={getTaskStatusColor(Database.getTaskStatus(task))}>
+                            {Database.getTaskStatus(task)}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {task.category}
@@ -401,7 +401,7 @@ export default function Machine() {
                         <Link to={`/machine/${machineId}/task/${task.id}`}>
                           <Button className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift">
                             <Zap className="h-4 w-4 mr-2" />
-                            {task.status === "Completed" ? "View" : "Start"}
+                            {Database.getTaskStatus(task) === "completed" ? "View" : "Start"}
                           </Button>
                         </Link>
                       </div>
