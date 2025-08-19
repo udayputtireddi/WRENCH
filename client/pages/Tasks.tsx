@@ -161,6 +161,7 @@ export default function Tasks() {
   const stats = {
     total: displayTasks.length,
     completed: displayTasks.filter((t) => t.status === "Completed").length,
+    inProgress: displayTasks.filter((t) => t.status === "In Progress").length,
     overdue: displayTasks.filter((t) => t.status === "Overdue").length,
     dueToday: displayTasks.filter((t) => t.status === "Due Today").length,
     pending: displayTasks.filter((t) => t.status === "Pending").length,
