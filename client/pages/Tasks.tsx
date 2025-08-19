@@ -86,6 +86,25 @@ export default function Tasks() {
       task.lastCompletedDate.toDateString() === new Date().toDateString()
     ) {
       status = "Completed";
+    } else if (task.progressSaves && task.progressSaves.length > 0) {
+      // Check if there's a recent progress save (within the last 24 hours)
+      const recentProgress = task.progressSaves.find(progress => {
+        const progressDate = new Date(progress.savedDate);
+        const timeDiff = today.getTime() - progressDate.getTime();
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        return daysDiff <= 1; // Within last 24 hours
+      });
+
+      if (recentProgress) {
+        status = "In Progress";
+        priority = "Medium";
+      } else if (dueDate.getTime() < today.getTime()) {
+        status = "Overdue";
+        priority = "High";
+      } else if (dueDate.getTime() === today.getTime()) {
+        status = "Due Today";
+        priority = "High";
+      }
     } else if (dueDate.getTime() < today.getTime()) {
       status = "Overdue";
       priority = "High";
