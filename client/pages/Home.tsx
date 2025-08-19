@@ -157,7 +157,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-center p-4 sm:p-6">
               <Link to="/settings">
-                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white py-2 sm:py-3 text-sm sm:text-base">
+                <Button className="w-full bg-gradient-to-r from-wrench-navy-600 to-wrench-navy-800 hover:from-wrench-navy-800 hover:to-wrench-navy-600 text-white py-2 sm:py-3 text-sm sm:text-base font-medium">
                   <Settings className="h-4 w-4 mr-2" />
                   Open Settings
                 </Button>
