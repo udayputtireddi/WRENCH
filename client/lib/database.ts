@@ -505,6 +505,25 @@ export class Database {
     return efficiency;
   }
 
+  // Get task status dynamically
+  static getTaskStatus(task: Task): "completed" | "pending" | "overdue" {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (task.lastCompletedDate && task.lastCompletedDate >= today) {
+      return "completed";
+    }
+
+    const dueDate = new Date(task.nextDueDate);
+    dueDate.setHours(0, 0, 0, 0);
+
+    if (dueDate.getTime() < today.getTime()) {
+      return "overdue";
+    }
+
+    return "pending";
+  }
+
   // Get filtered tasks based on completion status
   static getTasksByStatus(status: "completed" | "pending" | "overdue"): Task[] {
     const today = new Date();
