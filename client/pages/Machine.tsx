@@ -25,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import Database from "@/lib/database";
+import { getMachineStatusColor, getTaskStatusColor } from "@/lib/mockData";
 
 export default function Machine() {
   const { machineId } = useParams<{ machineId: string }>();
