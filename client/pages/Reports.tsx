@@ -220,8 +220,9 @@ export default function Reports() {
               Professional Export System
             </CardTitle>
             <CardDescription className="text-wrench-navy-600 text-sm sm:text-base">
-              Export maintenance data with flexible date filtering (daily, weekly, monthly, yearly, custom ranges).<br />
-              <span className="text-wrench-accent font-medium">New Format:</span> Task name, machine name, frequency, date, completed by, time taken, notes, and photos in Excel-compatible layout.
+              Export maintenance data with intelligent frequency-based filtering showing tasks according to their schedule.<br />
+              <span className="text-wrench-accent font-medium">Excel Format:</span> Task Name, Machine Name, Frequency, Date, Completed By, Time Taken, Notes, Photos.<br />
+              <span className="text-wrench-success font-medium">Smart Display:</span> Weekly tasks appear once per week in weekly reports, daily tasks appear every day, monthly tasks on first of month.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
