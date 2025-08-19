@@ -302,7 +302,7 @@ export default function Tasks() {
             </div>
 
             {/* Task Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-wrench-navy-800">
