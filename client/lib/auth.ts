@@ -1,4 +1,6 @@
-// Role-based authentication system
+import { supabase } from "./supabase";
+
+// Role-based authentication system with Supabase
 export type UserRole = "user" | "admin";
 
 export interface User {
@@ -11,94 +13,138 @@ export interface User {
   lastLogin?: Date;
 }
 
-// User database - starts empty, users are added when they sign in
-const userDatabase: Array<User & { password: string }> = [];
-
 class AuthService {
   private static currentUser: User | null = null;
 
-  // Authenticate user with email and password
-  static login(email: string, password: string): User | null {
-    let userRecord = userDatabase.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase(),
-    );
+  // Authenticate user with email and password (auto-registration)
+  static async login(email: string, password: string): Promise<User | null> {
+    try {
+      // Check if user exists in our users table
+      const { data: existingUser, error: fetchError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email.toLowerCase())
+        .single();
 
-    // If user doesn't exist, create a new account automatically
-    if (!userRecord) {
-      // Determine role based on email domain or specific patterns
-      const role: UserRole = email.toLowerCase().includes("admin")
-        ? "admin"
-        : "user";
-      const name = email
-        .split("@")[0]
-        .replace(/[._]/g, " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase());
-      const department = role === "admin" ? "Management" : "Production";
+      if (fetchError && fetchError.code !== "PGRST116") {
+        console.error("Error fetching user:", fetchError);
+        return null;
+      }
 
-      userRecord = {
-        id: `${role}-${Date.now()}`,
-        name,
-        email,
-        password, // In production, this would be hashed
-        role,
-        department,
-        createdAt: new Date(),
-      };
+      if (!existingUser) {
+        // Auto-register new user
+        const role: UserRole = email.toLowerCase().includes("admin")
+          ? "admin"
+          : "user";
+        const name = email
+          .split("@")[0]
+          .replace(/[._]/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
+        const department = role === "admin" ? "Management" : "Production";
 
-      userDatabase.push(userRecord);
-    } else if (userRecord.password !== password) {
-      // If user exists but password doesn't match, reject login
+        const { data: newUser, error: insertError } = await supabase
+          .from("users")
+          .insert([
+            {
+              name,
+              email: email.toLowerCase(),
+              role,
+              department,
+              last_login: new Date().toISOString(),
+            },
+          ])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Error creating user:", insertError);
+          return null;
+        }
+
+        const user: User = {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role as UserRole,
+          department: newUser.department,
+          createdAt: new Date(newUser.created_at),
+          lastLogin: new Date(),
+        };
+
+        this.currentUser = user;
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        return user;
+      } else {
+        // Update last login
+        await supabase
+          .from("users")
+          .update({ last_login: new Date().toISOString() })
+          .eq("id", existingUser.id);
+
+        const user: User = {
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+          role: existingUser.role as UserRole,
+          department: existingUser.department,
+          createdAt: new Date(existingUser.created_at),
+          lastLogin: new Date(),
+        };
+
+        this.currentUser = user;
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        return user;
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       return null;
     }
-
-    // Create user object without password
-    const user: User = {
-      id: userRecord.id,
-      name: userRecord.name,
-      email: userRecord.email,
-      role: userRecord.role,
-      department: userRecord.department,
-      createdAt: userRecord.createdAt,
-      lastLogin: new Date(),
-    };
-
-    this.currentUser = user;
-    localStorage.setItem("currentUser", JSON.stringify(user));
-
-    // Update last login in database
-    userRecord.lastLogin = new Date();
-
-    return user;
   }
 
   // Register new user (admin only)
-  static register(userData: {
+  static async register(userData: {
     name: string;
     email: string;
     password: string;
     role: UserRole;
     department?: string;
-  }): User | null {
-    // Check if user already exists
-    if (
-      userDatabase.find(
-        (u) => u.email.toLowerCase() === userData.email.toLowerCase(),
-      )
-    ) {
+  }): Promise<User | null> {
+    try {
+      if (!this.isAdmin()) {
+        console.error("Only admins can register new users");
+        return null;
+      }
+
+      const { data: newUser, error } = await supabase
+        .from("users")
+        .insert([
+          {
+            name: userData.name,
+            email: userData.email.toLowerCase(),
+            role: userData.role,
+            department: userData.department,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error registering user:", error);
+        return null;
+      }
+
+      return {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role as UserRole,
+        department: newUser.department,
+        createdAt: new Date(newUser.created_at),
+      };
+    } catch (error) {
+      console.error("Registration error:", error);
       return null;
     }
-
-    const newUser = {
-      id: `${userData.role}-${Date.now()}`,
-      ...userData,
-      createdAt: new Date(),
-    };
-
-    userDatabase.push(newUser);
-
-    // Return user without password
-    const { password, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
   }
 
   // Get current user
@@ -143,35 +189,102 @@ class AuthService {
   }
 
   // Get all users (admin only)
-  static getAllUsers(): User[] {
-    return userDatabase.map(({ password, ...user }) => user);
+  static async getAllUsers(): Promise<User[]> {
+    if (!this.isAdmin()) {
+      return [];
+    }
+
+    try {
+      const { data: users, error } = await supabase
+        .from("users")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching users:", error);
+        return [];
+      }
+
+      return users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role as UserRole,
+        department: user.department,
+        createdAt: new Date(user.created_at),
+        lastLogin: user.last_login ? new Date(user.last_login) : undefined,
+      }));
+    } catch (error) {
+      console.error("Error getting all users:", error);
+      return [];
+    }
   }
 
   // Update user (admin only)
-  static updateUser(userId: string, updates: Partial<User>): boolean {
-    const userIndex = userDatabase.findIndex((u) => u.id === userId);
-    if (userIndex !== -1) {
-      userDatabase[userIndex] = { ...userDatabase[userIndex], ...updates };
-      return true;
+  static async updateUser(
+    userId: string,
+    updates: Partial<User>,
+  ): Promise<boolean> {
+    if (!this.isAdmin()) {
+      return false;
     }
-    return false;
+
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update(updates)
+        .eq("id", userId);
+
+      if (error) {
+        console.error("Error updating user:", error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return false;
+    }
   }
 
   // Delete user (admin only)
-  static deleteUser(userId: string): boolean {
-    const userIndex = userDatabase.findIndex((u) => u.id === userId);
-    if (userIndex !== -1) {
-      userDatabase.splice(userIndex, 1);
-      return true;
+  static async deleteUser(userId: string): Promise<boolean> {
+    if (!this.isAdmin()) {
+      return false;
     }
-    return false;
+
+    try {
+      const { error } = await supabase.from("users").delete().eq("id", userId);
+
+      if (error) {
+        console.error("Error deleting user:", error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return false;
+    }
   }
 
   // Clear all users (admin only - for system reset)
-  static clearAllUsers(): void {
-    userDatabase.length = 0;
-    this.currentUser = null;
-    localStorage.removeItem("currentUser");
+  static async clearAllUsers(): Promise<void> {
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    try {
+      await supabase
+        .from("users")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Keep system users
+
+      this.currentUser = null;
+      localStorage.removeItem("currentUser");
+    } catch (error) {
+      console.error("Error clearing users:", error);
+    }
   }
 }
 
