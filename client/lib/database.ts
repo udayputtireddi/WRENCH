@@ -1,8 +1,10 @@
-// Task management database system
+// Task management database system with Supabase
+import { supabase } from './supabase';
 import {
   TaskCompletionTracker,
   type TaskCompletionData,
 } from "./taskCompletionTracking";
+
 export interface Task {
   id: string;
   machineId: string;
@@ -68,20 +70,12 @@ export class TaskScheduler {
 
     switch (frequency) {
       case "daily":
-        // Daily task: Add 1 day
-        // Completed Monday 8/4 → Next due Tuesday 8/5
         next.setDate(next.getDate() + 1);
         break;
-
       case "weekly":
-        // Weekly task: Add exactly 7 days
-        // Completed Monday 8/4 → Next due Monday 8/11
-        // Completed Monday 8/11 → Next due Monday 8/18
         next.setDate(next.getDate() + 7);
         break;
-
       case "monthly":
-        // Monthly task: Add 1 month
         next.setMonth(next.getMonth() + 1);
         break;
     }
@@ -89,7 +83,7 @@ export class TaskScheduler {
     return next;
   }
 
-  static completeTask(
+  static async completeTask(
     taskId: string,
     userId: string,
     userName: string,
@@ -98,99 +92,161 @@ export class TaskScheduler {
     photos?: string[],
     customCompletionDate?: Date,
     timeSpentMinutes?: number,
-  ): boolean {
-    const task = taskDatabase.find((t) => t.id === taskId);
-    if (!task) return false;
+  ): Promise<boolean> {
+    try {
+      const completionDate = customCompletionDate || new Date();
+      
+      // Insert completion record
+      const { data: completion, error: completionError } = await supabase
+        .from('task_completions')
+        .insert([{
+          task_id: taskId,
+          user_id: userId,
+          user_name: userName,
+          completed_date: completionDate.toISOString(),
+          notes,
+          time_spent_minutes: timeSpentMinutes,
+          photos: photos || [],
+          checklist_items: checklistItems
+        }])
+        .select()
+        .single();
 
-    const completionDate = customCompletionDate || new Date();
-    const completion: TaskCompletion = {
-      id: `completion-${Date.now()}`,
-      taskId,
-      userId,
-      userName,
-      completedDate: completionDate,
-      notes,
-      photos: photos || [],
-      checklistItems,
-      timeSpentMinutes,
-    };
+      if (completionError) {
+        console.error('Error saving completion:', completionError);
+        return false;
+      }
 
-    task.completionHistory.push(completion);
-    task.lastCompletedDate = completionDate;
-    task.nextDueDate = this.calculateNextDueDate(
-      task.frequency,
-      completionDate,
-      task.weeklyDay,
-    );
+      // Update task with new due date and last completed date
+      const nextDueDate = this.calculateNextDueDate(
+        await this.getTaskFrequency(taskId),
+        completionDate
+      );
 
-    // Save to comprehensive tracking system
-    TaskCompletionTracker.saveTaskCompletion({
-      taskId,
-      taskName: task.taskName,
-      machineId: task.machineId,
-      machineName: task.machineName,
-      frequency: task.frequency,
-      completedBy: userName,
-      completedDate: completionDate,
-      timeSpentMinutes: timeSpentMinutes || 0,
-      notes: notes || '',
-      photos: photos || [],
-      checklistItems
-    });
+      const { error: updateError } = await supabase
+        .from('tasks')
+        .update({
+          last_completed_date: completionDate.toISOString(),
+          next_due_date: nextDueDate.toISOString()
+        })
+        .eq('id', taskId);
 
-    return true;
+      if (updateError) {
+        console.error('Error updating task:', updateError);
+        return false;
+      }
+
+      // Get task details for tracking
+      const { data: task } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (task) {
+        // Save to comprehensive tracking system
+        TaskCompletionTracker.saveTaskCompletion({
+          taskId,
+          taskName: task.task_name,
+          machineId: task.machine_id,
+          machineName: task.machine_name,
+          frequency: task.frequency,
+          completedBy: userName,
+          completedDate: completionDate,
+          timeSpentMinutes: timeSpentMinutes || 0,
+          notes: notes || '',
+          photos: photos || [],
+          checklistItems
+        });
+      }
+
+      // Clear any saved progress for this task/user
+      await supabase
+        .from('task_progress')
+        .delete()
+        .eq('task_id', taskId)
+        .eq('user_id', userId);
+
+      return true;
+    } catch (error) {
+      console.error('Error completing task:', error);
+      return false;
+    }
   }
 
-  static saveTaskProgress(
+  static async saveTaskProgress(
     taskId: string,
     userId: string,
     userName: string,
     checklistItems: { id: string; text: string; completed: boolean }[],
     notes?: string,
     photos?: string[],
-  ): boolean {
-    const task = taskDatabase.find((t) => t.id === taskId);
-    if (!task) return false;
+  ): Promise<boolean> {
+    try {
+      // Upsert progress (update if exists, insert if not)
+      const { error } = await supabase
+        .from('task_progress')
+        .upsert([{
+          task_id: taskId,
+          user_id: userId,
+          user_name: userName,
+          saved_date: new Date().toISOString(),
+          checklist_items: checklistItems,
+          notes,
+          photos: photos || []
+        }], {
+          onConflict: 'task_id,user_id'
+        });
 
-    const progress: TaskProgress = {
-      id: `progress-${Date.now()}`,
-      taskId,
-      userId,
-      userName,
-      savedDate: new Date(),
-      checklistItems,
-      notes,
-      photos: photos || [],
-    };
+      if (error) {
+        console.error('Error saving progress:', error);
+        return false;
+      }
 
-    // Initialize progressSaves if it doesn't exist (for backward compatibility)
-    if (!task.progressSaves) {
-      task.progressSaves = [];
+      return true;
+    } catch (error) {
+      console.error('Error saving task progress:', error);
+      return false;
     }
-
-    // Remove any previous progress saves for this task by this user
-    task.progressSaves = task.progressSaves.filter(
-      (p) => !(p.taskId === taskId && p.userId === userId),
-    );
-    task.progressSaves.push(progress);
-
-    return true;
   }
 
-  static getTaskProgress(taskId: string, userId: string): TaskProgress | null {
-    const task = taskDatabase.find((t) => t.id === taskId);
-    if (!task) return null;
+  static async getTaskProgress(taskId: string, userId: string): Promise<TaskProgress | null> {
+    try {
+      const { data: progress, error } = await supabase
+        .from('task_progress')
+        .select('*')
+        .eq('task_id', taskId)
+        .eq('user_id', userId)
+        .single();
 
-    // Initialize progressSaves if it doesn't exist (for backward compatibility)
-    if (!task.progressSaves) {
-      task.progressSaves = [];
+      if (error || !progress) {
+        return null;
+      }
+
+      return {
+        id: progress.id,
+        taskId: progress.task_id,
+        userId: progress.user_id,
+        userName: progress.user_name,
+        savedDate: new Date(progress.saved_date),
+        checklistItems: progress.checklist_items,
+        notes: progress.notes,
+        photos: progress.photos
+      };
+    } catch (error) {
+      console.error('Error getting task progress:', error);
+      return null;
     }
+  }
 
-    return (
-      task.progressSaves.find(
-        (p) => p.taskId === taskId && p.userId === userId,
-      ) || null
-    );
+  private static async getTaskFrequency(taskId: string): Promise<Task["frequency"]> {
+    const { data: task } = await supabase
+      .from('tasks')
+      .select('frequency')
+      .eq('id', taskId)
+      .single();
+    
+    return task?.frequency || 'weekly';
   }
 }
 
@@ -237,12 +293,10 @@ export class ExcelParser {
       "Next Due Date",
     ];
 
-    // For new format: show each completion as separate row under task
     const rows: string[][] = [];
 
     tasks.forEach((task) => {
       if (task.completionHistory.length === 0) {
-        // No completions - show pending task
         rows.push([
           task.taskName,
           task.machineName,
@@ -258,7 +312,6 @@ export class ExcelParser {
           task.nextDueDate.toLocaleDateString(),
         ]);
       } else {
-        // Show each completion
         task.completionHistory.forEach((completion) => {
           rows.push([
             task.taskName,
@@ -283,7 +336,6 @@ export class ExcelParser {
       .join("\n");
   }
 
-  // Export detailed completion history with photo information
   static exportCompletionHistoryToCSV(tasks: Task[]): string {
     const headers = [
       "Completion ID",
@@ -330,49 +382,169 @@ export class ExcelParser {
   }
 }
 
-// In-memory database - starts empty, will be populated via Excel uploads
-export const taskDatabase: Task[] = [];
-export const machineDatabase: Machine[] = [];
-
 // Database operations
 export class Database {
-  static addTask(task: Task): void {
-    // Ensure task has required properties initialized
-    const initializedTask = {
-      ...task,
-      completionHistory: task.completionHistory || [],
-      progressSaves: task.progressSaves || [],
-    };
-    taskDatabase.push(initializedTask);
+  static async addTask(task: Task): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .insert([{
+          id: task.id,
+          machine_id: task.machineId,
+          machine_name: task.machineName,
+          task_name: task.taskName,
+          description: task.description,
+          frequency: task.frequency,
+          category: task.category,
+          estimated_time_minutes: task.estimatedTimeMinutes,
+          weekly_day: task.weeklyDay,
+          safety_notes: task.safetyNotes,
+          required_tools: task.requiredTools,
+          is_active: task.isActive,
+          created_date: task.createdDate.toISOString(),
+          next_due_date: task.nextDueDate.toISOString(),
+          last_completed_date: task.lastCompletedDate?.toISOString()
+        }]);
+
+      if (error) {
+        console.error('Error adding task:', error);
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   }
 
-  static addTasks(tasks: Task[]): void {
-    // Ensure all tasks have required properties initialized
-    const initializedTasks = tasks.map((task) => ({
-      ...task,
-      completionHistory: task.completionHistory || [],
-      progressSaves: task.progressSaves || [],
-    }));
-    taskDatabase.push(...initializedTasks);
+  static async addTasks(tasks: Task[]): Promise<void> {
+    try {
+      const taskData = tasks.map(task => ({
+        id: task.id,
+        machine_id: task.machineId,
+        machine_name: task.machineName,
+        task_name: task.taskName,
+        description: task.description,
+        frequency: task.frequency,
+        category: task.category,
+        estimated_time_minutes: task.estimatedTimeMinutes,
+        weekly_day: task.weeklyDay,
+        safety_notes: task.safetyNotes,
+        required_tools: task.requiredTools,
+        is_active: task.isActive,
+        created_date: task.createdDate.toISOString(),
+        next_due_date: task.nextDueDate.toISOString(),
+        last_completed_date: task.lastCompletedDate?.toISOString()
+      }));
+
+      const { error } = await supabase
+        .from('tasks')
+        .insert(taskData);
+
+      if (error) {
+        console.error('Error adding tasks:', error);
+      }
+    } catch (error) {
+      console.error('Error adding tasks:', error);
+    }
   }
 
-  static getTasks(): Task[] {
-    return taskDatabase;
+  static async getTasks(): Promise<Task[]> {
+    try {
+      const { data: tasks, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('next_due_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        return [];
+      }
+
+      if (!tasks) return [];
+
+      // Fetch completions and progress for each task
+      const tasksWithDetails = await Promise.all(
+        tasks.map(async (task) => {
+          const completionHistory = await this.getTaskCompletions(task.id);
+          const progressSaves = await this.getTaskProgressSaves(task.id);
+
+          return {
+            id: task.id,
+            machineId: task.machine_id,
+            machineName: task.machine_name,
+            taskName: task.task_name,
+            description: task.description,
+            frequency: task.frequency as Task["frequency"],
+            category: task.category as Task["category"],
+            estimatedTimeMinutes: task.estimated_time_minutes,
+            weeklyDay: task.weekly_day as Task["weeklyDay"],
+            safetyNotes: task.safety_notes,
+            requiredTools: task.required_tools,
+            isActive: task.is_active,
+            createdDate: new Date(task.created_date),
+            nextDueDate: new Date(task.next_due_date),
+            lastCompletedDate: task.last_completed_date ? new Date(task.last_completed_date) : undefined,
+            completionHistory,
+            progressSaves
+          };
+        })
+      );
+
+      return tasksWithDetails;
+    } catch (error) {
+      console.error('Error getting tasks:', error);
+      return [];
+    }
   }
 
-  static getTaskById(id: string): Task | undefined {
-    return taskDatabase.find((t) => t.id === id);
+  static async getTaskById(id: string): Promise<Task | undefined> {
+    try {
+      const { data: task, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !task) {
+        return undefined;
+      }
+
+      const completionHistory = await this.getTaskCompletions(task.id);
+      const progressSaves = await this.getTaskProgressSaves(task.id);
+
+      return {
+        id: task.id,
+        machineId: task.machine_id,
+        machineName: task.machine_name,
+        taskName: task.task_name,
+        description: task.description,
+        frequency: task.frequency as Task["frequency"],
+        category: task.category as Task["category"],
+        estimatedTimeMinutes: task.estimated_time_minutes,
+        weeklyDay: task.weekly_day as Task["weeklyDay"],
+        safetyNotes: task.safety_notes,
+        requiredTools: task.required_tools,
+        isActive: task.is_active,
+        createdDate: new Date(task.created_date),
+        nextDueDate: new Date(task.next_due_date),
+        lastCompletedDate: task.last_completed_date ? new Date(task.last_completed_date) : undefined,
+        completionHistory,
+        progressSaves
+      };
+    } catch (error) {
+      console.error('Error getting task by ID:', error);
+      return undefined;
+    }
   }
 
-  static getTasksByMachine(machineId: string): Task[] {
-    return taskDatabase.filter((t) => t.machineId === machineId);
+  static async getTasksByMachine(machineId: string): Promise<Task[]> {
+    const allTasks = await this.getTasks();
+    return allTasks.filter(t => t.machineId === machineId);
   }
 
-  static getMachines(): Machine[] {
-    // Generate machines from tasks
+  static async getMachines(): Promise<Machine[]> {
+    const tasks = await this.getTasks();
     const machineMap = new Map<string, Machine>();
 
-    taskDatabase.forEach((task) => {
+    tasks.forEach((task) => {
       if (!machineMap.has(task.machineId)) {
         machineMap.set(task.machineId, {
           id: task.machineId,
@@ -389,18 +561,83 @@ export class Database {
     return Array.from(machineMap.values());
   }
 
-  static getMachineById(id: string): Machine | undefined {
-    return this.getMachines().find((m) => m.id === id);
+  static async getMachineById(id: string): Promise<Machine | undefined> {
+    const machines = await this.getMachines();
+    return machines.find((m) => m.id === id);
   }
 
-  static clearDatabase(): void {
-    taskDatabase.length = 0;
-    machineDatabase.length = 0;
+  static async clearDatabase(): Promise<void> {
+    try {
+      // Clear in order due to foreign key constraints
+      await supabase.from('task_progress').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('task_completions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('tasks').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('machines').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (error) {
+      console.error('Error clearing database:', error);
+    }
   }
 
-  static getAnalytics() {
-    const tasks = this.getTasks();
-    const machines = this.getMachines();
+  private static async getTaskCompletions(taskId: string): Promise<TaskCompletion[]> {
+    try {
+      const { data: completions, error } = await supabase
+        .from('task_completions')
+        .select('*')
+        .eq('task_id', taskId)
+        .order('completed_date', { ascending: false });
+
+      if (error || !completions) {
+        return [];
+      }
+
+      return completions.map(completion => ({
+        id: completion.id,
+        taskId: completion.task_id,
+        userId: completion.user_id,
+        userName: completion.user_name,
+        completedDate: new Date(completion.completed_date),
+        notes: completion.notes,
+        timeSpentMinutes: completion.time_spent_minutes,
+        photos: completion.photos,
+        checklistItems: completion.checklist_items
+      }));
+    } catch (error) {
+      console.error('Error fetching task completions:', error);
+      return [];
+    }
+  }
+
+  private static async getTaskProgressSaves(taskId: string): Promise<TaskProgress[]> {
+    try {
+      const { data: progressSaves, error } = await supabase
+        .from('task_progress')
+        .select('*')
+        .eq('task_id', taskId)
+        .order('saved_date', { ascending: false });
+
+      if (error || !progressSaves) {
+        return [];
+      }
+
+      return progressSaves.map(progress => ({
+        id: progress.id,
+        taskId: progress.task_id,
+        userId: progress.user_id,
+        userName: progress.user_name,
+        savedDate: new Date(progress.saved_date),
+        checklistItems: progress.checklist_items,
+        notes: progress.notes,
+        photos: progress.photos
+      }));
+    } catch (error) {
+      console.error('Error fetching task progress saves:', error);
+      return [];
+    }
+  }
+
+  static async getAnalytics() {
+    const tasks = await this.getTasks();
+    const machines = await this.getMachines();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -425,12 +662,7 @@ export class Database {
       return dueDate.getTime() === tomorrow.getTime();
     }).length;
 
-    // Count tasks with saved progress
     const tasksWithProgress = tasks.filter((task) => {
-      // Initialize progressSaves if it doesn't exist (for backward compatibility)
-      if (!task.progressSaves) {
-        task.progressSaves = [];
-      }
       return task.progressSaves.length > 0;
     }).length;
 
@@ -445,14 +677,14 @@ export class Database {
         (sum, task) => sum + task.completionHistory.length,
         0,
       ),
-      averageTaskTime: this.getAverageTaskTime(),
-      mostActiveUser: this.getMostActiveUser(),
-      machineEfficiency: this.getMachineEfficiency(),
+      averageTaskTime: this.getAverageTaskTime(tasks),
+      mostActiveUser: this.getMostActiveUser(tasks),
+      machineEfficiency: this.getMachineEfficiency(machines),
     };
   }
 
-  static getAverageTaskTime(): number {
-    const allCompletions = taskDatabase.flatMap(
+  private static getAverageTaskTime(tasks: Task[]): number {
+    const allCompletions = tasks.flatMap(
       (task) => task.completionHistory,
     );
     if (allCompletions.length === 0) return 0;
@@ -464,10 +696,10 @@ export class Database {
     return Math.round(totalTime / allCompletions.length);
   }
 
-  static getMostActiveUser(): { name: string; completions: number } {
+  private static getMostActiveUser(tasks: Task[]): { name: string; completions: number } {
     const userCompletions = new Map<string, number>();
 
-    taskDatabase.forEach((task) => {
+    tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
         const current = userCompletions.get(completion.userName) || 0;
         userCompletions.set(completion.userName, current + 1);
@@ -484,10 +716,10 @@ export class Database {
     return mostActive;
   }
 
-  static getMachineEfficiency(): { [machineId: string]: number } {
+  private static getMachineEfficiency(machines: Machine[]): { [machineId: string]: number } {
     const efficiency: { [machineId: string]: number } = {};
 
-    this.getMachines().forEach((machine) => {
+    machines.forEach((machine) => {
       const totalTasks = machine.tasks.length;
       const onTimeTasks = machine.tasks.filter((task) => {
         if (!task.lastCompletedDate) return false;
@@ -505,12 +737,12 @@ export class Database {
     return efficiency;
   }
 
-  // Get filtered tasks based on completion status
-  static getTasksByStatus(status: "completed" | "pending" | "overdue"): Task[] {
+  static async getTasksByStatus(status: "completed" | "pending" | "overdue"): Promise<Task[]> {
+    const tasks = await this.getTasks();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return taskDatabase.filter((task) => {
+    return tasks.filter((task) => {
       switch (status) {
         case "completed":
           return task.lastCompletedDate && task.lastCompletedDate >= today;
@@ -529,8 +761,7 @@ export class Database {
     });
   }
 
-  // Get all photos from completed tasks
-  static getAllTaskPhotos(): Array<{
+  static async getAllTaskPhotos(): Promise<Array<{
     taskId: string;
     taskName: string;
     machineName: string;
@@ -540,10 +771,11 @@ export class Database {
     photos: string[];
     notes?: string;
     timeSpent?: number;
-  }> {
+  }>> {
+    const tasks = await this.getTasks();
     const photoData: Array<any> = [];
 
-    taskDatabase.forEach((task) => {
+    tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
         if (completion.photos && completion.photos.length > 0) {
           photoData.push({
@@ -561,7 +793,6 @@ export class Database {
       });
     });
 
-    // Sort by completion date (newest first)
     return photoData.sort(
       (a, b) =>
         new Date(b.completedDate).getTime() -
@@ -569,16 +800,15 @@ export class Database {
     );
   }
 
-  // Get photos for a specific task
-  static getTaskPhotos(taskId: string): Array<{
+  static async getTaskPhotos(taskId: string): Promise<Array<{
     completionId: string;
     completedBy: string;
     completedDate: Date;
     photos: string[];
     notes?: string;
     timeSpent?: number;
-  }> {
-    const task = this.getTaskById(taskId);
+  }>> {
+    const task = await this.getTaskById(taskId);
     if (!task) return [];
 
     return task.completionHistory
@@ -598,59 +828,90 @@ export class Database {
       );
   }
 
-  // Get recent completions with details for admin view
-  static getRecentCompletions(limit: number = 20): Array<
+  static async getRecentCompletions(limit: number = 20): Promise<Array<
     TaskCompletion & {
       taskName: string;
       machineName: string;
     }
-  > {
-    const allCompletions: Array<
-      TaskCompletion & {
-        taskName: string;
-        machineName: string;
+  >> {
+    try {
+      const { data: completions, error } = await supabase
+        .from('task_completions')
+        .select(`
+          *,
+          tasks (
+            task_name,
+            machine_name
+          )
+        `)
+        .order('completed_date', { ascending: false })
+        .limit(limit);
+
+      if (error || !completions) {
+        console.error('Error fetching recent completions:', error);
+        return [];
       }
-    > = [];
 
-    taskDatabase.forEach((task) => {
-      task.completionHistory.forEach((completion) => {
-        allCompletions.push({
-          ...completion,
-          taskName: task.taskName,
-          machineName: task.machineName,
-        });
-      });
-    });
-
-    return allCompletions
-      .sort(
-        (a, b) =>
-          new Date(b.completedDate).getTime() -
-          new Date(a.completedDate).getTime(),
-      )
-      .slice(0, limit);
+      return completions.map(completion => ({
+        id: completion.id,
+        taskId: completion.task_id,
+        userId: completion.user_id,
+        userName: completion.user_name,
+        completedDate: new Date(completion.completed_date),
+        notes: completion.notes,
+        timeSpentMinutes: completion.time_spent_minutes,
+        photos: completion.photos,
+        checklistItems: completion.checklist_items,
+        taskName: completion.tasks?.task_name || 'Unknown Task',
+        machineName: completion.tasks?.machine_name || 'Unknown Machine'
+      }));
+    } catch (error) {
+      console.error('Error getting recent completions:', error);
+      return [];
+    }
   }
 
-  // Get completion details by ID
-  static getCompletionById(completionId: string):
+  static async getCompletionById(completionId: string): Promise<
     | (TaskCompletion & {
         taskName: string;
         machineName: string;
       })
-    | undefined {
-    for (const task of taskDatabase) {
-      const completion = task.completionHistory.find(
-        (c) => c.id === completionId,
-      );
-      if (completion) {
-        return {
-          ...completion,
-          taskName: task.taskName,
-          machineName: task.machineName,
-        };
+    | undefined
+  > {
+    try {
+      const { data: completion, error } = await supabase
+        .from('task_completions')
+        .select(`
+          *,
+          tasks (
+            task_name,
+            machine_name
+          )
+        `)
+        .eq('id', completionId)
+        .single();
+
+      if (error || !completion) {
+        return undefined;
       }
+
+      return {
+        id: completion.id,
+        taskId: completion.task_id,
+        userId: completion.user_id,
+        userName: completion.user_name,
+        completedDate: new Date(completion.completed_date),
+        notes: completion.notes,
+        timeSpentMinutes: completion.time_spent_minutes,
+        photos: completion.photos,
+        checklistItems: completion.checklist_items,
+        taskName: completion.tasks?.task_name || 'Unknown Task',
+        machineName: completion.tasks?.machine_name || 'Unknown Machine'
+      };
+    } catch (error) {
+      console.error('Error getting completion by ID:', error);
+      return undefined;
     }
-    return undefined;
   }
 }
 
