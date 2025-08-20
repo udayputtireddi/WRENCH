@@ -36,28 +36,30 @@ export interface Machine {
 export const mockMachines: Machine[] = [];
 
 // Utility functions for when data exists
-export const getTaskStatusColor = (status: Task["status"]) => {
-  switch (status) {
-    case "Completed":
+export const getTaskStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "completed":
       return "text-green-600 bg-green-100";
-    case "In Progress":
-      return "text-blue-600 bg-blue-100";
-    case "Overdue":
-      return "text-red-600 bg-red-100";
-    default:
+    case "pending":
       return "text-yellow-600 bg-yellow-100";
+    case "overdue":
+      return "text-red-600 bg-red-100";
+    case "in progress":
+      return "text-blue-600 bg-blue-100";
+    default:
+      return "text-gray-600 bg-gray-100";
   }
 };
 
-export const getMachineStatusColor = (status: Machine["status"]) => {
-  switch (status) {
-    case "Operational":
+export const getMachineStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "operational":
       return "text-green-600 bg-green-100";
-    case "Warning":
+    case "warning":
       return "text-yellow-600 bg-yellow-100";
-    case "Maintenance":
+    case "maintenance":
       return "text-blue-600 bg-blue-100";
-    case "Offline":
+    case "offline":
       return "text-red-600 bg-red-100";
     default:
       return "text-gray-600 bg-gray-100";

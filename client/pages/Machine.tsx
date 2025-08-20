@@ -25,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import Database from "@/lib/database";
+import { getMachineStatusColor, getTaskStatusColor } from "@/lib/mockData";
 
 export default function Machine() {
   const { machineId } = useParams<{ machineId: string }>();
@@ -369,18 +370,20 @@ export default function Machine() {
                   className="border-wrench-navy-100 hover:shadow-md transition-shadow duration-200"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                           <h3 className="font-semibold text-wrench-navy-800">
                             {task.name}
                           </h3>
-                          <Badge className={getTaskStatusColor(task.status)}>
-                            {task.status}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {task.category}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Badge className={getTaskStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {task.category}
+                            </Badge>
+                          </div>
                         </div>
                         <p className="text-wrench-navy-600 text-sm mb-2">
                           {task.description}
@@ -396,9 +399,9 @@ export default function Machine() {
                           </span>
                         </div>
                       </div>
-                      <div className="ml-4">
+                      <div className="mt-3 sm:mt-0 sm:ml-4">
                         <Link to={`/machine/${machineId}/task/${task.id}`}>
-                          <Button className="bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift">
+                          <Button className="w-full sm:w-auto bg-gradient-to-r from-wrench-accent to-wrench-accent-light hover:from-wrench-accent-light hover:to-wrench-accent text-white hover-lift">
                             <Zap className="h-4 w-4 mr-2" />
                             {task.status === "Completed" ? "View" : "Start"}
                           </Button>

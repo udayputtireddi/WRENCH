@@ -40,7 +40,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Settings,
+  Settings as SettingsIcon,
   Bell,
   Shield,
   Database as DatabaseIcon,
@@ -175,34 +175,38 @@ export default function Settings() {
 
         {/* Settings Tabs */}
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white border border-wrench-navy-200 p-1">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white border border-wrench-navy-200 p-1">
             <TabsTrigger
               value="general"
-              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white text-xs sm:text-sm"
             >
-              <Settings className="h-4 w-4 mr-2" />
-              General
+              <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">General</span>
+              <span className="sm:hidden">Gen</span>
             </TabsTrigger>
             <TabsTrigger
               value="notifications"
-              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white text-xs sm:text-sm"
             >
-              <Bell className="h-4 w-4 mr-2" />
-              Notifications
+              <Bell className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Notifications</span>
+              <span className="sm:hidden">Notify</span>
             </TabsTrigger>
             <TabsTrigger
               value="security"
-              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white text-xs sm:text-sm"
             >
-              <Shield className="h-4 w-4 mr-2" />
-              Security
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Security</span>
+              <span className="sm:hidden">Sec</span>
             </TabsTrigger>
             <TabsTrigger
               value="account"
-              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white"
+              className="data-[state=active]:bg-wrench-accent data-[state=active]:text-white text-xs sm:text-sm"
             >
-              <User className="h-4 w-4 mr-2" />
-              Account
+              <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Account</span>
+              <span className="sm:hidden">Acc</span>
             </TabsTrigger>
           </TabsList>
 

@@ -92,7 +92,7 @@ export function ProfessionalHeader({
       )}
 
       <div className="container mx-auto px-4 py-4 relative z-10">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-3 items-center">
           {/* Left Side - Logo and Navigation */}
           <div className="flex items-center space-x-4 sm:space-x-6">
             {/* Back Button */}
@@ -114,79 +114,27 @@ export function ProfessionalHeader({
                 showText={true}
               />
             </Link>
-
-            {/* Page Title */}
-            {title && (
-              <div className="hidden md:block">
-                <h1
-                  className={`text-xl lg:text-2xl xl:text-3xl font-bold ${textClasses[variant]} text-center`}
-                >
-                  {title}
-                </h1>
-                {subtitle && (
-                  <p className={`text-sm ${subtextClasses[variant]} text-center`}>
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Center - Quick Stats (if enabled) */}
-          {showStats && analytics.totalTasks > 0 && (
-            <div className="hidden lg:flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-wrench-success/20 rounded-full flex items-center justify-center">
-                  <Activity className="h-4 w-4 text-wrench-success" />
-                </div>
-                <div>
-                  <p
-                    className={`text-sm font-semibold ${textClasses[variant]}`}
-                  >
-                    {analytics.completedToday}
-                  </p>
-                  <p className={`text-xs ${subtextClasses[variant]}`}>
-                    Completed
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-wrench-warning/20 rounded-full flex items-center justify-center">
-                  <Users className="h-4 w-4 text-wrench-warning" />
-                </div>
-                <div>
-                  <p
-                    className={`text-sm font-semibold ${textClasses[variant]}`}
-                  >
-                    {analytics.totalMachines}
-                  </p>
-                  <p className={`text-xs ${subtextClasses[variant]}`}>
-                    Machines
-                  </p>
-                </div>
-              </div>
-
-              {analytics.overdueTasks > 0 && (
-                <div className="flex items-center space-x-2">
-                  <div className="h-8 w-8 bg-wrench-error/20 rounded-full flex items-center justify-center">
-                    <Zap className="h-4 w-4 text-wrench-error" />
-                  </div>
-                  <div>
-                    <p className={`text-sm font-semibold text-wrench-error`}>
-                      {analytics.overdueTasks}
-                    </p>
-                    <p className={`text-xs ${subtextClasses[variant]}`}>
-                      Overdue
-                    </p>
-                  </div>
-                </div>
+          {/* Center - Page Title */}
+          {title && (
+            <div className="text-center">
+              <h1
+                className={`text-xl lg:text-2xl xl:text-3xl font-bold ${textClasses[variant]}`}
+              >
+                {title}
+              </h1>
+              {subtitle && (
+                <p className={`text-sm ${subtextClasses[variant]}`}>
+                  {subtitle}
+                </p>
               )}
             </div>
           )}
 
+
           {/* Right Side - User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 justify-end">
             {/* Notifications */}
             <Button
               variant="ghost"

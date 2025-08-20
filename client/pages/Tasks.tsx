@@ -86,6 +86,25 @@ export default function Tasks() {
       task.lastCompletedDate.toDateString() === new Date().toDateString()
     ) {
       status = "Completed";
+    } else if (task.progressSaves && task.progressSaves.length > 0) {
+      // Check if there's a recent progress save (within the last 24 hours)
+      const recentProgress = task.progressSaves.find(progress => {
+        const progressDate = new Date(progress.savedDate);
+        const timeDiff = today.getTime() - progressDate.getTime();
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        return daysDiff <= 1; // Within last 24 hours
+      });
+
+      if (recentProgress) {
+        status = "In Progress";
+        priority = "Medium";
+      } else if (dueDate.getTime() < today.getTime()) {
+        status = "Overdue";
+        priority = "High";
+      } else if (dueDate.getTime() === today.getTime()) {
+        status = "Due Today";
+        priority = "High";
+      }
     } else if (dueDate.getTime() < today.getTime()) {
       status = "Overdue";
       priority = "High";
@@ -142,6 +161,7 @@ export default function Tasks() {
   const stats = {
     total: displayTasks.length,
     completed: displayTasks.filter((t) => t.status === "Completed").length,
+    inProgress: displayTasks.filter((t) => t.status === "In Progress").length,
     overdue: displayTasks.filter((t) => t.status === "Overdue").length,
     dueToday: displayTasks.filter((t) => t.status === "Due Today").length,
     pending: displayTasks.filter((t) => t.status === "Pending").length,
@@ -151,6 +171,8 @@ export default function Tasks() {
     switch (status) {
       case "Completed":
         return "bg-wrench-success text-white";
+      case "In Progress":
+        return "bg-wrench-accent text-white";
       case "Overdue":
         return "bg-wrench-error text-white";
       case "Due Today":
@@ -280,7 +302,7 @@ export default function Tasks() {
             </div>
 
             {/* Task Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-wrench-navy-800">
@@ -296,6 +318,15 @@ export default function Tasks() {
                     {stats.completed}
                   </div>
                   <p className="text-sm text-wrench-navy-600">Completed</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-wrench-navy-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-wrench-accent">
+                    {stats.inProgress}
+                  </div>
+                  <p className="text-sm text-wrench-navy-600">In Progress</p>
                 </CardContent>
               </Card>
 
@@ -362,6 +393,7 @@ export default function Tasks() {
                       <SelectContent>
                         <SelectItem value="all">All Status</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="in progress">In Progress</SelectItem>
                         <SelectItem value="overdue">Overdue</SelectItem>
                         <SelectItem value="due today">Due Today</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
