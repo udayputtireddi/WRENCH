@@ -1,5 +1,5 @@
 // Task management database system with Supabase
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 import {
   TaskCompletionTracker,
   type TaskCompletionData,
@@ -95,52 +95,54 @@ export class TaskScheduler {
   ): Promise<boolean> {
     try {
       const completionDate = customCompletionDate || new Date();
-      
+
       // Insert completion record
       const { data: completion, error: completionError } = await supabase
-        .from('task_completions')
-        .insert([{
-          task_id: taskId,
-          user_id: userId,
-          user_name: userName,
-          completed_date: completionDate.toISOString(),
-          notes,
-          time_spent_minutes: timeSpentMinutes,
-          photos: photos || [],
-          checklist_items: checklistItems
-        }])
+        .from("task_completions")
+        .insert([
+          {
+            task_id: taskId,
+            user_id: userId,
+            user_name: userName,
+            completed_date: completionDate.toISOString(),
+            notes,
+            time_spent_minutes: timeSpentMinutes,
+            photos: photos || [],
+            checklist_items: checklistItems,
+          },
+        ])
         .select()
         .single();
 
       if (completionError) {
-        console.error('Error saving completion:', completionError);
+        console.error("Error saving completion:", completionError);
         return false;
       }
 
       // Update task with new due date and last completed date
       const nextDueDate = this.calculateNextDueDate(
         await this.getTaskFrequency(taskId),
-        completionDate
+        completionDate,
       );
 
       const { error: updateError } = await supabase
-        .from('tasks')
+        .from("tasks")
         .update({
           last_completed_date: completionDate.toISOString(),
-          next_due_date: nextDueDate.toISOString()
+          next_due_date: nextDueDate.toISOString(),
         })
-        .eq('id', taskId);
+        .eq("id", taskId);
 
       if (updateError) {
-        console.error('Error updating task:', updateError);
+        console.error("Error updating task:", updateError);
         return false;
       }
 
       // Get task details for tracking
       const { data: task } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('id', taskId)
+        .from("tasks")
+        .select("*")
+        .eq("id", taskId)
         .single();
 
       if (task) {
@@ -154,22 +156,22 @@ export class TaskScheduler {
           completedBy: userName,
           completedDate: completionDate,
           timeSpentMinutes: timeSpentMinutes || 0,
-          notes: notes || '',
+          notes: notes || "",
           photos: photos || [],
-          checklistItems
+          checklistItems,
         });
       }
 
       // Clear any saved progress for this task/user
       await supabase
-        .from('task_progress')
+        .from("task_progress")
         .delete()
-        .eq('task_id', taskId)
-        .eq('user_id', userId);
+        .eq("task_id", taskId)
+        .eq("user_id", userId);
 
       return true;
     } catch (error) {
-      console.error('Error completing task:', error);
+      console.error("Error completing task:", error);
       return false;
     }
   }
@@ -184,39 +186,45 @@ export class TaskScheduler {
   ): Promise<boolean> {
     try {
       // Upsert progress (update if exists, insert if not)
-      const { error } = await supabase
-        .from('task_progress')
-        .upsert([{
-          task_id: taskId,
-          user_id: userId,
-          user_name: userName,
-          saved_date: new Date().toISOString(),
-          checklist_items: checklistItems,
-          notes,
-          photos: photos || []
-        }], {
-          onConflict: 'task_id,user_id'
-        });
+      const { error } = await supabase.from("task_progress").upsert(
+        [
+          {
+            task_id: taskId,
+            user_id: userId,
+            user_name: userName,
+            saved_date: new Date().toISOString(),
+            checklist_items: checklistItems,
+            notes,
+            photos: photos || [],
+          },
+        ],
+        {
+          onConflict: "task_id,user_id",
+        },
+      );
 
       if (error) {
-        console.error('Error saving progress:', error);
+        console.error("Error saving progress:", error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Error saving task progress:', error);
+      console.error("Error saving task progress:", error);
       return false;
     }
   }
 
-  static async getTaskProgress(taskId: string, userId: string): Promise<TaskProgress | null> {
+  static async getTaskProgress(
+    taskId: string,
+    userId: string,
+  ): Promise<TaskProgress | null> {
     try {
       const { data: progress, error } = await supabase
-        .from('task_progress')
-        .select('*')
-        .eq('task_id', taskId)
-        .eq('user_id', userId)
+        .from("task_progress")
+        .select("*")
+        .eq("task_id", taskId)
+        .eq("user_id", userId)
         .single();
 
       if (error || !progress) {
@@ -231,22 +239,24 @@ export class TaskScheduler {
         savedDate: new Date(progress.saved_date),
         checklistItems: progress.checklist_items,
         notes: progress.notes,
-        photos: progress.photos
+        photos: progress.photos,
       };
     } catch (error) {
-      console.error('Error getting task progress:', error);
+      console.error("Error getting task progress:", error);
       return null;
     }
   }
 
-  private static async getTaskFrequency(taskId: string): Promise<Task["frequency"]> {
+  private static async getTaskFrequency(
+    taskId: string,
+  ): Promise<Task["frequency"]> {
     const { data: task } = await supabase
-      .from('tasks')
-      .select('frequency')
-      .eq('id', taskId)
+      .from("tasks")
+      .select("frequency")
+      .eq("id", taskId)
       .single();
-    
-    return task?.frequency || 'weekly';
+
+    return task?.frequency || "weekly";
   }
 }
 
@@ -386,9 +396,8 @@ export class ExcelParser {
 export class Database {
   static async addTask(task: Task): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .insert([{
+      const { error } = await supabase.from("tasks").insert([
+        {
           id: task.id,
           machine_id: task.machineId,
           machine_name: task.machineName,
@@ -403,20 +412,21 @@ export class Database {
           is_active: task.isActive,
           created_date: task.createdDate.toISOString(),
           next_due_date: task.nextDueDate.toISOString(),
-          last_completed_date: task.lastCompletedDate?.toISOString()
-        }]);
+          last_completed_date: task.lastCompletedDate?.toISOString(),
+        },
+      ]);
 
       if (error) {
-        console.error('Error adding task:', error);
+        console.error("Error adding task:", error);
       }
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error("Error adding task:", error);
     }
   }
 
   static async addTasks(tasks: Task[]): Promise<void> {
     try {
-      const taskData = tasks.map(task => ({
+      const taskData = tasks.map((task) => ({
         id: task.id,
         machine_id: task.machineId,
         machine_name: task.machineName,
@@ -431,30 +441,28 @@ export class Database {
         is_active: task.isActive,
         created_date: task.createdDate.toISOString(),
         next_due_date: task.nextDueDate.toISOString(),
-        last_completed_date: task.lastCompletedDate?.toISOString()
+        last_completed_date: task.lastCompletedDate?.toISOString(),
       }));
 
-      const { error } = await supabase
-        .from('tasks')
-        .insert(taskData);
+      const { error } = await supabase.from("tasks").insert(taskData);
 
       if (error) {
-        console.error('Error adding tasks:', error);
+        console.error("Error adding tasks:", error);
       }
     } catch (error) {
-      console.error('Error adding tasks:', error);
+      console.error("Error adding tasks:", error);
     }
   }
 
   static async getTasks(): Promise<Task[]> {
     try {
       const { data: tasks, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('next_due_date', { ascending: true });
+        .from("tasks")
+        .select("*")
+        .order("next_due_date", { ascending: true });
 
       if (error) {
-        console.error('Error fetching tasks:', error);
+        console.error("Error fetching tasks:", error);
         return [];
       }
 
@@ -481,16 +489,18 @@ export class Database {
             isActive: task.is_active,
             createdDate: new Date(task.created_date),
             nextDueDate: new Date(task.next_due_date),
-            lastCompletedDate: task.last_completed_date ? new Date(task.last_completed_date) : undefined,
+            lastCompletedDate: task.last_completed_date
+              ? new Date(task.last_completed_date)
+              : undefined,
             completionHistory,
-            progressSaves
+            progressSaves,
           };
-        })
+        }),
       );
 
       return tasksWithDetails;
     } catch (error) {
-      console.error('Error getting tasks:', error);
+      console.error("Error getting tasks:", error);
       return [];
     }
   }
@@ -498,9 +508,9 @@ export class Database {
   static async getTaskById(id: string): Promise<Task | undefined> {
     try {
       const { data: task, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('id', id)
+        .from("tasks")
+        .select("*")
+        .eq("id", id)
         .single();
 
       if (error || !task) {
@@ -525,19 +535,21 @@ export class Database {
         isActive: task.is_active,
         createdDate: new Date(task.created_date),
         nextDueDate: new Date(task.next_due_date),
-        lastCompletedDate: task.last_completed_date ? new Date(task.last_completed_date) : undefined,
+        lastCompletedDate: task.last_completed_date
+          ? new Date(task.last_completed_date)
+          : undefined,
         completionHistory,
-        progressSaves
+        progressSaves,
       };
     } catch (error) {
-      console.error('Error getting task by ID:', error);
+      console.error("Error getting task by ID:", error);
       return undefined;
     }
   }
 
   static async getTasksByMachine(machineId: string): Promise<Task[]> {
     const allTasks = await this.getTasks();
-    return allTasks.filter(t => t.machineId === machineId);
+    return allTasks.filter((t) => t.machineId === machineId);
   }
 
   static async getMachines(): Promise<Machine[]> {
@@ -569,28 +581,42 @@ export class Database {
   static async clearDatabase(): Promise<void> {
     try {
       // Clear in order due to foreign key constraints
-      await supabase.from('task_progress').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('task_completions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('tasks').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('machines').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase
+        .from("task_progress")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase
+        .from("task_completions")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase
+        .from("tasks")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase
+        .from("machines")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
     } catch (error) {
-      console.error('Error clearing database:', error);
+      console.error("Error clearing database:", error);
     }
   }
 
-  private static async getTaskCompletions(taskId: string): Promise<TaskCompletion[]> {
+  private static async getTaskCompletions(
+    taskId: string,
+  ): Promise<TaskCompletion[]> {
     try {
       const { data: completions, error } = await supabase
-        .from('task_completions')
-        .select('*')
-        .eq('task_id', taskId)
-        .order('completed_date', { ascending: false });
+        .from("task_completions")
+        .select("*")
+        .eq("task_id", taskId)
+        .order("completed_date", { ascending: false });
 
       if (error || !completions) {
         return [];
       }
 
-      return completions.map(completion => ({
+      return completions.map((completion) => ({
         id: completion.id,
         taskId: completion.task_id,
         userId: completion.user_id,
@@ -599,27 +625,29 @@ export class Database {
         notes: completion.notes,
         timeSpentMinutes: completion.time_spent_minutes,
         photos: completion.photos,
-        checklistItems: completion.checklist_items
+        checklistItems: completion.checklist_items,
       }));
     } catch (error) {
-      console.error('Error fetching task completions:', error);
+      console.error("Error fetching task completions:", error);
       return [];
     }
   }
 
-  private static async getTaskProgressSaves(taskId: string): Promise<TaskProgress[]> {
+  private static async getTaskProgressSaves(
+    taskId: string,
+  ): Promise<TaskProgress[]> {
     try {
       const { data: progressSaves, error } = await supabase
-        .from('task_progress')
-        .select('*')
-        .eq('task_id', taskId)
-        .order('saved_date', { ascending: false });
+        .from("task_progress")
+        .select("*")
+        .eq("task_id", taskId)
+        .order("saved_date", { ascending: false });
 
       if (error || !progressSaves) {
         return [];
       }
 
-      return progressSaves.map(progress => ({
+      return progressSaves.map((progress) => ({
         id: progress.id,
         taskId: progress.task_id,
         userId: progress.user_id,
@@ -627,10 +655,10 @@ export class Database {
         savedDate: new Date(progress.saved_date),
         checklistItems: progress.checklist_items,
         notes: progress.notes,
-        photos: progress.photos
+        photos: progress.photos,
       }));
     } catch (error) {
-      console.error('Error fetching task progress saves:', error);
+      console.error("Error fetching task progress saves:", error);
       return [];
     }
   }
@@ -684,9 +712,7 @@ export class Database {
   }
 
   private static getAverageTaskTime(tasks: Task[]): number {
-    const allCompletions = tasks.flatMap(
-      (task) => task.completionHistory,
-    );
+    const allCompletions = tasks.flatMap((task) => task.completionHistory);
     if (allCompletions.length === 0) return 0;
 
     const totalTime = allCompletions.reduce((sum, completion) => {
@@ -696,7 +722,10 @@ export class Database {
     return Math.round(totalTime / allCompletions.length);
   }
 
-  private static getMostActiveUser(tasks: Task[]): { name: string; completions: number } {
+  private static getMostActiveUser(tasks: Task[]): {
+    name: string;
+    completions: number;
+  } {
     const userCompletions = new Map<string, number>();
 
     tasks.forEach((task) => {
@@ -716,7 +745,9 @@ export class Database {
     return mostActive;
   }
 
-  private static getMachineEfficiency(machines: Machine[]): { [machineId: string]: number } {
+  private static getMachineEfficiency(machines: Machine[]): {
+    [machineId: string]: number;
+  } {
     const efficiency: { [machineId: string]: number } = {};
 
     machines.forEach((machine) => {
@@ -737,7 +768,9 @@ export class Database {
     return efficiency;
   }
 
-  static async getTasksByStatus(status: "completed" | "pending" | "overdue"): Promise<Task[]> {
+  static async getTasksByStatus(
+    status: "completed" | "pending" | "overdue",
+  ): Promise<Task[]> {
     const tasks = await this.getTasks();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -761,17 +794,19 @@ export class Database {
     });
   }
 
-  static async getAllTaskPhotos(): Promise<Array<{
-    taskId: string;
-    taskName: string;
-    machineName: string;
-    completionId: string;
-    completedBy: string;
-    completedDate: Date;
-    photos: string[];
-    notes?: string;
-    timeSpent?: number;
-  }>> {
+  static async getAllTaskPhotos(): Promise<
+    Array<{
+      taskId: string;
+      taskName: string;
+      machineName: string;
+      completionId: string;
+      completedBy: string;
+      completedDate: Date;
+      photos: string[];
+      notes?: string;
+      timeSpent?: number;
+    }>
+  > {
     const tasks = await this.getTasks();
     const photoData: Array<any> = [];
 
@@ -800,14 +835,16 @@ export class Database {
     );
   }
 
-  static async getTaskPhotos(taskId: string): Promise<Array<{
-    completionId: string;
-    completedBy: string;
-    completedDate: Date;
-    photos: string[];
-    notes?: string;
-    timeSpent?: number;
-  }>> {
+  static async getTaskPhotos(taskId: string): Promise<
+    Array<{
+      completionId: string;
+      completedBy: string;
+      completedDate: Date;
+      photos: string[];
+      notes?: string;
+      timeSpent?: number;
+    }>
+  > {
     const task = await this.getTaskById(taskId);
     if (!task) return [];
 
@@ -828,31 +865,35 @@ export class Database {
       );
   }
 
-  static async getRecentCompletions(limit: number = 20): Promise<Array<
-    TaskCompletion & {
-      taskName: string;
-      machineName: string;
-    }
-  >> {
+  static async getRecentCompletions(limit: number = 20): Promise<
+    Array<
+      TaskCompletion & {
+        taskName: string;
+        machineName: string;
+      }
+    >
+  > {
     try {
       const { data: completions, error } = await supabase
-        .from('task_completions')
-        .select(`
+        .from("task_completions")
+        .select(
+          `
           *,
           tasks (
             task_name,
             machine_name
           )
-        `)
-        .order('completed_date', { ascending: false })
+        `,
+        )
+        .order("completed_date", { ascending: false })
         .limit(limit);
 
       if (error || !completions) {
-        console.error('Error fetching recent completions:', error);
+        console.error("Error fetching recent completions:", error);
         return [];
       }
 
-      return completions.map(completion => ({
+      return completions.map((completion) => ({
         id: completion.id,
         taskId: completion.task_id,
         userId: completion.user_id,
@@ -862,11 +903,11 @@ export class Database {
         timeSpentMinutes: completion.time_spent_minutes,
         photos: completion.photos,
         checklistItems: completion.checklist_items,
-        taskName: completion.tasks?.task_name || 'Unknown Task',
-        machineName: completion.tasks?.machine_name || 'Unknown Machine'
+        taskName: completion.tasks?.task_name || "Unknown Task",
+        machineName: completion.tasks?.machine_name || "Unknown Machine",
       }));
     } catch (error) {
-      console.error('Error getting recent completions:', error);
+      console.error("Error getting recent completions:", error);
       return [];
     }
   }
@@ -880,15 +921,17 @@ export class Database {
   > {
     try {
       const { data: completion, error } = await supabase
-        .from('task_completions')
-        .select(`
+        .from("task_completions")
+        .select(
+          `
           *,
           tasks (
             task_name,
             machine_name
           )
-        `)
-        .eq('id', completionId)
+        `,
+        )
+        .eq("id", completionId)
         .single();
 
       if (error || !completion) {
@@ -905,11 +948,11 @@ export class Database {
         timeSpentMinutes: completion.time_spent_minutes,
         photos: completion.photos,
         checklistItems: completion.checklist_items,
-        taskName: completion.tasks?.task_name || 'Unknown Task',
-        machineName: completion.tasks?.machine_name || 'Unknown Machine'
+        taskName: completion.tasks?.task_name || "Unknown Task",
+        machineName: completion.tasks?.machine_name || "Unknown Machine",
       };
     } catch (error) {
-      console.error('Error getting completion by ID:', error);
+      console.error("Error getting completion by ID:", error);
       return undefined;
     }
   }
