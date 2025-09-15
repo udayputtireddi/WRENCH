@@ -5,7 +5,7 @@
 [![React Version](https://img.shields.io/badge/react-18-blue.svg?style=for-the-badge)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.5.3-3178C6.svg?style=for-the-badge)](https://www.typescriptlang.org/)
 
-WRENCH is a comprehensive, production-ready maintenance management system designed for manufacturing and industrial environments. Built with modern web technologies, it provides a complete solution for managing maintenance tasks, equipment, teams, and reporting. WRENCH is a comprehensive, production-ready maintenance management system designed for manufacturing and industrial environments. Built with modern web technologies, it provides a complete solution for managing maintenance tasks, equipment, teams, and reporting.
+WRENCH is a comprehensive, production-ready maintenance management system designed for manufacturing and industrial environments. Built with modern web technologies, it provides a complete solution for managing maintenance tasks, equipment, teams, and reporting.
 
 
 ## ✨ Key Features
