@@ -32,6 +32,7 @@ export default defineConfig({
         // External dependencies that should not be bundled
         "express",
         "cors",
+        /^firebase-admin\//,
       ],
       output: {
         format: "es",
@@ -51,3 +52,4 @@ export default defineConfig({
     "process.env.NODE_ENV": '"production"',
   },
 });
+

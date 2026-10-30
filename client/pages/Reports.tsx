@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +60,7 @@ interface ReportFilters {
 }
 
 export default function Reports() {
+  useSession();
   const { toast } = useToast();
   const [filters, setFilters] = useState<ReportFilters>({
     period: "monthly",
@@ -694,3 +696,4 @@ export default function Reports() {
     </div>
   );
 }
+

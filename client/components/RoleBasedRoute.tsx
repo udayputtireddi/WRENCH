@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { ReactNode } from "react";
 import AuthService, { UserRole } from "@/lib/auth";
 
@@ -12,6 +13,7 @@ export default function RoleBasedRoute({
   allowedRoles,
   fallback,
 }: RoleBasedRouteProps) {
+  useSession();
   const currentUser = AuthService.getCurrentUser();
 
   if (!currentUser) {
@@ -26,3 +28,4 @@ export default function RoleBasedRoute({
 
   return <>{children}</>;
 }
+

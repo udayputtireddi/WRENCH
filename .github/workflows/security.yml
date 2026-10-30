@@ -1,0 +1,31 @@
+name: WRENCH authorization
+on:
+  pull_request:
+  push:
+    branches: [fix/server-enforced-authorization, main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Export generated dependency lock for review
+        run: node -e "console.log('LOCK_BEGIN'); console.log(require('fs').readFileSync('package-lock.json').toString('base64')); console.log('LOCK_END')"
+      - run: npm run test:security
+      - run: npm run test:api
+      - run: npm run typecheck
+      - run: npm run build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm run test:emulators
+        env:
+          GCLOUD_PROJECT: demo-wrench
+          CI: 'true'

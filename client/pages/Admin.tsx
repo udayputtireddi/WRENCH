@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +45,7 @@ import AuthService from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Admin() {
+  useSession();
   const { toast } = useToast();
   const [newMachine, setNewMachine] = useState({
     id: "",
@@ -65,20 +67,18 @@ export default function Admin() {
       newMachine.location
     ) {
       toast({
-        title: "Equipment Added",
-        description: `${newMachine.name} has been added to the system.`,
+        title: "Equipment creation unavailable",
+        description: "Machines are created from imported task definitions.",
         duration: 3000,
       });
       setNewMachine({ id: "", name: "", type: "", location: "" });
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    AuthService.deleteUser(userId);
-    toast({
-      title: "User Deleted",
-      description: "User has been removed from the system.",
-    });
+  const handleDeleteUser = async (userId: string) => {
+    if(!window.confirm('Remove this member’s WRENCH access? Historical records will be preserved.')) return;
+    try {await AuthService.deleteUser(userId);toast({title:'WRENCH access removed'});}
+    catch(e) {toast({title:'Removal failed',description:(e as Error).message,variant:'destructive'});}
   };
 
   const generateReport = (reportType: string) => {
@@ -745,3 +745,4 @@ function generateIssuesAlertsReport(): string {
 
   return [headers, ...rows].map((row) => row.join(",")).join("\n");
 }
+

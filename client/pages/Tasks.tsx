@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ import AuthService from "@/lib/auth";
 import ExportSystem, { type ExportDateType } from "@/lib/exportSystem";
 
 export default function Tasks() {
+  useSession();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -114,7 +116,7 @@ export default function Tasks() {
     }
 
     // Set priority based on category
-    if (task.category === "safety") priority = "Critical";
+    if (task.category === "maintenance") priority = "Critical";
     else if (task.category === "inspection") priority = "High";
     else if (task.category === "cleaning") priority = "Low";
 
@@ -698,3 +700,4 @@ export default function Tasks() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +33,7 @@ import { Link } from "react-router-dom";
 import Database from "@/lib/database";
 
 export default function Analytics() {
+  useSession();
   const analytics = Database.getAnalytics();
   const hasData = analytics.totalTasks > 0;
 
@@ -421,3 +423,4 @@ export default function Analytics() {
     </div>
   );
 }
+

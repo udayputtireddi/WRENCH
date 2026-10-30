@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import Database from "@/lib/database";
 import AuthService from "@/lib/auth";
 
 export default function Home() {
+  useSession();
   const analytics = Database.getAnalytics();
   const currentUser = AuthService.getCurrentUser();
 
@@ -284,3 +286,4 @@ export default function Home() {
     </div>
   );
 }
+

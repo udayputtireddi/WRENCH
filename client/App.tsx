@@ -1,3 +1,4 @@
+import { SessionProvider, RequireSession } from "./components/SessionGate";
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
@@ -111,11 +112,11 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter><SessionProvider>
           <ScrollToTop />
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<HomeRoute />} />
+            <Route element={<RequireSession />}><Route path="/" element={<HomeRoute />} />
             <Route path="/scan" element={<Scanner />} />
             <Route path="/machine/:machineId" element={<Machine />} />
             <Route path="/machine/:machineId/task/:taskId" element={<Task />} />
@@ -180,9 +181,9 @@ const App = () => {
               }
             />
 
-            <Route path="*" element={<NotFound />} />
+            </Route><Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
+        </SessionProvider></BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
@@ -194,3 +195,4 @@ if (container && !container.hasAttribute("data-root-created")) {
   container.setAttribute("data-root-created", "true");
   createRoot(container).render(<App />);
 }
+

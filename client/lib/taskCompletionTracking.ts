@@ -1,3 +1,4 @@
+import { session } from "./session";
 // Enhanced Task Completion Tracking System
 // Designed for professional maintenance management with comprehensive data export
 
@@ -54,41 +55,15 @@ export interface ExportFilters {
 }
 
 export class TaskCompletionTracker {
-  private static completedTasks: TaskCompletionData[] = [];
-
-  // Save completed task data
-  static saveTaskCompletion(data: Partial<TaskCompletionData> & { timeSpentMinutes?: number }): void {
-    const now = new Date();
-    const completion: TaskCompletionData = {
-      id: data.id || this.generateId(),
-      taskId: data.taskId!,
-      taskName: data.taskName!,
-      machineId: data.machineId!,
-      machineName: data.machineName!,
-      frequency: data.frequency!,
-      completionDate: data.completionDate || now,
-      completedBy: data.completedBy!,
-      userId: data.userId || "system",
-      timeStarted: data.timeStarted || new Date(now.getTime() - (data.timeSpentMinutes || data.actualTimeSpent || 30) * 60000),
-      timeCompleted: data.timeCompleted || now,
-      actualTimeSpent: data.actualTimeSpent || (data as any).timeSpentMinutes || 0,
-      estimatedTime: data.estimatedTime || 30,
-      notes: data.notes || "",
-      photos: data.photos || [],
-      checklistItems: data.checklistItems || [],
-      priority: data.priority || "Medium",
-      category: data.category || "maintenance",
-      location: data.location || "",
-      safetyCompliance: data.safetyCompliance || true,
-      qualityCheck: data.qualityCheck || true,
-      issuesEncountered: data.issuesEncountered || [],
-      partsUsed: data.partsUsed || [],
-      nextDueDate: data.nextDueDate || new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // Default to next week
-      status: "Completed",
-    };
-
-    this.completedTasks.push(completion);
-    this.saveToStorage();
+  private static get completedTasks(): TaskCompletionData[] {
+    return session.get().tasks.flatMap(task=>task.completionHistory.map(c=>({
+      id:c.id, taskId:task.id, taskName:task.taskName, machineId:task.machineId, machineName:task.machineName,
+      frequency:task.frequency, completionDate:c.completedDate, completedBy:c.userName, userId:c.userId,
+      timeStarted:new Date(c.completedDate.getTime()-(c.timeSpentMinutes||0)*60000), timeCompleted:c.completedDate,
+      actualTimeSpent:c.timeSpentMinutes||0, estimatedTime:task.estimatedTimeMinutes, notes:c.notes||'', photos:c.photos||[],
+      checklistItems:c.checklistItems, priority:'Medium' as const, category:task.category, location:'',
+      safetyCompliance:false, qualityCheck:false, issuesEncountered:[], partsUsed:[], nextDueDate:task.nextDueDate, status:'Completed' as const
+    })));
   }
 
   // Get completed tasks with filtering
@@ -414,46 +389,6 @@ export class TaskCompletionTracker {
     };
   }
 
-  // Storage management
-  private static saveToStorage(): void {
-    try {
-      localStorage.setItem(
-        "wrench_completed_tasks",
-        JSON.stringify(this.completedTasks),
-      );
-    } catch (error) {
-      console.error("Failed to save completed tasks to storage:", error);
-    }
-  }
-
-  private static loadFromStorage(): void {
-    try {
-      const stored = localStorage.getItem("wrench_completed_tasks");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        this.completedTasks = parsed.map((task: any) => ({
-          ...task,
-          completionDate: new Date(task.completionDate),
-          timeStarted: new Date(task.timeStarted),
-          timeCompleted: new Date(task.timeCompleted),
-          nextDueDate: new Date(task.nextDueDate),
-          checklistItems:
-            task.checklistItems?.map((item: any) => ({
-              ...item,
-              timestamp: item.timestamp ? new Date(item.timestamp) : undefined,
-            })) || [],
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to load completed tasks from storage:", error);
-      this.completedTasks = [];
-    }
-  }
-
-  private static generateId(): string {
-    return "task_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-  }
-
   // Get analytics data for reporting
   static getAnalytics(): any {
     const tasks = this.getCompletedTasks();
@@ -497,10 +432,6 @@ export class TaskCompletionTracker {
     };
   }
 
-  // Initialize on module load
-  static {
-    this.loadFromStorage();
-  }
 }
 
 // Export utility functions
@@ -551,3 +482,4 @@ export const ExportUtils = {
     return `wrench_${type}_report_${today}.csv`;
   },
 };
+

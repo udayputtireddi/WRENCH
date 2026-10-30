@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { Link, useNavigate } from "react-router-dom";
 import useNavigation from "@/hooks/use-navigation";
 import { Button } from "@/components/ui/button";
@@ -46,11 +47,12 @@ export function ProfessionalHeader({
 }: ProfessionalHeaderProps) {
   const navigate = useNavigate();
   const { goBack, canGoBack } = useNavigation();
+  useSession();
   const currentUser = AuthService.getCurrentUser();
   const analytics = Database.getAnalytics();
 
   const handleLogout = () => {
-    AuthService.logout();
+    void AuthService.logout();
     navigate("/login");
   };
 
@@ -304,3 +306,4 @@ export function NavigationBreadcrumbs({
     </nav>
   );
 }
+

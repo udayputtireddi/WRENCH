@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useSession } from "@/lib/session";
+import { session } from "@/lib/session";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +18,10 @@ import { WrenchLogo, WrenchTagline, WrenchBadge } from "@/components/WrenchLogo"
 import AuthService from "@/lib/auth";
 
 export default function Login() {
+  useSession();
   const navigate = useNavigate();
+  const current=useSyncExternalStore(session.subscribe,session.get);
+  useEffect(()=>{if(current.user) navigate('/',{replace:true});},[current.user,navigate]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,15 +33,7 @@ export default function Login() {
     setError("");
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const user = AuthService.login(email, password);
-      if (user) {
-        navigate("/");
-      } else {
-        setError("Invalid email or password. Please try again.");
-      }
+      await AuthService.login(email, password);
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     } finally {
@@ -149,11 +146,11 @@ export default function Login() {
 
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
+                {(error || current.error) && (
                   <Alert className="border-wrench-error/20 bg-wrench-error/5">
                     <AlertCircle className="h-4 w-4 text-wrench-error" />
                     <AlertDescription className="text-wrench-error">
-                      {error}
+                      {error || current.error}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -215,3 +212,4 @@ export default function Login() {
     </div>
   );
 }
+
