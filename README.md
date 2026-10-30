@@ -27,6 +27,7 @@ Export `GCLOUD_PROJECT` into the server process and use Application Default Cred
 - `npm run dev`: frontend and API at port 8080.
 - `npm run typecheck`: TypeScript checks.
 - `npm run test:security`: dependency-free policy and source regression tests.
+- `npm run test:session`: session isolation, sign-out and stale-response tests.
 - `npm run test:api`: HTTP authorization and error-boundary tests.
 - `npm run test:emulators`: real Auth/Firestore emulator integration tests. Requires Java 21; uses only `demo-wrench`.
 - `npm run build` and `npm start`: build and serve the frontend/API together.

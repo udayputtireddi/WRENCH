@@ -653,7 +653,7 @@ function generateTaskPerformanceReport(): string {
     task.id,
     task.taskName,
     task.machineId,
-    task.status || "Pending",
+    Database.getTaskStatus(task),
     task.nextDueDate.toLocaleDateString(),
     task.lastCompletedDate ? "100%" : "0%",
     task.category || "Medium",

@@ -13,7 +13,8 @@ let started=false;
 let refreshSequence=0;
 const publish=(next:typeof state)=>{state=next;listeners.forEach(fn=>fn());};
 const empty=(loading=false,error='')=>({user:null,users:[],tasks:[],loading,error});
-const revive=(_key:string,value:unknown)=> typeof value==='string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)?new Date(value):value;
+const dateFields=new Set(['createdAt','createdDate','nextDueDate','lastCompletedDate','completedDate','savedDate','lastLogin']);
+const revive=(key:string,value:unknown)=> dateFields.has(key) && typeof value==='string' && Number.isFinite(Date.parse(value))?new Date(value):value;
 export const session={get:()=>state,subscribe:(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};}};
 
 export async function api(path:string, method='GET', body?:unknown) {
@@ -41,7 +42,8 @@ export async function startSession() {
   started=true;
   if(!auth) {publish(empty(false,'Sign-in is not configured. Contact the administrator.'));return;}
   // Do not retain accounts or protected records across browser restarts.
-  await setPersistence(auth,inMemoryPersistence);
+  try {await setPersistence(auth,inMemoryPersistence);}
+  catch {publish(empty(false,'Unable to initialize sign-in. Reload and try again.'));return;}
   onIdTokenChanged(auth, async user=>{
     const epoch=++generation;
     publish(empty(Boolean(user)));

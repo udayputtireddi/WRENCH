@@ -639,7 +639,7 @@ export default function Reports() {
                                 className="w-24"
                               />
                               <span className="text-sm font-medium text-wrench-navy-700">
-                                {efficiency}%
+                                {Number(efficiency)}%
                               </span>
                             </div>
                           </div>

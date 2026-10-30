@@ -48,3 +48,9 @@ test('a token pending during sign-out cannot initiate a request',async()=>{
  const pending=mod.api('/tasks','DELETE',{confirmation:'DELETE ALL TASKS'}).catch(e=>e);
  await mod.logout();resolve('old-token');await pending;expect(fetched).not.toHaveBeenCalled();
 });
+
+test('date-like user content stays text',async()=>{
+ mocks.auth.currentUser={uid:'a',getIdToken:async()=>'token-a'};
+ fetched.mockResolvedValue(response({...snapshot(),user:{id:'a',role:'user',name:'2026-10-29T12:00:00.000Z'}}));
+ await mocks.onChange(mocks.auth.currentUser);expect(mod.session.get().user?.name).toBe('2026-10-29T12:00:00.000Z');
+});

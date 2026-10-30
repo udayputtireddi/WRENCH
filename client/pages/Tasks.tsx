@@ -41,7 +41,7 @@ import {
   Users,
   FileText,
   Download,
-  DateRange,
+  CalendarRange as DateRange,
   Zap,
   Settings,
 } from "lucide-react";
@@ -134,11 +134,11 @@ export default function Tasks() {
       estimatedTime: task.estimatedTimeMinutes || 30,
       frequency: task.frequency,
       category: task.category,
-      assignedTo: task.assignedTo || "Unassigned",
-      completedBy: task.completedBy || null,
-      actualTimeSpent: task.actualTimeSpent || null,
-      completionNotes: task.completionNotes || null,
-      photos: task.photos || [],
+      assignedTo: "Shared catalog",
+      completedBy: task.completionHistory.slice(-1)[0]?.userName || null,
+      actualTimeSpent: task.completionHistory.slice(-1)[0]?.timeSpentMinutes ?? null,
+      completionNotes: task.completionHistory.slice(-1)[0]?.notes || null,
+      photos: task.completionHistory.slice(-1)[0]?.photos || [],
     };
   });
 

@@ -14,9 +14,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Export generated dependency lock for review
-        run: node -e "console.log('LOCK_GZIP_BEGIN'); const s=require('zlib').gzipSync(require('fs').readFileSync('package-lock.json')).toString('base64'); for(let i=0;i<s.length;i+=4000) console.log(s.slice(i,i+4000)); console.log('LOCK_GZIP_END')"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run test:security
       - run: npm run test:api
       - run: npm run test:session
