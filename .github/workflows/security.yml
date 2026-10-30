@@ -16,11 +16,13 @@ jobs:
           node-version: '22'
       - run: npm install --ignore-scripts --no-audit --no-fund
       - name: Export generated dependency lock for review
-        run: node -e "console.log('LOCK_BEGIN'); console.log(require('fs').readFileSync('package-lock.json').toString('base64')); console.log('LOCK_END')"
+        run: node -e "console.log('LOCK_GZIP_BEGIN'); const s=require('zlib').gzipSync(require('fs').readFileSync('package-lock.json')).toString('base64'); for(let i=0;i<s.length;i+=4000) console.log(s.slice(i,i+4000)); console.log('LOCK_GZIP_END')"
       - run: npm run test:security
       - run: npm run test:api
+      - run: npm run test:session
       - run: npm run typecheck
       - run: npm run build
+      - run: node --test tests/runtime.test.mjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

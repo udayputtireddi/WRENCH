@@ -1,4 +1,6 @@
 import test from 'node:test';
+import express from 'express';
+import {createApi} from '../server/security/app.mjs';
 import assert from 'node:assert/strict';
 import {initializeApp as adminApp} from 'firebase-admin/app';
 import {getAuth as adminAuth} from 'firebase-admin/auth';
@@ -80,4 +82,21 @@ test('direct client Firestore access denied even for administrator',async()=>{
 test('clear requires explicit confirmation',async()=>{
  await assert.rejects(store.execute(owner.uid,'clear',{}),{status:400});assert.equal((await db.collection('tasks').get()).size,1);
  await store.execute(owner.uid,'clear',{confirmation:'DELETE ALL TASKS'});assert.equal((await db.collection('tasks').get()).size,0);
+});
+
+test('full HTTP route uses real Auth verification and transactional membership',async()=>{
+ const apiApp=express();apiApp.use('/api',createApi({verify:(t,r)=>auth.verifyIdToken(t,r),store}));
+ const server=apiApp.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ try {
+   const root=`http://127.0.0.1:${server.address().port}/api`;
+   let res=await fetch(root+'/session',{headers:{Authorization:`Bearer ${a.token}`}});assert.equal(res.status,200);assert.equal((await res.json()).user.id,a.uid);
+   res=await fetch(root+'/tasks/import',{method:'POST',headers:{Authorization:`Bearer ${a.token}`,'Content-Type':'application/json'},body:JSON.stringify({tasks:[task]})});assert.equal(res.status,403);
+   res=await fetch(root+'/session',{headers:{Authorization:`Bearer ${b.token}`}});assert.equal(res.status,403);
+ } finally {await new Promise(r=>server.close(r));}
+});
+test('persistent request limit rejects and rolls over without mutating tasks',async()=>{
+ const ref=db.collection('requestLimits').doc(a.uid);await ref.set({minute:Math.floor(Date.now()/60000),count:120});
+ await assert.rejects(store.execute(a.uid,'snapshot'),{status:429});
+ await ref.set({minute:Math.floor(Date.now()/60000)-1,count:120});
+ await store.execute(a.uid,'snapshot');assert.equal((await ref.get()).data().count,1);
 });

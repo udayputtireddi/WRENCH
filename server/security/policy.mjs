@@ -52,7 +52,7 @@ export function entryInput(input) {
   });
   if(new Set(checklistItems.map(x=>x.id)).size!==checklistItems.length) fail();
   const photos=list(input.photos || [],2,v=>{
-    if(typeof v !== 'string' || v.length>200000 || !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(v)) fail('Use at most two PNG, JPEG or WebP images under 150 KB each');
+    if(typeof v !== 'string' || v.length>200050 || !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(v)) fail('Use at most two PNG, JPEG or WebP images under 150 KB each');
     return v;
   });
   if(!Number.isInteger(input.timeSpentMinutes ?? 0) || input.timeSpentMinutes<0 || input.timeSpentMinutes>1440) fail();

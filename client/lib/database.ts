@@ -56,6 +56,9 @@ export interface Machine {
 
 // Task scheduler for intelligent frequency-based scheduling
 export class TaskScheduler {
+  private static pending = new Map<string, {body:string;requestId:string}>();
+  private static writing = new Set<string>();
+  static clearPending() {this.pending.clear();this.writing.clear();}
   static calculateNextDueDate(
     frequency: Task["frequency"],
     lastCompleted: Date,
@@ -96,13 +99,21 @@ export class TaskScheduler {
     return this.writeEntry(taskId, 'progress', checklistItems, notes, photos, 0);
   }
   private static async writeEntry(taskId: string, kind: string, checklistItems: {id:string;text:string;completed:boolean}[], notes:string, photos:string[], timeSpentMinutes:number) {
+    const key=`${session.get().user?.id}:${taskId}:${kind}`;
+    if(this.writing.has(key)) return false;
+    this.writing.add(key);
+    const data={checklistItems:checklistItems.map(({id,text,completed})=>({id,text,completed})),notes,photos,timeSpentMinutes};
+    const body=JSON.stringify(data);
+    const previous=this.pending.get(key);
+    const requestId=previous?.body===body?previous.requestId:crypto.randomUUID();
+    this.pending.set(key,{body,requestId});
     try {
-      await api(`/tasks/${encodeURIComponent(taskId)}/${kind}`, kind==='complete'?'POST':'PUT', {
-        checklistItems: checklistItems.map(({id,text,completed})=>({id,text,completed})), notes, photos, timeSpentMinutes, requestId:crypto.randomUUID()
-      });
+      await api(`/tasks/${encodeURIComponent(taskId)}/${kind}`, kind==='complete'?'POST':'PUT', {...data,requestId});
       await refresh();
+      this.pending.delete(key);
       return true;
     } catch { return false; }
+    finally {this.writing.delete(key);}
   }
 
   static getTaskProgress(taskId: string, userId: string): TaskProgress | null {
@@ -589,3 +600,9 @@ export class Database {
 
 export default Database;
 
+
+let cachedUid: string | undefined;
+session.subscribe(()=>{
+  const uid=session.get().user?.id;
+  if(uid!==cachedUid) {TaskScheduler.clearPending();cachedUid=uid;}
+});
