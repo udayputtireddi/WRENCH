@@ -1,6 +1,6 @@
 # Authorization validation
 
-Status: implementation prepared; CI and emulator validation in progress. No production rules, data, identities, billing or hosting changes were made.
+Status: implementation validated in CI; production release remains pending approval and staging checks. No production rules, data, identities, billing or hosting changes were made.
 
 ## Fixed paths
 
@@ -14,12 +14,27 @@ Status: implementation prepared; CI and emulator validation in progress. No prod
 | Shared local-storage completion records | Authorized API snapshots, own-history filtering and memory-only sessions |
 | PR/merge automatically deploys | Validation-only CI |
 
-## Validation plan and results
+## Validation results
 
-- Local policy/source tests: 53 passed at initial implementation.
-- HTTP tests: queued for CI because npm registry access is blocked in the session.
-- Type checking and production build: queued for CI.
-- Auth/Firestore emulator tests: queued for CI; cover real token verification, disabled accounts, membership removal, operator/admin access, forged fields, cross-user progress, concurrent completions, retries, direct Firestore denial and explicit deletion confirmation.
+Validated code commit: `227188bdbd07f9f0b9027fe5e790777d48e784f7`.
+[Passing GitHub Actions run](https://github.com/udayputtireddi/WRENCH/actions/runs/40986866004).
+
+| Check | Result |
+| --- | --- |
+| Clean install from committed lockfile | Passed |
+| Policy and source regression tests | 53 passed |
+| HTTP API tests | 8 passed |
+| Session lifecycle and account-isolation tests | 7 passed |
+| Compiled runtime smoke test | 1 passed |
+| Auth/Firestore emulator integration tests | 13 passed |
+| TypeScript check | Passed |
+| Frontend and server production builds | Passed |
+
+**82 tests passed; none failed or skipped.** The runtime test verifies that the compiled server serves the SPA and refuses API access when unconfigured. Emulator tests use actual Firebase Auth token verification and Firestore transactions, including concurrent writes, membership changes, direct-client denial and rate-limit rollover. Session tests mock the Firebase browser SDK and network; they are not a rendered-browser test.
+
+Existing UI type errors uncovered by validation were repaired: task status and completion fields now derive from the real task/history model, template tasks include progress arrays, the missing icon import is corrected, and report numbers are rendered with explicit types. CI uses the generated and committed dependency lock through `npm ci`.
+
+Non-blocking build warnings remain: the client bundle exceeds Vite's default chunk-size recommendation, and the pinned GitHub action releases report Node-runtime deprecation warnings. These do not indicate test failures; dependency/action modernization and bundle splitting remain follow-up work.
 
 Emulator limitation: the integration suite uses the default emulator database to bind the exact deny-all rules file. The production adapter and `firebase.json` target the isolated named database `wrench`; source tests check that mapping. Emulator tests do **not** prove that rules are deployed to the named production database. Verify that binding in staging and production as a separate release gate.
 
@@ -33,3 +48,7 @@ Emulator limitation: the integration suite uses the default emulator database to
 6. Approve deployments independently. Merging code alone does not complete production remediation.
 
 The current scope does not claim a production security certification. No live credentials were used for tests, and no existing browser-local records were uploaded.
+
+## Next highest-priority repository issue
+
+[Synapse-AI- meeting APIs](https://github.com/udayputtireddi/Synapse-AI-/blob/main/server.ts) currently expose shared meeting reads, creates and updates without authentication or ownership checks. Protecting the AI gateway alone does not secure those records. The next proposed fix should add verified identity, per-owner persistence and cross-user access tests on a separate branch. No Synapse changes were made as part of this PR.
