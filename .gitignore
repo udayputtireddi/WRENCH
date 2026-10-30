@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .config/
+
+
+.env
+.env.*
+!.env.example
+.firebase/
+*-debug.log

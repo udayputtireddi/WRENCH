@@ -1,246 +1,74 @@
-# 🔧 WRENCH - Professional Maintenance Management System
+# WRENCH
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/udayputtireddi/CheckMate/main.yml?branch=main&style=for-the-badge)](https://github.com/udayputtireddi/CheckMate/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![React Version](https://img.shields.io/badge/react-18-blue.svg?style=for-the-badge)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/typescript-5.5.3-3178C6.svg?style=for-the-badge)](https://www.typescriptlang.org/)
+Maintenance task catalog, operator progress, completion history and administrator reporting.
+React/TypeScript frontend with an Express API, Firebase Authentication and a dedicated Firestore database.
 
-WRENCH is a comprehensive, production-ready maintenance management system designed for manufacturing and industrial environments. Built with modern web technologies, it provides a complete solution for managing maintenance tasks, equipment, teams, and reporting.
+## Status
 
+The `fix/server-enforced-authorization` branch replaces the browser-only authentication demo with server authorization. **Not deployed or approved for production.** Review the [validation report](work/authorization-validation.md) before release. Existing browser-local data and accounts are not migrated automatically.
 
-## ✨ Key Features
+## Access model
 
-### 🔧 Maintenance Management
-- **Task Scheduling**: Automated daily, weekly, monthly, and yearly maintenance schedules
-- **Machine Management**: Complete equipment database with task assignments
-- **Task Completion Tracking**: Progress tracking with photo documentation and completion history
-- **QR Code Integration**: Quick machine access via scanning functionality
+- Firebase email/password sign-in verifies credentials. Unknown emails do not register automatically.
+- Every API request verifies the Firebase ID token with revocation checking. Anonymous identities are rejected.
+- Every data transaction rechecks an active `members/{uid}` record in the named **`wrench`** database. Email text, local storage, request bodies and client custom claims cannot grant roles.
+- Approved operators can read the shared task/machine catalog, save their own progress and append their own completions. They receive only their own progress/history. This is a single-workplace model; there is no department or task-assignment isolation.
+- Administrators can read team history/members, import task definitions, clear tasks with explicit confirmation and remove another member's WRENCH access. Self-removal is blocked. Member removal retains historical attribution and does not delete a potentially shared Firebase Auth account.
+- Provisioning and role changes use a trusted offline administrator script. There is no public self-registration or role-mutation endpoint.
+- Direct browser Firestore reads and writes are denied, including for administrators. Admin SDK access is governed by IAM and the API's authorization checks.
+- Browser sessions and protected snapshots are held in memory. Closing/reloading the app requires sign-in. Sign-out clears the active snapshot; account changes invalidate in-flight responses. Focus and periodic refresh recheck access; server enforcement is immediate on subsequent requests.
 
-### 👥 User & Role Management
-- **Role-Based Access Control**: Admin and Operator roles with appropriate permissions
-- **User Management**: Complete user lifecycle management from admin dashboard
-- **Team Organization**: Department-based user organization for streamlined operations
+## Development
 
-### 📊 Analytics & Reporting
-- **Professional Reports**: Comprehensive reporting with customizable date ranges
-- **Business Intelligence**: Task completion rates, performance metrics, and efficiency analytics
-- **Export Capabilities**: CSV and JSON export options for all data
-- **Photo Documentation**: Task completion with photo evidence
+Use Node 22. Clone `https://github.com/udayputtireddi/WRENCH.git`, then run `npm ci`.
+Copy `.env.example` to an ignored `.env.local` and supply public Firebase web-app configuration.
+Export `GCLOUD_PROJECT` into the server process and use Application Default Credentials for an isolated development project; do not use production credentials for tests.
 
-### 🎨 Professional UI/UX
-- **Modern Design System**: Built with Radix UI and TailwindCSS
-- **Mobile-First**: Optimized for tablets and mobile devices in industrial settings
-- **Dark/Light Theme**: Professional theming with WRENCH brand colors
-- **Responsive Layout**: Works seamlessly across all device sizes
+- `npm run dev`: frontend and API at port 8080.
+- `npm run typecheck`: TypeScript checks.
+- `npm run test:security`: dependency-free policy and source regression tests.
+- `npm run test:session`: session isolation, sign-out and stale-response tests.
+- `npm run test:api`: HTTP authorization and error-boundary tests.
+- `npm run test:emulators`: real Auth/Firestore emulator integration tests. Requires Java 21; uses only `demo-wrench`.
+- `npm run build` and `npm start`: build and serve the frontend/API together.
 
----
+## Runtime setup — approval required before execution
 
-## 🚀 Live Demo
+1. Verify the intended Firebase project. Existing Hosting workflow configuration referenced `checkmatesss`; no live Firebase configuration was inspected during this change.
+2. Enable email/password Authentication and provision individual accounts in a trusted admin environment. Do not use the former demo credentials.
+3. Create a Firestore Native database named `wrench`. Review and deploy the deny-all `firestore.rules` binding **only to this named database**. Existing default-database rules are outside this change.
+4. Give a dedicated runtime identity the minimum Firebase Auth lookup and Firestore data access it needs. Use managed credentials, never web-bundled service-account JSON. Review database-scoped IAM and project boundaries.
+5. Grant each existing Auth UID explicit membership using the script below, initially granting at least one reviewed administrator. The script modifies real membership data; do not run without approval.
+6. Build the Docker image with the four public `VITE_FIREBASE_*` build arguments and deploy the Express runtime as Cloud Run service `wrench-api` in `us-central1`. Set `GCLOUD_PROJECT`; do not set emulator environment variables in production. Verify the service's routing/IAM, resource limits and billing before deployment.
+7. Firebase Hosting routes `/api/**` to that service before the SPA fallback. Hosting-only deployment cannot supply this backend. Deploy only after explicit approval and a staging smoke test.
 
-Experience WRENCH in action with these demo credentials:
+Trusted provisioning command (example placeholders; **not executed by this PR**):
 
-**Admin Access:**
-- **Email:** `admin@company.com`
-- **Password:** `admin123`
-
-**Operator Access:**
-- **Email:** `operator@company.com`  
-- **Password:** `operator123`
-
-### Core Workflows
-
-**👤 For Operators:**
-1. Login with company credentials
-2. View assigned maintenance tasks
-3. Complete tasks with photo documentation
-4. Track progress and save work in real-time
-
-**👑 For Administrators:**
-1. Access comprehensive admin dashboard
-2. Manage users, machines, and departments
-3. Import maintenance schedules from Excel/CSV
-4. Generate detailed reports and analytics
-5. Export data for compliance and auditing
-
----
-
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| **Frontend** | React 18, TypeScript, Vite, TailwindCSS |
-| **UI Components** | Radix UI, Lucide Icons, CVA (Class Variance Authority) |
-| **Routing** | React Router 6 (SPA mode) |
-| **Backend** | Express.js (integrated with Vite dev server) |
-| **Data Management** | In-memory database with export/import capabilities |
-| **Authentication** | Role-based access control |
-| **Deployment** | Firebase Hosting |
-| **Development** | ESLint, Prettier, Vitest |
-
----
-
-## 🏗️ Project Structure
-
-```
-├── client/                    # React frontend application
-│   ├── components/           # Reusable UI components
-│   │   ├── ui/              # Design system components (40+ components)
-│   │   ├── ProfessionalHeader.tsx
-│   │   ├── RoleBasedRoute.tsx
-│   │   └── WrenchLogo.tsx
-│   ├── hooks/               # Custom React hooks
-│   ├── lib/                 # Core business logic
-│   │   ├── auth.ts         # Authentication service
-│   │   ├── database.ts     # Data management
-│   │   ├── exportSystem.ts # Report generation
-│   │   └── taskCompletionTracking.ts
-│   ├── pages/              # Application pages
-│   │   ├── Admin.tsx       # Admin dashboard
-│   │   ├── Analytics.tsx   # Analytics dashboard
-│   │   ├── Reports.tsx     # Report generation
-│   │   ├── Tasks.tsx       # Task management
-│   │   ├── Machine.tsx     # Equipment management
-│   │   └── Scanner.tsx     # QR code scanning
-│   └── App.tsx             # Main application & routing
-├── server/                  # Express backend
-│   ├── routes/             # API endpoints
-│   └── index.ts            # Server configuration
-├── shared/                  # Shared types & interfaces
-└── public/                  # Static assets
+```sh
+node scripts/set-member.mjs PROJECT UID admin CONFIRM:PROJECT:UID:admin
 ```
 
----
+Use `user` for operators or `disabled` to remove WRENCH access. Accounts must already exist and be enabled in Firebase Authentication. The script derives email/name from Firebase Auth and uses Application Default Credentials. Operators cannot run it with browser credentials. Protect administrative credentials separately.
 
-## ⚙️ Getting Started
+Both legacy automatic Hosting workflows are replaced by validation-only CI. Opening a PR or merging this branch does not deploy it.
 
-### Prerequisites
-- Node.js v18+ 
-- npm package manager
+## Compatibility and limits
 
-### Installation
+- Old `currentUser` and `wrench_completed_tasks` local-storage values are ignored, not imported or deleted. They are untrusted and may contain other users' records. Preserve/review any required exports separately before an explicitly approved migration.
+- All writes require an online backend; success is shown after the server responds. Failed writes do not optimistically change the task catalog.
+- Machines are derived from imported tasks. The old equipment form did not save machines and now says so.
+- The old file-upload handler ignored the selected file and loaded hard-coded template rows. It is disabled with an explanation. Loading sample template tasks remains available to admins and now appends rather than silently clearing shared history.
+- Settings controls that were previews now say so. Password changes use Firebase Auth and may require a fresh sign-in. The displayed MFA/timeout preferences do not enforce those policies.
+- Server-assigned completion dates replace custom dates. Checklist entries remain operator attestations, not independently verified maintenance evidence. Safety/quality analytics are not compliance certifications.
+- Initial bounded storage: at most 250 tasks, 250 active members visible in the dashboard, 100 tasks per import, 100 completions per task, two JPEG/PNG/WebP photos per entry (150 KB each), 700 KB serialized per task and 5 MB per authorized snapshot. Requests are limited to 120 successful operations per user per UTC minute. Capacity failures preserve existing records; archival/pagination and managed photo storage are follow-up work.
+- These are application limits, not a cloud spending cap. Production abuse controls, alerting, backups and retention need operational review.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/udayputtireddi/CheckMate.git
-   cd CheckMate
-   ```
+## Project map and next steps
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- `server/security/`: authentication, input validation, authorization, transactional persistence and HTTP routes.
+- `client/lib/session.ts`: Firebase login and authorized in-memory snapshot lifecycle.
+- `scripts/set-member.mjs`: trusted provisioning.
+- `tests/`: policy, API and emulator coverage.
+- [Validation and release gates](work/authorization-validation.md).
 
-3. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-   Application will be available at `http://localhost:8080`
-
-### Building for Production
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm run start
-```
-
----
-
-## 📱 Application Pages
-
-### User Pages
-- **Home Dashboard**: Analytics overview and quick actions
-- **Tasks**: Task list with filtering and search capabilities  
-- **Machine**: Equipment-specific task management
-- **Scanner**: QR code scanning for quick machine access
-- **Settings**: User preferences and security settings
-
-### Admin Pages
-- **Admin Dashboard**: System overview and user management
-- **Database Management**: Data import/export and system administration
-- **Analytics**: Comprehensive performance metrics
-- **Reports**: Advanced reporting with export capabilities
-
----
-
-## 🔐 Security & Access Control
-
-- **Role-Based Access**: Admin and Operator roles with appropriate permissions
-- **Route Protection**: Client-side route guards based on user roles
-- **Data Isolation**: Users only see data relevant to their role and department
-
----
-
-## 📊 Data Management
-
-### Import/Export Features
-- **Excel/CSV Import**: Import maintenance schedules from vendor spreadsheets
-- **Data Export**: Export all data in CSV or JSON formats
-- **Photo Documentation**: Include photo attachments in exports
-- **Vendor Integration**: Support for specific equipment manufacturer formats (e.g., Trumpf)
-
-### Analytics Capabilities
-- Task completion rates and trends
-- Average completion times
-- Machine efficiency metrics
-- User performance analytics
-- Department-level reporting
-
----
-
-## 🚀 Deployment
-
-The application is configured for Firebase Hosting with automatic deployment via GitHub Actions.
-
-**Manual Deployment:**
-```bash
-# Build and deploy to Firebase
-npm run build
-firebase deploy
-```
-
----
-
-## 🎯 Use Cases
-
-**Perfect for:**
-- Manufacturing facilities
-- Industrial maintenance teams
-- Equipment service companies
-- Facility management
-- Compliance tracking and auditing
-
-**Key Benefits:**
-- Eliminate paper-based checklists
-- Ensure maintenance compliance
-- Track performance metrics
-- Generate audit-ready reports
-- Streamline team workflows
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-## 📞 Support
-
-For questions, issues, or feature requests, please open an issue on GitHub or contact the development team.
-
----
-
-**WRENCH Professional Services** - *Streamlining maintenance operations with modern technology*
+Next: review the PR and staging configuration; validate live named-database rules before any deployment. Then replace bounded embedded photo/history storage with paginated records and managed object storage, and implement reviewed CSV import.

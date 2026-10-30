@@ -1,8 +1,5 @@
 // Task management database system
-import {
-  TaskCompletionTracker,
-  type TaskCompletionData,
-} from "./taskCompletionTracking";
+import { session, api, refresh } from "./session";
 export interface Task {
   id: string;
   machineId: string;
@@ -59,6 +56,9 @@ export interface Machine {
 
 // Task scheduler for intelligent frequency-based scheduling
 export class TaskScheduler {
+  private static pending = new Map<string, {body:string;requestId:string}>();
+  private static writing = new Set<string>();
+  static clearPending() {this.pending.clear();this.writing.clear();}
   static calculateNextDueDate(
     frequency: Task["frequency"],
     lastCompleted: Date,
@@ -89,96 +89,35 @@ export class TaskScheduler {
     return next;
   }
 
-  static completeTask(
-    taskId: string,
-    userId: string,
-    userName: string,
-    checklistItems: { id: string; text: string; completed: boolean }[],
-    notes?: string,
-    photos?: string[],
-    customCompletionDate?: Date,
-    timeSpentMinutes?: number,
-  ): boolean {
-    const task = taskDatabase.find((t) => t.id === taskId);
-    if (!task) return false;
-
-    const completionDate = customCompletionDate || new Date();
-    const completion: TaskCompletion = {
-      id: `completion-${Date.now()}`,
-      taskId,
-      userId,
-      userName,
-      completedDate: completionDate,
-      notes,
-      photos: photos || [],
-      checklistItems,
-      timeSpentMinutes,
-    };
-
-    task.completionHistory.push(completion);
-    task.lastCompletedDate = completionDate;
-    task.nextDueDate = this.calculateNextDueDate(
-      task.frequency,
-      completionDate,
-      task.weeklyDay,
-    );
-
-    // Save to comprehensive tracking system
-    TaskCompletionTracker.saveTaskCompletion({
-      taskId,
-      taskName: task.taskName,
-      machineId: task.machineId,
-      machineName: task.machineName,
-      frequency: task.frequency,
-      completedBy: userName,
-      completedDate: completionDate,
-      timeSpentMinutes: timeSpentMinutes || 0,
-      notes: notes || '',
-      photos: photos || [],
-      checklistItems
-    });
-
-    return true;
+  static async completeTask(taskId: string, _userId: string, _userName: string,
+    checklistItems: {id:string;text:string;completed:boolean}[], notes = '', photos: string[] = [],
+    _customCompletionDate?: Date, timeSpentMinutes = 0): Promise<boolean> {
+    return this.writeEntry(taskId, 'complete', checklistItems, notes, photos, timeSpentMinutes);
   }
-
-  static saveTaskProgress(
-    taskId: string,
-    userId: string,
-    userName: string,
-    checklistItems: { id: string; text: string; completed: boolean }[],
-    notes?: string,
-    photos?: string[],
-  ): boolean {
-    const task = taskDatabase.find((t) => t.id === taskId);
-    if (!task) return false;
-
-    const progress: TaskProgress = {
-      id: `progress-${Date.now()}`,
-      taskId,
-      userId,
-      userName,
-      savedDate: new Date(),
-      checklistItems,
-      notes,
-      photos: photos || [],
-    };
-
-    // Initialize progressSaves if it doesn't exist (for backward compatibility)
-    if (!task.progressSaves) {
-      task.progressSaves = [];
-    }
-
-    // Remove any previous progress saves for this task by this user
-    task.progressSaves = task.progressSaves.filter(
-      (p) => !(p.taskId === taskId && p.userId === userId),
-    );
-    task.progressSaves.push(progress);
-
-    return true;
+  static async saveTaskProgress(taskId: string, _userId: string, _userName: string,
+    checklistItems: {id:string;text:string;completed:boolean}[], notes = '', photos: string[] = []): Promise<boolean> {
+    return this.writeEntry(taskId, 'progress', checklistItems, notes, photos, 0);
+  }
+  private static async writeEntry(taskId: string, kind: string, checklistItems: {id:string;text:string;completed:boolean}[], notes:string, photos:string[], timeSpentMinutes:number) {
+    const key=`${session.get().user?.id}:${taskId}:${kind}`;
+    if(this.writing.has(key)) return false;
+    this.writing.add(key);
+    const data={checklistItems:checklistItems.map(({id,text,completed})=>({id,text,completed})),notes,photos,timeSpentMinutes};
+    const body=JSON.stringify(data);
+    const previous=this.pending.get(key);
+    const requestId=previous?.body===body?previous.requestId:crypto.randomUUID();
+    this.pending.set(key,{body,requestId});
+    try {
+      await api(`/tasks/${encodeURIComponent(taskId)}/${kind}`, kind==='complete'?'POST':'PUT', {...data,requestId});
+      await refresh();
+      this.pending.delete(key);
+      return true;
+    } catch { return false; }
+    finally {this.writing.delete(key);}
   }
 
   static getTaskProgress(taskId: string, userId: string): TaskProgress | null {
-    const task = taskDatabase.find((t) => t.id === taskId);
+    const task = session.get().tasks.find((t) => t.id === taskId);
     if (!task) return null;
 
     // Initialize progressSaves if it doesn't exist (for backward compatibility)
@@ -331,48 +270,34 @@ export class ExcelParser {
 }
 
 // In-memory database - starts empty, will be populated via Excel uploads
-export const taskDatabase: Task[] = [];
-export const machineDatabase: Machine[] = [];
+
+
 
 // Database operations
 export class Database {
-  static addTask(task: Task): void {
-    // Ensure task has required properties initialized
-    const initializedTask = {
-      ...task,
-      completionHistory: task.completionHistory || [],
-      progressSaves: task.progressSaves || [],
-    };
-    taskDatabase.push(initializedTask);
+  static async addTasks(tasks: Task[]): Promise<void> {
+    const fields=['id','machineId','machineName','taskName','description','frequency','category','estimatedTimeMinutes','weeklyDay','safetyNotes','requiredTools','isActive'];
+    await api('/tasks/import','POST',{tasks:tasks.map(t=>Object.fromEntries(fields.filter(k=>t[k]!==undefined).map(k=>[k,t[k]])))});
+    await refresh();
   }
-
-  static addTasks(tasks: Task[]): void {
-    // Ensure all tasks have required properties initialized
-    const initializedTasks = tasks.map((task) => ({
-      ...task,
-      completionHistory: task.completionHistory || [],
-      progressSaves: task.progressSaves || [],
-    }));
-    taskDatabase.push(...initializedTasks);
-  }
-
+  static exportCompletionHistoryToCSV = ExcelParser.exportCompletionHistoryToCSV;
   static getTasks(): Task[] {
-    return taskDatabase;
+    return session.get().tasks;
   }
 
   static getTaskById(id: string): Task | undefined {
-    return taskDatabase.find((t) => t.id === id);
+    return session.get().tasks.find((t) => t.id === id);
   }
 
   static getTasksByMachine(machineId: string): Task[] {
-    return taskDatabase.filter((t) => t.machineId === machineId);
+    return session.get().tasks.filter((t) => t.machineId === machineId);
   }
 
   static getMachines(): Machine[] {
     // Generate machines from tasks
     const machineMap = new Map<string, Machine>();
 
-    taskDatabase.forEach((task) => {
+    session.get().tasks.forEach((task) => {
       if (!machineMap.has(task.machineId)) {
         machineMap.set(task.machineId, {
           id: task.machineId,
@@ -393,9 +318,9 @@ export class Database {
     return this.getMachines().find((m) => m.id === id);
   }
 
-  static clearDatabase(): void {
-    taskDatabase.length = 0;
-    machineDatabase.length = 0;
+  static async clearDatabase(confirmation:string): Promise<void> {
+    await api('/tasks','DELETE',{confirmation});
+    await refresh();
   }
 
   static getAnalytics() {
@@ -452,7 +377,7 @@ export class Database {
   }
 
   static getAverageTaskTime(): number {
-    const allCompletions = taskDatabase.flatMap(
+    const allCompletions = session.get().tasks.flatMap(
       (task) => task.completionHistory,
     );
     if (allCompletions.length === 0) return 0;
@@ -467,7 +392,7 @@ export class Database {
   static getMostActiveUser(): { name: string; completions: number } {
     const userCompletions = new Map<string, number>();
 
-    taskDatabase.forEach((task) => {
+    session.get().tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
         const current = userCompletions.get(completion.userName) || 0;
         userCompletions.set(completion.userName, current + 1);
@@ -529,7 +454,7 @@ export class Database {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return taskDatabase.filter((task) => {
+    return session.get().tasks.filter((task) => {
       switch (status) {
         case "completed":
           return task.lastCompletedDate && task.lastCompletedDate >= today;
@@ -562,7 +487,7 @@ export class Database {
   }> {
     const photoData: Array<any> = [];
 
-    taskDatabase.forEach((task) => {
+    session.get().tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
         if (completion.photos && completion.photos.length > 0) {
           photoData.push({
@@ -631,7 +556,7 @@ export class Database {
       }
     > = [];
 
-    taskDatabase.forEach((task) => {
+    session.get().tasks.forEach((task) => {
       task.completionHistory.forEach((completion) => {
         allCompletions.push({
           ...completion,
@@ -657,7 +582,7 @@ export class Database {
         machineName: string;
       })
     | undefined {
-    for (const task of taskDatabase) {
+    for (const task of session.get().tasks) {
       const completion = task.completionHistory.find(
         (c) => c.id === completionId,
       );
@@ -674,3 +599,10 @@ export class Database {
 }
 
 export default Database;
+
+
+let cachedUid: string | undefined;
+session.subscribe(()=>{
+  const uid=session.get().user?.id;
+  if(uid!==cachedUid) {TaskScheduler.clearPending();cachedUid=uid;}
+});

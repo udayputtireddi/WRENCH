@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -45,15 +46,15 @@ import {
 } from "@/lib/trumpfExcelData";
 
 export default function AdminDatabase() {
+  useSession();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<DatabaseTask[]>(Database.getTasks());
 
   // Load template data
-  const loadTemplateData = () => {
+  const loadTemplateData = async () => {
     try {
       const importedTasks = convertExcelToDatabase();
-      Database.clearDatabase();
-      Database.addTasks(importedTasks);
+      await Database.addTasks(importedTasks);
       setTasks(Database.getTasks());
 
       toast({
@@ -69,33 +70,8 @@ export default function AdminDatabase() {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const csvContent = e.target?.result as string;
-        // Parse the uploaded Excel file
-        const importedTasks = ExcelParser.parseExcelToTasks(trumpfExcelData);
-
-        Database.addTasks(importedTasks);
-        setTasks(Database.getTasks());
-
-        toast({
-          title: "Upload Successful",
-          description: `Imported ${importedTasks.length} tasks from Excel file.`,
-        });
-      } catch (error) {
-        toast({
-          title: "Upload Failed",
-          description: "Failed to parse Excel file. Please check the format.",
-          variant: "destructive",
-        });
-      }
-    };
-    reader.readAsText(file);
+  const handleFileUpload = (_event: React.ChangeEvent<HTMLInputElement>) => {
+    toast({title:'File import unavailable',description:'The previous upload imported template rows instead of your file. Use Load Template for sample tasks; reviewed CSV import is a separate follow-up.',variant:'destructive'});
   };
 
   const exportToExcel = () => {
@@ -128,13 +104,11 @@ export default function AdminDatabase() {
     }
   };
 
-  const clearDatabase = () => {
-    Database.clearDatabase();
-    setTasks([]);
-    toast({
-      title: "Database Cleared",
-      description: "All tasks have been removed from the database.",
-    });
+  const clearDatabase = async () => {
+    const confirmation=window.prompt('This deletes all shared tasks, progress and completion history. Type DELETE ALL TASKS to proceed.');
+    if(confirmation!=='DELETE ALL TASKS') return;
+    try {await Database.clearDatabase(confirmation);setTasks([]);toast({title:'Database cleared'});}
+    catch(e) {toast({title:'Clear failed',description:(e as Error).message,variant:'destructive'});}
   };
 
   const analytics = Database.getAnalytics();
@@ -482,3 +456,4 @@ export default function AdminDatabase() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import { WrenchTagline, WrenchBadge } from "@/components/WrenchLogo";
 import Database from "@/lib/database";
 
 export default function UserHome() {
+  useSession();
   const analytics = Database.getAnalytics();
 
   return (
@@ -216,3 +218,4 @@ export default function UserHome() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,7 @@ import Database from "@/lib/database";
 import { getMachineStatusColor, getTaskStatusColor } from "@/lib/mockData";
 
 export default function Machine() {
+  useSession();
   const { machineId } = useParams<{ machineId: string }>();
   const [searchParams] = useSearchParams();
 
@@ -428,3 +430,4 @@ export default function Machine() {
     </div>
   );
 }
+

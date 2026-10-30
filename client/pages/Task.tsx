@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState, useEffect, useRef } from "react";
 import {
   useParams,
@@ -55,6 +56,7 @@ import Database, { TaskScheduler } from "@/lib/database";
 import AuthService from "@/lib/auth";
 
 export default function Task() {
+  useSession();
   const { machineId, taskId } = useParams<{
     machineId: string;
     taskId: string;
@@ -209,6 +211,10 @@ export default function Task() {
     const files = event.target.files;
     if (files) {
       Array.from(files).forEach((file) => {
+        if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 150000 || photos.length + files.length > 2) {
+          toast({title:'Photo limit',description:'Use at most two JPEG, PNG or WebP images, each under 150 KB.',variant:'destructive'});
+          return;
+        }
         const reader = new FileReader();
         reader.onload = (e) => {
           const result = e.target?.result as string;
@@ -223,10 +229,10 @@ export default function Task() {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const saveProgress = () => {
+  const saveProgress = async () => {
     if (!task || !currentUser) return;
 
-    const success = TaskScheduler.saveTaskProgress(
+    const success = await TaskScheduler.saveTaskProgress(
       task.id,
       currentUser.id,
       currentUser.name,
@@ -251,12 +257,12 @@ export default function Task() {
     }
   };
 
-  const completeTask = () => {
+  const completeTask = async () => {
     if (!task || !currentUser) return;
 
     const timeSpent = actualTimeSpent || Math.floor(elapsedTime / 60);
 
-    const success = TaskScheduler.completeTask(
+    const success = await TaskScheduler.completeTask(
       task.id,
       currentUser.id,
       currentUser.name,
@@ -602,7 +608,7 @@ export default function Task() {
                     Priority
                   </Label>
                   <Badge className="ml-2 bg-wrench-warning text-white">
-                    {task.category === "safety" ? "Critical" : "High"}
+                    {task.category === "inspection" ? "Critical" : "High"}
                   </Badge>
                 </div>
 
@@ -792,3 +798,4 @@ export default function Task() {
     </div>
   );
 }
+

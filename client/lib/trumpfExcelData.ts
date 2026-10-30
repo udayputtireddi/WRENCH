@@ -256,5 +256,7 @@ export const convertExcelToDatabase = () => {
     createdDate: new Date(),
     nextDueDate: new Date(), // Today for initial setup
     completionHistory: [],
+    progressSaves: [],
   }));
 };
+

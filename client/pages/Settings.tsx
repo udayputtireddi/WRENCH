@@ -1,3 +1,5 @@
+import { useSession } from "@/lib/session";
+import { changePassword } from "@/lib/session";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,6 +72,7 @@ import { useToast } from "@/hooks/use-toast";
 import AuthService from "@/lib/auth";
 
 export default function Settings() {
+  useSession();
   const { toast } = useToast();
   const currentUser = AuthService.getCurrentUser();
 
@@ -103,13 +106,13 @@ export default function Settings() {
 
   const handleSaveSettings = (settingType: string) => {
     toast({
-      title: "Settings Updated",
-      description: `${settingType} settings have been saved successfully.`,
+      title: "Preview only",
+      description: `${settingType} controls are not connected to backend settings.`,
       duration: 3000,
     });
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
       toast({
         title: "Password Mismatch",
@@ -128,6 +131,8 @@ export default function Settings() {
       return;
     }
 
+    try { await changePassword(newPassword); }
+    catch {toast({title:'Password change failed',description:'Sign out and sign in again before changing your password.',variant:'destructive'});return;}
     toast({
       title: "Password Updated",
       description: "Your password has been changed successfully.",
@@ -719,3 +724,4 @@ export default function Settings() {
     </div>
   );
 }
+

@@ -1,0 +1,7 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // The dedicated wrench database is accessible only through the authorized server.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,3 +1,4 @@
+import { useSession } from "@/lib/session";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ import {
   Users,
   FileText,
   Download,
-  DateRange,
+  CalendarRange as DateRange,
   Zap,
   Settings,
 } from "lucide-react";
@@ -54,6 +55,7 @@ import AuthService from "@/lib/auth";
 import ExportSystem, { type ExportDateType } from "@/lib/exportSystem";
 
 export default function Tasks() {
+  useSession();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -114,7 +116,7 @@ export default function Tasks() {
     }
 
     // Set priority based on category
-    if (task.category === "safety") priority = "Critical";
+    if (task.category === "maintenance") priority = "Critical";
     else if (task.category === "inspection") priority = "High";
     else if (task.category === "cleaning") priority = "Low";
 
@@ -132,11 +134,11 @@ export default function Tasks() {
       estimatedTime: task.estimatedTimeMinutes || 30,
       frequency: task.frequency,
       category: task.category,
-      assignedTo: task.assignedTo || "Unassigned",
-      completedBy: task.completedBy || null,
-      actualTimeSpent: task.actualTimeSpent || null,
-      completionNotes: task.completionNotes || null,
-      photos: task.photos || [],
+      assignedTo: "Shared catalog",
+      completedBy: task.completionHistory.slice(-1)[0]?.userName || null,
+      actualTimeSpent: task.completionHistory.slice(-1)[0]?.timeSpentMinutes ?? null,
+      completionNotes: task.completionHistory.slice(-1)[0]?.notes || null,
+      photos: task.completionHistory.slice(-1)[0]?.photos || [],
     };
   });
 
@@ -698,3 +700,4 @@ export default function Tasks() {
     </div>
   );
 }
+
